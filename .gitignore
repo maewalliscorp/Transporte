@@ -9,7 +9,6 @@
 /resources/js/wayfinder
 /storage/*.key
 /storage/pail
-/vendor
 .env.backup
 .env.production
 .phpactor.json
