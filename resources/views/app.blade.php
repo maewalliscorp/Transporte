@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <title inertia>{{ config('app.name', 'Laravel') }}</title>
-        <!-- tu comentario aquí -->
+        <!-- un comentario nuevo aquí -->
 
 
         <link rel="icon" href="/favicon.ico" sizes="any">
