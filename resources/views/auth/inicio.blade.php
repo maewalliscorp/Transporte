@@ -79,7 +79,7 @@
 
     <!--  Tabla de DISPONIBLES (se muestra por defecto) -->
     <div id="tablaDisponibles">
-        <h5>Unidades disponibles</h5>
+        <h5>DISPONIBLES</h5>
         <table class="table table-bordered">
             <thead class="table-light">
             <tr>
@@ -97,7 +97,7 @@
 
     <!--  Tabla de ASIGNADOS (se oculta por defecto) -->
     <div id="tablaAsignados" style="display: none;">
-        <h5>Unidades asignadas</h5>
+        <h5>ASIGNADOS</h5>
         <table class="table table-bordered">
             <thead class="table-light">
             <tr>
