@@ -19,9 +19,7 @@
 <body>
 
 <!-- AQUI MI MENÚ (NAVBAR) -->
-
   @include('layouts.menuPrincipal')
-
 
 <div class="container">
 
@@ -88,6 +86,13 @@
                 <th>Ruta</th>
                 <th>Horario</th>
             </tr>
+            <!-- Ejemplo de filas; se llenarán desde la base de datos -->
+            <tr>
+                <td>Unidad 12</td>
+                <td>Laura Iglesias</td>
+                <td>Ruta A</td>
+                <td>08:00 AM</td>
+            </tr>
             </thead>
             <tbody>
             <!-- Aquí se llenará la tabla desde la base de datos -->
@@ -105,6 +110,13 @@
                 <th>Operador</th>
                 <th>Ruta</th>
                 <th>Horario</th>
+                <!-- Ejemplo de filas; se llenarán desde la base de datos -->
+            <tr>
+                <td>Unidad 12</td>
+                <td>Laura Iglesias</td>
+                <td>Ruta A</td>
+                <td>08:00 AM</td>
+            </tr>
             </tr>
             </thead>
             <tbody>
