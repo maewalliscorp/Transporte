@@ -33,37 +33,48 @@
 
     <!-- REGISTRO DE PASAJEROS FRECUENTES -->
     <div id="seccionRegistro">
-        <form id="formRegistroPasajeros" onsubmit="return enviarRegistroPasajero(event)">
-            <div class="row g-3">
-                <div class="col-md-4">
+        <form>
+            <!-- Nombre y Apellido en una fila -->
+            <div class="row mb-3">
+                <div class="col-md-6">
                     <label for="nombre" class="form-label">Nombre</label>
-                    <input type="text" id="nombre" class="form-control" required />
+                    <input type="text" id="nombre" class="form-control" />
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-6">
                     <label for="apellido" class="form-label">Apellido</label>
-                    <input type="text" id="apellido" class="form-control" required />
-                </div>
-                <div class="col-md-4">
-                    <label for="correo" class="form-label">Correo Electrónico</label>
-                    <input type="email" id="correo" class="form-control" required />
-                </div>
-                <div class="col-md-4">
-                    <label for="correoConfirmacion" class="form-label">Confirmar Correo Electrónico</label>
-                    <input type="email" id="correoConfirmacion" class="form-control" required />
-                </div>
-                <div class="col-md-4">
-                    <label for="tipoPasajero" class="form-label">Tipo de Pasajero</label>
-                    <input type="text" id="tipoPasajero" class="form-control" required />
-                </div>
-                <div class="col-md-4">
-                    <label for="idTarjeta" class="form-label">ID de Tarjeta</label>
-                    <input type="text" id="idTarjeta" class="form-control" required />
-                </div>
-                <div class="col-12 mt-3">
-                    <button type="submit" class="btn btn-primary">Enviar</button>
+                    <input type="text" id="apellido" class="form-control" />
                 </div>
             </div>
+
+            <!-- Correo Electronico solo en una fila -->
+            <div class="mb-3">
+                <label for="correo" class="form-label">Correo Electrónico</label>
+                <input type="email" id="correo" class="form-control" />
+            </div>
+
+            <!-- Confirmacion de correo electronico solo en una fila -->
+            <div class="mb-3">
+                <label for="correoConfirmacion" class="form-label">Confirmación de Correo Electrónico</label>
+                <input type="email" id="correoConfirmacion" class="form-control" />
+            </div>
+
+            <!-- Tipo de pasajero y ID de tarjeta en una fila -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="tipoPasajero" class="form-label">Tipo de Pasajero</label>
+                    <input type="text" id="tipoPasajero" class="form-control" />
+                </div>
+                <div class="col-md-6">
+                    <label for="idTarjeta" class="form-label">ID de Tarjeta</label>
+                    <input type="text" id="idTarjeta" class="form-control" />
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Enviar</button>
         </form>
+
+
+
     </div>
 
     <!-- HISTORIAL DE PASAJEROS -->
@@ -128,19 +139,20 @@
     <div id="seccionQuejas" style="display:none;">
         <form id="formQuejas" onsubmit="return enviarQueja(event)">
             <div class="row g-3">
-                <div class="col-md-4">
+                <div class="md-3">
                     <label for="nombreQueja" class="form-label">Nombre</label>
                     <input type="text" id="nombreQueja" class="form-control" required />
                 </div>
-                <div class="col-md-4">
+
+                <div class="md-3">
                     <label for="apellidoQueja" class="form-label">Apellido</label>
                     <input type="text" id="apellidoQueja" class="form-control" required />
                 </div>
-                <div class="col-md-4">
+                <div class="md-4">
                     <label for="correoQueja" class="form-label">Correo Electrónico</label>
                     <input type="email" id="correoQueja" class="form-control" required />
                 </div>
-                <div class="col-md-12">
+                <div class="md-3>
                     <label for="textoQueja" class="form-label">Queja y Sugerencia</label>
                     <textarea id="textoQueja" rows="4" class="form-control" required></textarea>
                 </div>
