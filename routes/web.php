@@ -30,7 +30,20 @@ Route::get('/incidentes', function (){
     return view('auth.incidentes');
 })->name('incidentes');
 
+//Página de contabilidad :)
+Route::get('/contabilidad', function (){
+    return view('auth.contabilidad');
+})->name('contabilidad');
 
+//Página de contabilidad :)
+Route::get('/mantenimiento', function (){
+    return view('auth.mantenimiento');
+})->name('mantenimiento');
+
+//Página de pasajero :)
+Route::get('/pasajerof', function (){
+    return view('auth.pasajerof');
+})->name('pasajerof');
 
 
 
