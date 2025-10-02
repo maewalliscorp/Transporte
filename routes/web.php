@@ -15,10 +15,7 @@ Auth::routes();
 // Página después de iniciar sesión
 Route::get('/inicio', [App\Http\Controllers\InicioController::class, 'index'])->name('inicio');
 
-//Página de asignación
-Route::get('/asignacion', function () {
-    return view('inicio');
-})->name('asignacion');
+
 
 // Página de monitoreo
 Route::get('/monitoreo', function () {

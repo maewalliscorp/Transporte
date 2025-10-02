@@ -36,9 +36,9 @@
                         <img src="/imagenes/pasajero.png" alt="Bus" width="20" height="20" class="me-1">
                     </a>
                 </li>
+
                 <li class="nav-item">
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('asignacion') }}">
+                    <a href="{{ route('inicio') }}" class="link-danger" >
                         Asignación
                     </a>
                 </li>
