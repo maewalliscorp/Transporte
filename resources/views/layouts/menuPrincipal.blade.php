@@ -32,7 +32,7 @@
         <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
             <ul class="navbar-nav">
                 <li class="nav-item">
-                    <a class="nav-link" href="pasajero.html" target="_blank">
+                    <a href="{{ route('pasajerof') }}" class="link-danger">
                         <img src="/imagenes/pasajero.png" alt="Bus" width="20" height="20" class="me-1">
                     </a>
                 </li>
@@ -46,21 +46,21 @@
 
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="apartado3.html" target="_blank">
+                    <a href="{{ route('contabilidad') }}" class="link-danger">
                         <img src="/imagenes/dinero.png" alt="Bus" width="20" height="20" class="me-1">
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="apartado4.html" target="_blank">
+                    <a href="{{ route('mantenimiento') }}" class="link-danger">
                         <img src="/imagenes/mantenimiento.png" alt="Bus" width="20" height="20" class="me-1">
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="apartado5.html" target="_blank">
+                    <a href="{{ route('monitoreo') }}" class="link-danger">
                         Monitoreo de unidades
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="apartado6.html" target="_blank">
+                    <a href="{{ route('incidentes') }}" class="link-danger">
                         Incidentes
                     </a>
                 </li>
