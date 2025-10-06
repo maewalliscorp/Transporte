@@ -41,13 +41,14 @@
     <div id="seccionProgramacion">
         <h5>Programación de Mantenimiento</h5>
         <div class="mb-3">
-            <a href="disponibilidadUnidades.php" class="btn btn-info">Ir a tabla de disponibilidad</a>
+            <a href="{{ route('inicio') }}" class="btn btn-info">Ir a tabla de disponibilidad</a>
         </div>
         <div class="row g-3 mb-3">
             <div class="col-md-3">
                 <label class="form-label">Unidad</label>
                 <select class="form-select"></select>
             </div>
+
             <div class="col-md-3">
                 <label class="form-label">Tipo de Mantenimiento</label>
                 <select class="form-select">
@@ -71,6 +72,9 @@
                 <label class="form-label">Operador</label>
                 <select class="form-select"></select>
             </div>
+
+
+
             <div class="col-md-3">
                 <label class="form-label">Estado de la Unidad</label>
                 <input type="text" class="form-control">
@@ -153,7 +157,9 @@
                 <th>Observaciones</th>
             </tr>
             </thead>
-            <tbody></tbody>
+            <tbody>
+
+            </tbody>
         </table>
     </div>
 
