@@ -18,7 +18,7 @@
     <div class="container-fluid">
 
         <!-- Nombre de la empresa -->
-        <a class="navbar-brand d-flex align-items-center" href="#">
+        <a class="navbar-brand d-flex align-items-center" href="{{ route('inicio') }}" >
             Gestión de transporte público
         </a>
 
@@ -32,35 +32,32 @@
         <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
             <ul class="navbar-nav">
                 <li class="nav-item">
-                    <a href="{{ route('pasajerof') }}" class="link-danger">
-                        <img src="/imagenes/pasajero.png" alt="Bus" width="20" height="20" class="me-1">
+                    <a class="nav-link" href="{{  route('pasajerof') }}">
+                        <img src="/imagenes/pasajero.png" alt="pasajero" width="20" height="20" class="me-1">
                     </a>
                 </li>
-
                 <li class="nav-item">
-                    <a href="{{ route('inicio') }}" class="link-danger" >
+                    <a class="nav-link" href="{{ route('inicio') }}" >
                         Asignación
                     </a>
                 </li>
-
-
-                </li>
                 <li class="nav-item">
-                    <a href="{{ route('contabilidad') }}" class="link-danger">
-                        <img src="/imagenes/dinero.png" alt="Bus" width="20" height="20" class="me-1">
+                    <a class="nav-link" href="{{ route('contabilidad') }}" >
+                        <img src="/imagenes/dinero.png" alt="dinero" width="20" height="20" class="me-1">
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ route('mantenimiento') }}" class="link-danger">
-                        <img src="/imagenes/mantenimiento.png" alt="Bus" width="20" height="20" class="me-1">
+                    <a class="nav-link" href="{{ route('mantenimiento') }}" >
+                        <img src="/imagenes/mantenimiento.png" alt="mantenimiento" width="20" height="20" class="me-1">
+                    </a>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ route('monitoreo') }}" class="link-danger">
+                    <a class="nav-link" href="{{ route('monitoreo') }}" >
                         Monitoreo de unidades
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ route('incidentes') }}" class="link-danger">
+                    <a class="nav-link" href="{{ route('incidentes') }}" >
                         Incidentes
                     </a>
                 </li>

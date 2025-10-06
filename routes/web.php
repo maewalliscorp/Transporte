@@ -1,8 +1,10 @@
 <?php
 
+use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
-use Inertia\Inertia;
+use App\Http\Controllers\InicioController;
+
 
 // Redirigir / al login
 Route::get('/', function () {
@@ -16,6 +18,8 @@ Auth::routes();
 Route::get('/inicio', [App\Http\Controllers\InicioController::class, 'index'])->name('inicio');
 
 
+// Página principal después de login
+Route::get('/inicio', [InicioController::class, 'index'])->name('inicio');
 
 // Página de monitoreo
 Route::get('/monitoreo', function () {
@@ -42,5 +46,6 @@ Route::get('/pasajerof', function (){
     return view('auth.pasajerof');
 })->name('pasajerof');
 
-
+// Ruta para guardar la asignación
+Route::post('/asignar', [InicioController::class, 'asignar'])->name('asignar');
 
