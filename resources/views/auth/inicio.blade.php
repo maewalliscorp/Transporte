@@ -18,6 +18,7 @@
 </head>
 <body>
 
+<!-- AQUI MI MENÚ (NAVBAR) -->
 @include('layouts.menuPrincipal')
 
 <div class="container">
@@ -35,138 +36,131 @@
         </div>
     </div>
 
-    <!-- Formulario de asignación -->
-    <form method="POST" action="{{ route('asignar') }}">
-        @csrf
-        <div class="row mb-4" id="seccionSeleccion">
-            <div class="col-md-3 mb-2">
-                <label for="unidad" class="form-label">Unidad</label>
-                <select class="form-select" id="unidad" name="unidad" required>
-                    <option selected disabled>Selecciona...</option>
-                    @foreach ($unidades as $unidad)
-                        <option value="{{ $unidad->id_unidad }}">{{ $unidad->placa }} - {{ $unidad->modelo }}</option>
-                    @endforeach
-                </select>
-            </div>
+    <!-- Selects desplegables -->
+    <div class="row mb-4" id="seccionSeleccion">
+        <div class="col-md-3 mb-2">
+            <label for="unidad" class="form-label">Unidad de transporte</label>
+            <select class="form-select" id="unidad">
+                <option selected disabled>Selecciona...</option>
+                <!-- Opciones aquí -->
+                @isset($unidades)
+                @foreach($unidades as $u)
+                    <option value="{{ $u['id_unidad'] }}">
+                        {{ $u['placa'] }} - {{ $u['modelo'] }} - (Cap: {{ $u['capacidad'] }})
+                    </option>
+                @endforeach
+                @endisset
 
-            <div class="col-md-3 mb-2">
-                <label for="operador" class="form-label">Operador</label>
-                <select class="form-select" id="operador" name="operador" required>
-                    <option selected disabled>Selecciona...</option>
-                    @foreach ($operadores as $operador)
-                        <option value="{{ $operador->id_operator }}">
-                            {{ $operador->licencia }} - {{ $operador->estado }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
+            </select>
 
-            <div class="col-md-3 mb-2">
-                <label for="ruta" class="form-label">Ruta</label>
-                <select class="form-select" id="ruta" name="ruta" required>
-                    <option selected disabled>Selecciona...</option>
-                    @foreach ($rutas as $ruta)
-                        <option value="{{ $ruta->id_ruta }}">{{ $ruta->nombre }}</option>
-                    @endforeach
-                </select>
-            </div>
-
-            <div class="col-md-3 mb-2">
-                <label for="horario" class="form-label">Horario</label>
-                <select class="form-select" id="horario" name="horario" required>
-                    <option selected disabled>Selecciona...</option>
-                    @foreach ($horarios as $horario)
-                        <option value="{{ $horario->id_horario }}"> {{ $horario->horaSalida }} - {{ $horario->horaLlegada }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
         </div>
+        <div class="col-md-3 mb-2">
+            <label for="operador" class="form-label">Operador</label>
+            <select class="form-select" id="operador">
+                <option selected disabled>Selecciona...</option>
+                <!-- Opciones aquí -->
+                @foreach($operadores as $o)
+                    <option value="{{ $o['id_operator'] }}">
+                        Operador #{{ $o['id_operator'] }} - Licencia: {{ $o['licencia'] }}
+                    </option>
+                @endforeach
 
-        <div class="mb-4 text-end">
-            <button type="submit" class="btn btn-primary">Asignar</button>
+            </select>
         </div>
-    </form>
+        <div class="col-md-3 mb-2">
+            <label for="ruta" class="form-label">Ruta</label>
+            <select class="form-select" id="ruta">
+                <option selected disabled>Selecciona...</option>
+                <!-- Opciones aquí -->
+                @foreach($rutas as $r)
+                    <option value="{{ $r['id_ruta'] }}">
+                       Origen: {{ $r['origen'] }} - Destino: {{ $r['destino'] }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+        <div class="col-md-3 mb-2">
+            <label for="horario" class="form-label">Horario</label>
+            <select class="form-select" id="horario">
+                <option selected disabled>Selecciona...</option>
+                <!-- Opciones aquí -->
+                @foreach($horarios as $h)
+                    <option value="{{ $h['id_horario'] }}">
+                        Salida: {{ $h['horaSalida'] }} - Llegada: {{ $h['horaLlegada'] }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+    </div>
 
-    <!-- Tabla DISPONIBLES -->
+    <!--  Botón de asignar -->
+    <div class="mb-4 text-end">
+        <button class="btn btn-primary" id="btnAsignar">
+            Asignar
+        </button>
+    </div>
+
+    <!--  Tabla de DISPONIBLES (se muestra por defecto) -->
     <div id="tablaDisponibles">
         <h5>DISPONIBLES</h5>
         <table class="table table-bordered">
             <thead class="table-light">
             <tr>
-                <th>Unidad</th>
+                <th>Unidad de transporte</th>
                 <th>Operador</th>
                 <th>Ruta</th>
                 <th>Horario</th>
             </tr>
             </thead>
             <tbody>
-            @forelse ($disponibles as $item)
-                <tr>
-                    <td>
-                        Placa: {{ $item->unidad->placa }}<br>
-                        Modelo: {{ $item->unidad->modelo }}<br>
-                        Capacidad: {{ $item->unidad->capacidad }}
-                    </td>
-                    <td>{{ $item->operador->usuario->name ?? '—' }}</td>
-                    <td>{{ $item->ruta->nombre ?? '—' }}</td>
-                    <td>
-                        Salida: {{ $item->horario->horaSalida ?? '—' }}<br>
-                        Llegada: {{ $item->horario->horaLlegada ?? '—' }}<br>
-                        Fecha: {{ $item->horario->fecha ?? '—' }}
-                    </td>
-                </tr>
-            @empty
-                <tr>
-                    <td colspan="4" class="text-center">No hay unidades disponibles.</td>
-                </tr>
-            @endforelse
+            @isset($disponibles)
+                @foreach($disponibles as $d)
+                    <tr>
+                        <td>{{ $d['placa'] }} - {{ $d['modelo'] }} - {{ $d['capacidad'] }}</td>
+                        <td>{{ $d['licencia'] ?? 'No asignado' }}</td>
+                        <td>{{ $d['origen'] }} - {{ $d['destino'] }}</td>
+                        <td>{{ $d['horaSalida'] ?? 'N/A' }} - {{ $d['horaLlegada'] ?? 'N/A' }}</td>
+                    </tr>
+                @endforeach
+            @endisset
             </tbody>
         </table>
     </div>
 
-    <!-- Tabla ASIGNADOS -->
+    <!--  Tabla de ASIGNADOS (se oculta por defecto) -->
     <div id="tablaAsignados" style="display: none;">
         <h5>ASIGNADOS</h5>
         <table class="table table-bordered">
             <thead class="table-light">
             <tr>
-                <th>Unidad</th>
+                <th>Unidad de transporte</th>
                 <th>Operador</th>
                 <th>Ruta</th>
                 <th>Horario</th>
             </tr>
             </thead>
             <tbody>
-            @foreach ($asignados as $item)
-                <tr>
-                    <td>
-                        Placa: {{ $item->unidad->placa }}<br>
-                        Modelo: {{ $item->unidad->modelo }}<br>
-                        Capacidad: {{ $item->unidad->capacidad }}
-                    </td>
-                    <td>
+            @isset($asignados)
+                @foreach($asignados as $a)
+                    <tr>
 
-                        Licencia: {{ $item->operador->licencia ?? '—' }}<br>
-                        Teléfono: {{ $item->operador->telefono ?? '—' }}<br>
-                        Estado: {{ $item->operador->estado ?? '—' }}
-                    </td>
-                    <td>{{ $item->ruta->nombre ?? '—' }}</td>
-                    <td>
-                        Salida: {{ $item->horario->horaSalida ?? '—' }}<br>
-                        Llegada: {{ $item->horario->horaLlegada ?? '—' }}<br>
-                        Fecha: {{ $item->horario->fecha ?? '—' }}
-                    </td>
-                </tr>
-            @endforeach
+                        <td>{{ $a['id_asignacion']}} - {{$a['placa'] ?? 'N/A' }} - {{ $a['modelo'] ?? '' }} - {{ $a['capacidad'] ?? 'N/A' }}</td>
+                        <td>{{ $a['licencia'] ?? 'N/A' }}</td>
+                        <td>{{ $a['origen'] ?? 'N/A' }} - {{ $a['destino'] ?? 'N/A' }}</td>
+                        <td>{{ $a['horaSalida'] ?? 'N/A' }} - {{ $a['horaLlegada'] ?? 'N/A' }}</td>
+                    </tr>
+                @endforeach
+            @endisset
             </tbody>
         </table>
     </div>
 
 </div>
 
+<!-- Bootstrap JS + Funcionalidad -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+    // Cambiar entre tablas de 'disponibles' y 'asignados'
     const radioDisponibles = document.getElementById('verDisponibles');
     const radioAsignados = document.getElementById('verAsignados');
     const tablaDisponibles = document.getElementById('tablaDisponibles');
@@ -187,6 +181,8 @@
 
     radioDisponibles.addEventListener('change', actualizarVista);
     radioAsignados.addEventListener('change', actualizarVista);
+
+    // Ejecutar al cargar la página
     window.onload = actualizarVista;
 </script>
 

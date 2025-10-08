@@ -50,3 +50,4 @@ Route::get('/pasajerof', function (){
 Route::post('/asignar', [InicioController::class, 'asignar'])->name('asignar');
 
 
+
