@@ -49,3 +49,4 @@ Route::get('/pasajerof', function (){
 // Ruta para guardar la asignación
 Route::post('/asignar', [InicioController::class, 'asignar'])->name('asignar');
 
+

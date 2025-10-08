@@ -11,6 +11,7 @@ class MantenimientoController extends Controller
      */
     public function index()
     {
+
         return view('auth.mantenimiento');
 
     }
