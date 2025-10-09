@@ -50,10 +50,9 @@
                     </option>
                 @endforeach
                 @endisset
-
             </select>
-
         </div>
+
         <div class="col-md-3 mb-2">
             <label for="operador" class="form-label">Operador</label>
             <select class="form-select" id="operador">
@@ -106,7 +105,7 @@
         <table class="table table-bordered">
             <thead class="table-light">
             <tr>
-                <th>Unidad de transporte</th>
+                <th>Unidad de transporte </th>
                 <th>Operador</th>
                 <th>Ruta</th>
                 <th>Horario</th>

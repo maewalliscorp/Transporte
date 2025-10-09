@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\ContabilidadModel;
+use App\Models\InicioModel;
 
 class ContabilidadController extends Controller
 {
@@ -11,8 +13,16 @@ class ContabilidadController extends Controller
      */
     public function index()
     {
-        return view('auth.contabilidad');
 
+        $contabilidadModel = new ContabilidadModel();
+        $ingresos = $contabilidadModel->obtenerIngresos();
+        dd($ingresos); // <-  para depurar
+
+
+        $unidades  = $contabilidadModel->obtenerUnidades();
+        $operadores = $contabilidadModel->obtenerOperadores();
+
+        return view('auth.contabilidad', compact('ingresos', 'unidades', 'operadores' ));
     }
 }
 

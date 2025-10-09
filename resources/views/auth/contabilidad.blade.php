@@ -39,23 +39,41 @@
         </div>
     </div>
 
-    <!-- Sección: INGRESOS -->
+    <!-- Selects desplegables de contabilidad -->
     <div id="seccionIngresos">
         <h5>Registro de Ingresos</h5>
         <div class="row g-3 mb-3">
-            <div class="col-md-3">
-                <label class="form-label">Unidad de Transporte</label>
-                <select class="form-select" id="unidad_ingreso"></select>
+            <div class="col-md-3 mb-2">
+                <label for="unidad" class="form-label">Unidad de transporte</label>
+                <select class="form-select" id="unidad">
+                    <option selected disabled>Selecciona...</option>
+                    <!-- Opciones aquí -->
+                    @isset($unidades)
+                        @foreach($unidades as $u)
+                            <option value="{{ $u['id_unidad'] }}">
+                                {{ $u['placa'] }} - {{ $u['modelo'] }} - (Cap: {{ $u['capacidad'] }})
+                            </option>
+                        @endforeach
+                    @endisset
+                </select>
             </div>
-            <div class="col-md-3">
-                <label class="form-label">Operador</label>
-                <select class="form-select" id="operador_ingreso"></select>
+
+
+            <div class="col-md-3 mb-2">
+                <label for="operador" class="form-label">Operador</label>
+                <select class="form-select" id="operador">
+                    <option selected disabled>Selecciona...</option>
+                    <!-- Opciones aquí -->
+
+                </select>
             </div>
-            <div class="col-md-3">
+
+
+            <div class="col-md-3 mb-2">
                 <label class="form-label">Fecha</label>
                 <input type="date" class="form-control" id="fecha_ingreso">
             </div>
-            <div class="col-md-3">
+            <div class="col-md-3 mb-2">
                 <label class="form-label">Cantidad</label>
                 <input type="number" class="form-control" id="cantidad_ingreso" step="0.01">
             </div>
@@ -64,6 +82,7 @@
             </div>
         </div>
 
+        <!-- Sección: INGRESOS -->
         <table class="table table-bordered">
             <thead class="table-light">
             <tr>
@@ -73,7 +92,21 @@
                 <th>Cantidad</th>
             </tr>
             </thead>
-            <tbody id="tabla_ingresos_body"></tbody>
+
+            <tbody id="tabla_ingresos">
+            @isset($ingresos)
+            @foreach($ingresos as $i)
+                <tr>
+                    <td>{{ $i['placa'] }} - {{ $i['modelo'] }} - {{ $i['capacidad'] }}</td>
+                    <td>{{ $i['licencia'] ?? 'No asignado' }}</td>
+                    <td>{{ $i['fecha'] }}</td>
+                    <td>${{ number_format($i['monto'], 2) }}</td>
+
+                </tr>
+            @endforeach
+            @endisset
+
+            </tbody>
         </table>
         <div class="fw-bold">Total Ingresos: $<span id="total_ingresos">0.00</span></div>
     </div>

@@ -31,9 +31,10 @@
         <!-- Enlaces del menú -->
         <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
             <ul class="navbar-nav">
+
                 <li class="nav-item">
                     <a class="nav-link" href="{{  route('pasajerof') }}">
-                        <img src="/imagenes/pasajero.png" alt="pasajero" width="20" height="20" class="me-1">
+                        <img src="/imagenes/agregar.png" alt="agregar" width="20" height="20" class="me-1">
                     </a>
                 </li>
                 <li class="nav-item">
@@ -43,17 +44,7 @@
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{{ route('contabilidad') }}" >
-                        <img src="/imagenes/dinero.png" alt="dinero" width="20" height="20" class="me-1">
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('mantenimiento') }}" >
-                        <img src="/imagenes/mantenimiento.png" alt="mantenimiento" width="20" height="20" class="me-1">
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('monitoreo') }}" >
-                        Monitoreo de unidades
+                        Contabilidad
                     </a>
                 </li>
                 <li class="nav-item">
@@ -61,6 +52,22 @@
                         Incidentes
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('mantenimiento') }}" >
+                      Mantenimiento
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('monitoreo') }}" >
+                        Monitoreo
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{  route('pasajerof') }}">
+                        Pasajero
+                    </a>
+                </li>
+
             </ul>
         </div>
     </div>
