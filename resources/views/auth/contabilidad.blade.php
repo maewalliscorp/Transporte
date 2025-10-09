@@ -64,11 +64,14 @@
                 <select class="form-select" id="operador">
                     <option selected disabled>Selecciona...</option>
                     <!-- Opciones aquí -->
+                    @foreach($operadores as $o)
+                        <option value="{{ $o['id_operator'] }}">
+                            Operador #{{ $o['id_operator'] }} - Licencia: {{ $o['licencia'] }}
+                        </option>
+                    @endforeach
 
                 </select>
             </div>
-
-
             <div class="col-md-3 mb-2">
                 <label class="form-label">Fecha</label>
                 <input type="date" class="form-control" id="fecha_ingreso">
@@ -77,8 +80,9 @@
                 <label class="form-label">Cantidad</label>
                 <input type="number" class="form-control" id="cantidad_ingreso" step="0.01">
             </div>
-            <div class="col-md-12">
+            <div class="col-md-12 d-flex justify-content-between align-items-center mt-2">
                 <button class="btn btn-primary mt-2" onclick="agregarIngreso()">Agregar Ingreso</button>
+                <div class="fw-bold mb-0">Total Ingresos: $<span id="total_ingresos">0.00</span></div>
             </div>
         </div>
 
@@ -108,8 +112,9 @@
 
             </tbody>
         </table>
-        <div class="fw-bold">Total Ingresos: $<span id="total_ingresos">0.00</span></div>
+
     </div>
+
 
     <!-- Sección: EGRESOS -->
     <div id="seccionEgresos" style="display: none;">

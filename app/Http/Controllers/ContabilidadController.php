@@ -16,7 +16,6 @@ class ContabilidadController extends Controller
 
         $contabilidadModel = new ContabilidadModel();
         $ingresos = $contabilidadModel->obtenerIngresos();
-        dd($ingresos); // <-  para depurar
 
 
         $unidades  = $contabilidadModel->obtenerUnidades();
