@@ -15,7 +15,6 @@ class ContabilidadModel extends Model
     {
         $db = $this->getConnection();
 
-
         $sql = "
             SELECT
             u.id_unidad, u.placa, u.modelo, u.capacidad,
@@ -30,7 +29,29 @@ class ContabilidadModel extends Model
 
         $result = $db->select($sql);
         return array_map(fn($row) => (array) $row, $result);
+    }
 
+    // NUEVOS MÉTODOS PARA EGRESOS
+    public function obtenerEgresos(): array
+    {
+        $db = $this->getConnection();
+
+        $sql = "SELECT id_egreso, concepto, comprobante, cantidad, fecha
+                FROM egreso
+                ORDER BY fecha ASC, id_egreso ASC";
+
+        $result = $db->select($sql);
+        return array_map(fn($row) => (array)$row, $result);
+    }
+
+    public function obtenerTotalEgresos(): float
+    {
+        $db = $this->getConnection();
+
+        $sql = "SELECT SUM(cantidad) as total FROM egreso";
+        $result = $db->select($sql);
+
+        return $result[0]->total ?? 0.00;
     }
 
     public function obtenerUnidades(): array
@@ -50,6 +71,4 @@ class ContabilidadModel extends Model
         $result = $db->select($sql);
         return array_map(fn($row) => (array)$row, $result);
     }
-
-
 }

@@ -57,8 +57,6 @@
                     @endisset
                 </select>
             </div>
-
-
             <div class="col-md-3 mb-2">
                 <label for="operador" class="form-label">Operador</label>
                 <select class="form-select" id="operador">
@@ -69,7 +67,6 @@
                             Operador #{{ $o['id_operator'] }} - Licencia: {{ $o['licencia'] }}
                         </option>
                     @endforeach
-
                 </select>
             </div>
             <div class="col-md-3 mb-2">
@@ -105,14 +102,11 @@
                     <td>{{ $i['licencia'] ?? 'No asignado' }}</td>
                     <td>{{ $i['fecha'] }}</td>
                     <td>${{ number_format($i['monto'], 2) }}</td>
-
                 </tr>
             @endforeach
             @endisset
-
             </tbody>
         </table>
-
     </div>
 
 
@@ -136,26 +130,58 @@
                 <label class="form-label">Cantidad</label>
                 <input type="number" class="form-control" id="cantidad_egreso" step="0.01">
             </div>
-            <div class="col-md-12">
+            <div class="col-md-12 d-flex justify-content-between align-items-center mt-2">
                 <button class="btn btn-primary mt-2" onclick="agregarEgreso()">Agregar Egreso</button>
-            </div>
+                <div class="fw-bold mb-0">Total Egresos: $<span id="total_egresos">
+        @isset($totalEgresos)
+                            {{ number_format($totalEgresos, 2) }}
+                        @else
+                            0.00
+                        @endisset
+    </span></div>
         </div>
 
         <table class="table table-bordered">
             <thead class="table-light">
             <tr>
+
                 <th>Fecha</th>
                 <th>Concepto</th>
                 <th>Comprobante</th>
                 <th>Cantidad</th>
+
             </tr>
             </thead>
-            <tbody id="tabla_egresos_body"></tbody>
+            <tbody id="tabla_egresos_body">
+            @isset($egresos)
+                @foreach($egresos as $egreso)
+                    <tr>
+                        <td>{{ $egreso['fecha'] }}</td>
+                        <td>{{ $egreso['concepto'] }}</td>
+                        <td>
+                            @if($egreso['comprobante'])
+                                <a href="{{ asset('storage/' . $egreso['comprobante']) }}" target="_blank" class="btn btn-sm btn-info">
+                                    <i class="bi bi-eye"></i> Ver
+                                </a>
+                            @else
+                                <span class="text-muted">Sin comprobante</span>
+                            @endif
+                        </td>
+                        <td>${{ number_format($egreso['cantidad'], 2) }}</td>
+
+                    </tr>
+                @endforeach
+            @else
+                <tr>
+                    <td colspan="6" class="text-center text-muted">No hay egresos registrados</td>
+                </tr>
+            @endisset
+            </tbody>
         </table>
-        <div class="fw-bold">Total Egresos: $<span id="total_egresos">0.00</span></div>
     </div>
 
-    <!-- Sección: TARIFAS -->
+
+    <!-- Sección: TARIFAS --------->
     <div id="seccionTarifas" style="display: none;">
         <h5>Tarifas</h5>
         <div class="row g-3 mb-3">
@@ -224,9 +250,11 @@
                 <label class="form-label">Cantidad</label>
                 <input type="number" class="form-control" id="cantidad_bancario" step="0.01">
             </div>
-            <div class="col-md-12">
+            <div class="col-md-12 d-flex justify-content-between align-items-center mt-2">
                 <button class="btn btn-primary mt-2" onclick="agregarBancario()">Agregar Registro</button>
+                <div class="fw-bold mb-0">Total Bancarios: $<span id="total_bancarios">0.00</span></div>
             </div>
+
         </div>
 
         <table class="table table-bordered">
@@ -240,7 +268,6 @@
             </thead>
             <tbody id="tabla_bancarios_body"></tbody>
         </table>
-        <div class="fw-bold">Total Bancarios: $<span id="total_bancarios">0.00</span></div>
     </div>
 </div>
 
@@ -267,6 +294,6 @@
 
     // Aquí puedes agregar tus funciones JS como agregarIngreso(), agregarEgreso(), etc.
 </script>
-
+</div>
 </body>
 </html>
