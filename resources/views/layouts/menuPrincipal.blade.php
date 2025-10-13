@@ -4,11 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Menú Principal</title>
-
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 </head>
 <body>
@@ -16,55 +12,81 @@
 <!-- NAVBAR -->
 <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
     <div class="container-fluid">
-
-        <!-- Nombre de la empresa -->
-        <a class="navbar-brand d-flex align-items-center" href="{{ route('inicio') }}" >
+        <a class="navbar-brand d-flex align-items-center" href="{{ route('inicio') }}">
             Gestión de transporte público
         </a>
 
-        <!-- Botón para menú responsive -->
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                 aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
 
-        <!-- Enlaces del menú -->
         <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
             <ul class="navbar-nav">
 
+                <!-- Menú desplegable de AGREGAR -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="agregarDropdown" role="button"
+                       data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-plus-circle me-1"></i>Agregar
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="agregarDropdown">
+                        <li>
+                            <a class="dropdown-item" href="{{ route('agregar.unidades') }}">
+                                <i class="bi bi-bus-front me-2"></i>Unidades
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{{ route('agregar.operadores') }}">
+                                <i class="bi bi-person-badge me-2"></i>Operadores
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{{ route('agregar.rutas') }}">
+                                <i class="bi bi-signpost-split me-2"></i>Rutas
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{{ route('agregar.horarios') }}">
+                                <i class="bi bi-clock me-2"></i>Horarios
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
                 <li class="nav-item">
-                    <a class="nav-link" href="{{  route('pasajerof') }}">
-                        <img src="/imagenes/agregar.png" alt="agregar" width="20" height="20" class="me-1">
+                    <a class="nav-link" href="{{ route('inicio') }}">
+                        <i class="bi bi-clipboard-check me-1"></i>Asignación
                     </a>
                 </li>
+
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('inicio') }}" >
-                        Asignación
+                    <a class="nav-link" href="{{ route('contabilidad') }}">
+                        <i class="bi bi-calculator me-1"></i>Contabilidad
                     </a>
                 </li>
+
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('contabilidad') }}" >
-                        Contabilidad
+                    <a class="nav-link" href="{{ route('incidentes') }}">
+                        <i class="bi bi-exclamation-triangle me-1"></i>Incidentes
                     </a>
                 </li>
+
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('incidentes') }}" >
-                        Incidentes
+                    <a class="nav-link" href="{{ route('mantenimiento') }}">
+                        <i class="bi bi-tools me-1"></i>Mantenimiento
                     </a>
                 </li>
+
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('mantenimiento') }}" >
-                      Mantenimiento
+                    <a class="nav-link" href="{{ route('monitoreo') }}">
+                        <i class="bi bi-graph-up me-1"></i>Monitoreo
                     </a>
                 </li>
+
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('monitoreo') }}" >
-                        Monitoreo
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{  route('pasajerof') }}">
-                        Pasajero
+                    <a class="nav-link" href="{{ route('pasajerof') }}">
+                        <i class="bi bi-people me-1"></i>Pasajero
                     </a>
                 </li>
 
@@ -73,8 +95,5 @@
     </div>
 </nav>
 
-
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
