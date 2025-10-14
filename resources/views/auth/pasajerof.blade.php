@@ -87,13 +87,13 @@
         </div>
 
         <table class="table table-bordered">
-            <thead class="table-light">
+            <thead class="table-dark">
             <tr>
                 <th>Unidad</th>
                 <th>Fecha</th>
                 <th>Ruta</th>
                 <th>Hora</th>
-                <th>Monto que pagó</th>
+                <th>Monto que pago</th>
                 <th>Medio de pago</th>
                 <th>Origen</th>
                 <th>Destino</th>

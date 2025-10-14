@@ -19,7 +19,6 @@ class InicioModel extends Model
             SELECT
                 u.id_unidad, u.placa, u.modelo, u.capacidad,
                 o.licencia,
-
                 r.id_ruta, r.nombre, r.origen, r.destino,
                 h.horaSalida, h.horaLlegada
             FROM unidad u
