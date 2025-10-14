@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\ContabilidadModel;
-use App\Models\InicioModel;
 
 class ContabilidadController extends Controller
 {
@@ -14,19 +13,31 @@ class ContabilidadController extends Controller
     public function index()
     {
         $contabilidadModel = new ContabilidadModel();
-        $ingresos = $contabilidadModel->obtenerIngresos();
-        $egresos = $contabilidadModel->obtenerEgresos(); // NUEVO
-        $totalEgresos = $contabilidadModel->obtenerTotalEgresos(); // NUEVO
 
+        $ingresos = $contabilidadModel->obtenerIngresos();
+        $egresos = $contabilidadModel->obtenerEgresos();
+        $totalEgresos = $contabilidadModel->obtenerTotalEgresos();
+
+        $tarifas = $contabilidadModel->obtenerTarifas();
+        $bancarios = $contabilidadModel->obtenerBancarios();
+        $totalBancarios = $contabilidadModel->obtenerTotalBancarios();
+
+
+        $rutas = $contabilidadModel->obtenerRutas();
         $unidades  = $contabilidadModel->obtenerUnidades();
         $operadores = $contabilidadModel->obtenerOperadores();
 
         return view('auth.contabilidad', compact(
             'ingresos',
-            'egresos', // NUEVO
-            'totalEgresos', // NUEVO
+            'egresos',
+            'totalEgresos',
             'unidades',
-            'operadores'
+            'operadores',
+            'tarifas',
+            'bancarios',
+            'rutas',
+            'totalBancarios'
         ));
+
     }
 }

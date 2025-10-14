@@ -4,15 +4,11 @@
     <meta charset="UTF-8">
     <title>Panel Financiero</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <!-- Bootstrap CSS & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 </head>
 
 <body>
-
-<!-- Menú principal -->
 @include('layouts.menuPrincipal')
 
 <div class="container mt-4">
@@ -39,53 +35,17 @@
         </div>
     </div>
 
-    <!-- Selects desplegables de contabilidad -->
+    <!-- SECCIÓN INGRESOS -->
     <div id="seccionIngresos">
-        <h5>Registro de Ingresos</h5>
-        <div class="row g-3 mb-3">
-            <div class="col-md-3 mb-2">
-                <label for="unidad" class="form-label">Unidad de transporte</label>
-                <select class="form-select" id="unidad">
-                    <option selected disabled>Selecciona...</option>
-                    <!-- Opciones aquí -->
-                    @isset($unidades)
-                        @foreach($unidades as $u)
-                            <option value="{{ $u['id_unidad'] }}">
-                                {{ $u['placa'] }} - {{ $u['modelo'] }} - (Cap: {{ $u['capacidad'] }})
-                            </option>
-                        @endforeach
-                    @endisset
-                </select>
-            </div>
-            <div class="col-md-3 mb-2">
-                <label for="operador" class="form-label">Operador</label>
-                <select class="form-select" id="operador">
-                    <option selected disabled>Selecciona...</option>
-                    <!-- Opciones aquí -->
-                    @foreach($operadores as $o)
-                        <option value="{{ $o['id_operator'] }}">
-                            Operador #{{ $o['id_operator'] }} - Licencia: {{ $o['licencia'] }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-            <div class="col-md-3 mb-2">
-                <label class="form-label">Fecha</label>
-                <input type="date" class="form-control" id="fecha_ingreso">
-            </div>
-            <div class="col-md-3 mb-2">
-                <label class="form-label">Cantidad</label>
-                <input type="number" class="form-control" id="cantidad_ingreso" step="0.01">
-            </div>
-            <div class="col-md-12 d-flex justify-content-between align-items-center mt-2">
-                <button class="btn btn-primary mt-2" onclick="agregarIngreso()">Agregar Ingreso</button>
-                <div class="fw-bold mb-0">Total Ingresos: $<span id="total_ingresos">0.00</span></div>
-            </div>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5>Registro de Ingresos</h5>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalIngreso">
+                <i class="bi bi-plus-circle"></i> Agregar Ingreso
+            </button>
         </div>
 
-        <!-- Sección: INGRESOS -->
-        <table class="table table-bordered">
-            <thead class="table-light">
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
             <tr>
                 <th>Unidad</th>
                 <th>Operador</th>
@@ -93,63 +53,38 @@
                 <th>Cantidad</th>
             </tr>
             </thead>
-
             <tbody id="tabla_ingresos">
             @isset($ingresos)
-            @foreach($ingresos as $i)
-                <tr>
-                    <td>{{ $i['placa'] }} - {{ $i['modelo'] }} - {{ $i['capacidad'] }}</td>
-                    <td>{{ $i['licencia'] ?? 'No asignado' }}</td>
-                    <td>{{ $i['fecha'] }}</td>
-                    <td>${{ number_format($i['monto'], 2) }}</td>
-                </tr>
-            @endforeach
+                @foreach($ingresos as $i)
+                    <tr>
+                        <td>{{ $i['placa'] }} - {{ $i['modelo'] }} - {{ $i['capacidad'] }}</td>
+                        <td>{{ $i['licencia'] ?? 'No asignado' }}</td>
+                        <td>{{ $i['fecha'] }}</td>
+                        <td>${{ number_format($i['monto'], 2) }}</td>
+                    </tr>
+                @endforeach
             @endisset
             </tbody>
         </table>
+        <div class="fw-bold text-end">Total Ingresos: $<span id="total_ingresos">0.00</span></div>
     </div>
 
-
-    <!-- Sección: EGRESOS -->
+    <!-- SECCIÓN EGRESOS -->
     <div id="seccionEgresos" style="display: none;">
-        <h5>Registro de Egresos</h5>
-        <div class="row g-3 mb-3">
-            <div class="col-md-3">
-                <label class="form-label">Fecha</label>
-                <input type="date" class="form-control" id="fecha_egreso">
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">Concepto</label>
-                <input type="text" class="form-control" id="concepto_egreso">
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">Comprobante (PDF)</label>
-                <input type="file" class="form-control" id="comprobante_egreso" accept="application/pdf">
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">Cantidad</label>
-                <input type="number" class="form-control" id="cantidad_egreso" step="0.01">
-            </div>
-            <div class="col-md-12 d-flex justify-content-between align-items-center mt-2">
-                <button class="btn btn-primary mt-2" onclick="agregarEgreso()">Agregar Egreso</button>
-                <div class="fw-bold mb-0">Total Egresos: $<span id="total_egresos">
-        @isset($totalEgresos)
-                            {{ number_format($totalEgresos, 2) }}
-                        @else
-                            0.00
-                        @endisset
-    </span></div>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5>Registro de Egresos</h5>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalEgreso">
+                <i class="bi bi-plus-circle"></i> Agregar Egreso
+            </button>
         </div>
 
-        <table class="table table-bordered">
-            <thead class="table-light">
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
             <tr>
-
                 <th>Fecha</th>
                 <th>Concepto</th>
                 <th>Comprobante</th>
                 <th>Cantidad</th>
-
             </tr>
             </thead>
             <tbody id="tabla_egresos_body">
@@ -168,114 +103,367 @@
                             @endif
                         </td>
                         <td>${{ number_format($egreso['cantidad'], 2) }}</td>
-
                     </tr>
                 @endforeach
             @else
                 <tr>
-                    <td colspan="6" class="text-center text-muted">No hay egresos registrados</td>
+                    <td colspan="4" class="text-center text-muted">No hay egresos registrados</td>
                 </tr>
             @endisset
             </tbody>
         </table>
+        <div class="fw-bold text-end">Total Egresos: $<span id="total_egresos">
+            @isset($totalEgresos)
+                    {{ number_format($totalEgresos, 2) }}
+                @else
+                    0.00
+                @endisset
+        </span></div>
     </div>
 
-
-    <!-- Sección: TARIFAS --------->
+    <!-- SECCIÓN TARIFAS -->
     <div id="seccionTarifas" style="display: none;">
-        <h5>Tarifas</h5>
-        <div class="row g-3 mb-3">
-            <div class="col-md-3">
-                <label class="form-label">Ruta</label>
-                <select class="form-select" id="ruta_tarifa"></select>
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">Tipo de Pasajero</label>
-                <input type="text" class="form-control" id="tipo_pasajero_tarifa">
-            </div>
-            <div class="col-md-2">
-                <label class="form-label">Tarifa Base</label>
-                <input type="number" class="form-control" id="tarifa_base" step="0.01">
-            </div>
-            <div class="col-md-2">
-                <label class="form-label">Ajuste Unidad</label>
-                <input type="number" class="form-control" id="ajuste_unidad" step="0.01">
-            </div>
-            <div class="col-md-2">
-                <label class="form-label">Descuento</label>
-                <input type="number" class="form-control" id="descuento_tarifa" step="0.01">
-            </div>
-            <div class="col-md-12">
-                <label class="form-label">Notas</label>
-                <textarea class="form-control" id="notas_tarifa"></textarea>
-                <button class="btn btn-primary mt-2" onclick="agregarTarifa()">Agregar Tarifa</button>
-            </div>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5>Gestión de Tarifas</h5>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalTarifa">
+                <i class="bi bi-plus-circle"></i> Agregar Tarifa
+            </button>
         </div>
 
-        <table class="table table-bordered">
-            <thead class="table-light">
-            <tr>
-                <th>Ruta</th>
-                <th>Tipo de Pasajero</th>
-                <th>Tarifa Base</th>
-                <th>Ajuste</th>
-                <th>Descuento</th>
-                <th>Notas</th>
-            </tr>
-            </thead>
-            <tbody id="tabla_tarifas_body"></tbody>
-        </table>
+        <!-- Tabla de Tarifas -->
+        <div class="card">
+            <div class="card-body">
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                    <tr>
+                        <th>Ruta ID</th>
+                        <th>Tipo Pasajero</th>
+                        <th>Tarifa Base</th>
+                        <th>Descuento %</th>
+                        <th>Tarifa Final</th>
+                        <th>Notas</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @if(isset($tarifas) && count($tarifas) > 0)
+                        @foreach($tarifas as $tarifa)
+                            <tr>
+                                <td>{{ $tarifa['id_ruta'] }}</td>
+                                <td>
+                                    <span class="badge bg-info">{{ $tarifa['tipoPasajero'] }}</span>
+                                </td>
+                                <td>${{ number_format($tarifa['tarifaBaseRuta'], 2) }}</td>
+                                <td>{{ number_format($tarifa['descuentoPasajero'], 1) }}%</td>
+                                <td><strong>${{ number_format($tarifa['tarifaFinal'], 2) }}</strong></td>
+                                <td>{{ $tarifa['notas'] ?? 'Sin notas' }}</td>
+                            </tr>
+                        @endforeach
+                    @else
+                        <tr>
+                            <td colspan="6" class="text-center text-muted">
+                                <i class="bi bi-info-circle"></i> No hay tarifas registradas
+                            </td>
+                        </tr>
+                    @endif
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
-    <!-- Sección: DEPÓSITOS Y RETIROS -->
+    <!-- SECCIÓN BANCARIOS -->
     <div id="seccionBancarios" style="display: none;">
-        <h5>Depósitos y Retiros Bancarios</h5>
-        <div class="row g-3 mb-3">
-            <div class="col-md-3">
-                <label class="form-label">Fecha</label>
-                <input type="date" class="form-control" id="fecha_bancario">
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">Registro de</label>
-                <select class="form-select" id="registro_bancario">
-                    <option value="Depósito">Depósito</option>
-                    <option value="Retiro">Retiro</option>
-                </select>
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">Comprobante</label>
-                <input type="file" class="form-control" id="comprobante_bancario" accept="application/pdf">
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">Cantidad</label>
-                <input type="number" class="form-control" id="cantidad_bancario" step="0.01">
-            </div>
-            <div class="col-md-12 d-flex justify-content-between align-items-center mt-2">
-                <button class="btn btn-primary mt-2" onclick="agregarBancario()">Agregar Registro</button>
-                <div class="fw-bold mb-0">Total Bancarios: $<span id="total_bancarios">0.00</span></div>
-            </div>
-
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5>Depósitos y Retiros Bancarios</h5>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalBancario">
+                <i class="bi bi-plus-circle"></i> Agregar Registro
+            </button>
         </div>
 
-        <table class="table table-bordered">
-            <thead class="table-light">
-            <tr>
-                <th>Fecha</th>
-                <th>Tipo</th>
-                <th>Comprobante</th>
-                <th>Cantidad</th>
-            </tr>
-            </thead>
-            <tbody id="tabla_bancarios_body"></tbody>
-        </table>
+
+
+        <!-- Tabla de Movimientos Bancarios -->
+        <div class="card">
+            <div class="card-body">
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Tipo</th>
+                        <th>Monto</th>
+                        <th>Fecha</th>
+                        <th>Hora</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @if(isset($bancarios) && count($bancarios) > 0)
+                        @foreach($bancarios as $movimiento)
+                            <tr>
+                                <td>{{ $movimiento['id_movimiento'] }}</td>
+                                <td>
+                                    @if($movimiento['tipoMovimiento'] == 'Depósito')
+                                        <span class="badge bg-success">{{ $movimiento['tipoMovimiento'] }}</span>
+                                    @else
+                                        <span class="badge bg-danger">{{ $movimiento['tipoMovimiento'] }}</span>
+                                    @endif
+                                </td>
+                                <td>${{ number_format($movimiento['monto'], 2) }}</td>
+                                <td>{{ $movimiento['fecha'] }}</td>
+                                <td>{{ $movimiento['hora'] }}</td>
+                            </tr>
+                        @endforeach
+                    @else
+                        <tr>
+                            <td colspan="5" class="text-center text-muted">
+                                <i class="bi bi-info-circle"></i> No hay movimientos bancarios registrados
+                            </td>
+                        </tr>
+                    @endif
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Total Bancarios -->
+        <div class="mt-3">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card bg-success text-white">
+                        <div class="card-body text-center">
+                            <h6>Total Depósitos</h6>
+                            <h4>${{ number_format(collect($bancarios)->where('tipoMovimiento', 'Depósito')->sum('monto'), 2) }}</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-danger text-white">
+                        <div class="card-body text-center">
+                            <h6>Total Retiros</h6>
+                            <h4>${{ number_format(collect($bancarios)->where('tipoMovimiento', 'Retiro')->sum('monto'), 2) }}</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body text-center">
+                            <h6>Saldo Neto</h6>
+                            <h4>
+                                @php
+                                    $totalDepositos = collect($bancarios)->where('tipoMovimiento', 'Depósito')->sum('monto');
+                                    $totalRetiros = collect($bancarios)->where('tipoMovimiento', 'Retiro')->sum('monto');
+                                    $saldoNeto = $totalDepositos - $totalRetiros;
+                                @endphp
+                                ${{ number_format($saldoNeto, 2) }}
+                            </h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- Script para alternar secciones -->
+<!-- MODAL PARA INGRESOS -->
+<div class="modal fade" id="modalIngreso" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-cash-coin me-2"></i>Agregar Ingreso</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formIngreso">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Unidad de transporte</label>
+                            <select class="form-select" name="unidad" required>
+                                <option value="" selected disabled>Selecciona una unidad...</option>
+                                @isset($unidades)
+                                    @foreach($unidades as $u)
+                                        <option value="{{ $u['id_unidad'] }}">
+                                            {{ $u['placa'] }} - {{ $u['modelo'] }} - (Cap: {{ $u['capacidad'] }})
+                                        </option>
+                                    @endforeach
+                                @endisset
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Operador</label>
+                            <select class="form-select" name="operador" required>
+                                <option value="" selected disabled>Selecciona un operador...</option>
+                                @foreach($operadores as $o)
+                                    <option value="{{ $o['id_operator'] }}">
+                                        Operador #{{ $o['id_operator'] }} - Licencia: {{ $o['licencia'] }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Fecha</label>
+                            <input type="date" class="form-control" name="fecha" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Cantidad</label>
+                            <input type="number" class="form-control" name="monto" step="0.01" required>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="guardarIngreso()">Guardar Ingreso</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL PARA EGRESOS -->
+<div class="modal fade" id="modalEgreso" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-cash-stack me-2"></i>Agregar Egreso</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formEgreso">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Fecha</label>
+                            <input type="date" class="form-control" name="fecha" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Concepto</label>
+                            <input type="text" class="form-control" name="concepto" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Comprobante (PDF)</label>
+                            <input type="file" class="form-control" name="comprobante" accept="application/pdf">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Cantidad</label>
+                            <input type="number" class="form-control" name="cantidad" step="0.01" required>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="guardarEgreso()">Guardar Egreso</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL PARA TARIFAS -->
+<div class="modal fade" id="modalTarifa" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-tag me-2"></i>Agregar Tarifa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formTarifa">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Ruta</label>
+                            <select class="form-select" name="ruta" required>
+                                <option value="" selected disabled>Selecciona una ruta...</option>
+                                @isset($rutas)  <!-- AGREGAR ESTA VALIDACIÓN -->
+                                @foreach($rutas as $r)
+                                    <option value="{{ $r['id_ruta'] }}">
+                                        {{ $r['origen'] }} - {{ $r['destino'] }}
+                                    </option>
+                                @endforeach
+                                @else
+                                    <option value="" disabled>No hay rutas disponibles</option>
+                                @endisset
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Tipo de Pasajero</label>
+                            <select class="form-select" name="tipoPasajero" required>
+                                <option value="" selected disabled>Selecciona tipo...</option>
+                                <option value="Adulto">Adulto</option>
+                                <option value="Niño">Niño</option>
+                                <option value="Estudiante">Estudiante</option>
+                                <option value="Adulto Mayor">Adulto Mayor</option>
+                                <option value="Discapacitado">Discapacitado</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Tarifa Base ($)</label>
+                            <input type="number" class="form-control" name="tarifaBaseRuta" step="0.01" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Descuento (%)</label>
+                            <input type="number" class="form-control" name="descuentoPasajero" step="0.01" value="0">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Tarifa Final ($)</label>
+                            <input type="number" class="form-control" name="tarifaFinal" step="0.01" readonly>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label class="form-label">Notas</label>
+                            <textarea class="form-control" name="notas" rows="3" placeholder="Notas adicionales..."></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="guardarTarifa()">Guardar Tarifa</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL PARA BANCARIOS -->
+<div class="modal fade" id="modalBancario" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-bank me-2"></i>Registro Bancario</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formBancario">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Fecha</label>
+                            <input type="date" class="form-control" name="fecha" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Tipo de Movimiento</label>
+                            <select class="form-select" name="tipo" required>
+                                <option value="Depósito">Depósito</option>
+                                <option value="Retiro">Retiro</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Comprobante</label>
+                            <input type="file" class="form-control" name="comprobante" accept="application/pdf">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Cantidad ($)</label>
+                            <input type="number" class="form-control" name="cantidad" step="0.01" required>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="guardarBancario()">Guardar Registro</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+    // Cambiar entre secciones
     const radios = document.querySelectorAll('input[name="vista"]');
     const secciones = {
         ingresos: document.getElementById("seccionIngresos"),
@@ -292,8 +480,65 @@
         });
     });
 
-    // Aquí puedes agregar tus funciones JS como agregarIngreso(), agregarEgreso(), etc.
+    // Funciones para guardar (pendientes de implementar)
+    function guardarIngreso() {
+        alert('Funcionalidad para guardar ingreso - Pendiente de implementar');
+        // Cerrar modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('modalIngreso'));
+        modal.hide();
+    }
+
+    function guardarEgreso() {
+        alert('Funcionalidad para guardar egreso - Pendiente de implementar');
+        // Cerrar modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('modalEgreso'));
+        modal.hide();
+    }
+
+    function guardarTarifa() {
+        alert('Funcionalidad para guardar tarifa - Pendiente de implementar');
+        // Cerrar modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('modalTarifa'));
+        modal.hide();
+    }
+
+    function guardarBancario() {
+        alert('Funcionalidad para guardar registro bancario - Pendiente de implementar');
+        // Cerrar modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('modalBancario'));
+        modal.hide();
+    }
+
+    // Calcular tarifa final automáticamente
+    document.addEventListener('DOMContentLoaded', function() {
+        const tarifaBase = document.querySelector('input[name="tarifaBaseRuta"]');
+        const descuento = document.querySelector('input[name="descuentoPasajero"]');
+        const tarifaFinal = document.querySelector('input[name="tarifaFinal"]');
+
+        function calcularTarifaFinal() {
+            if (tarifaBase.value && descuento.value) {
+                const base = parseFloat(tarifaBase.value);
+                const desc = parseFloat(descuento.value);
+                const final = base - (base * desc / 100);
+                tarifaFinal.value = final.toFixed(2);
+            }
+        }
+
+        if (tarifaBase && descuento && tarifaFinal) {
+            tarifaBase.addEventListener('input', calcularTarifaFinal);
+            descuento.addEventListener('input', calcularTarifaFinal);
+        }
+
+        // Establecer fecha actual por defecto en los modales
+        const now = new Date();
+        const fechaActual = now.toISOString().split('T')[0];
+        document.querySelectorAll('input[type="date"]').forEach(input => {
+            if (!input.value) {
+                input.value = fechaActual;
+            }
+        });
+    });
 </script>
-</div>
+
 </body>
 </html>
