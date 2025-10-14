@@ -3,15 +3,27 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\IncidentesModel;
 
-class InicioController extends Controller
+class IncidentesController extends Controller
 {
-    /**
-     * Muestra la vista de Incidentes :)
-     */
     public function index()
     {
-        return view('auth.incidentes');
+        $incidentesModel = new IncidentesModel();
 
+        // ✅ Llamadas corregidas correctamente al modelo
+        $incidentes = $incidentesModel->obtenerIncidentes();
+        $incidentesPendientes = $incidentesModel->obtenerIncidentesPendientes();
+        $historialIncidentes = $incidentesModel->obtenerIncidentes(); // ← AQUÍ ESTABA EL ERROR
+        $asignaciones = $incidentesModel->obtenerAsignacionesActivas();
+        $unidades = $incidentesModel->obtenerUnidades();
+
+        return view('auth.incidentes', compact(
+            'incidentes',
+            'incidentesPendientes',
+            'historialIncidentes',
+            'asignaciones',
+            'unidades'
+        ));
     }
 }
