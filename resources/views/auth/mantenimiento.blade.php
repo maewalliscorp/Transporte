@@ -5,8 +5,9 @@
     <title>Gestión de Mantenimientos</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    {{-- Usa Bootstrap solo si tu menú no lo tiene --}}
-    {{-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"> --}}
+    <!-- Bootstrap CSS & Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 </head>
 <body>
 
@@ -39,53 +40,20 @@
 
     <!-- PROGRAMACIÓN DE MANTENIMIENTO -->
     <div id="seccionProgramacion">
-        <h5>Programación de Mantenimiento</h5>
-        <div class="mb-3">
-            <a href="{{ route('inicio') }}" class="btn btn-info">Ir a tabla de disponibilidad</a>
-        </div>
-        <div class="row g-3 mb-3">
-            <div class="col-md-3">
-                <label class="form-label">Unidad</label>
-                <select class="form-select"></select>
-            </div>
-
-            <div class="col-md-3">
-                <label class="form-label">Tipo de Mantenimiento</label>
-                <select class="form-select">
-                    <option value="preventivo">Preventivo</option>
-                    <option value="correctivo">Correctivo</option>
-                </select>
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">Fecha Programada</label>
-                <input type="date" class="form-control">
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">Motivo</label>
-                <input type="text" class="form-control">
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">Kilometraje Actual</label>
-                <input type="number" class="form-control">
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">Operador</label>
-                <select class="form-select"></select>
-            </div>
-
-
-
-            <div class="col-md-3">
-                <label class="form-label">Estado de la Unidad</label>
-                <input type="text" class="form-control">
-            </div>
-            <div class="col-md-12">
-                <button class="btn btn-primary mt-2">Ingresar Datos</button>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5>Programación de Mantenimiento</h5>
+            <div>
+                <a href="{{ route('inicio') }}" class="btn btn-info me-2">
+                    <i class="bi bi-table"></i> Ir a tabla de disponibilidad
+                </a>
+                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalProgramacion">
+                    <i class="bi bi-plus-circle"></i> Programar Mantenimiento
+                </button>
             </div>
         </div>
 
         <table class="table table-bordered">
-            <thead class="table-light">
+            <thead class="table-dark">
             <tr>
                 <th>Unidad</th>
                 <th>Tipo</th>
@@ -96,56 +64,23 @@
                 <th>Estado</th>
             </tr>
             </thead>
-            <tbody></tbody>
+            <tbody>
+            <!-- Los datos aparecerán aquí -->
+            </tbody>
         </table>
     </div>
 
     <!-- MANTENIMIENTOS REALIZADOS -->
     <div id="seccionRealizados" style="display: none;">
-        <h5>Mantenimientos Realizados</h5>
-        <div class="row g-3 mb-3">
-            <div class="col-md-3">
-                <label class="form-label">Unidad</label>
-                <select class="form-select"></select>
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">Fecha de Mantenimiento</label>
-                <input type="date" class="form-control">
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">Tipo de Mantenimiento</label>
-                <select class="form-select">
-                    <option value="preventivo">Preventivo</option>
-                    <option value="correctivo">Correctivo</option>
-                </select>
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">Descripción</label>
-                <input type="text" class="form-control">
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">Piezas Reemplazadas</label>
-                <input type="text" class="form-control">
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">Operador</label>
-                <select class="form-select"></select>
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">Costo</label>
-                <input type="number" class="form-control" step="0.01">
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">Observaciones</label>
-                <input type="text" class="form-control">
-            </div>
-            <div class="col-md-12">
-                <button class="btn btn-primary mt-2">Ingresar Datos</button>
-            </div>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5>Mantenimientos Realizados</h5>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalRealizados">
+                <i class="bi bi-plus-circle"></i> Registrar Mantenimiento Realizado
+            </button>
         </div>
 
         <table class="table table-bordered">
-            <thead class="table-light">
+            <thead class="table-dark">
             <tr>
                 <th>Unidad</th>
                 <th>Fecha</th>
@@ -158,54 +93,22 @@
             </tr>
             </thead>
             <tbody>
-
+            <!-- Los datos aparecerán aquí -->
             </tbody>
         </table>
     </div>
 
     <!-- ALERTAS DE MANTENIMIENTO -->
     <div id="seccionAlertas" style="display: none;">
-        <h5>Alertas de Mantenimiento</h5>
-        <div class="row g-3 mb-3">
-            <div class="col-md-3">
-                <label class="form-label">Unidad</label>
-                <select class="form-select"></select>
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">Kilómetro Actual</label>
-                <input type="number" class="form-control">
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">Fecha del Último Mantenimiento</label>
-                <input type="date" class="form-control">
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">Km para Próximo Mantenimiento</label>
-                <input type="number" class="form-control">
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">Fecha del Próximo Mantenimiento</label>
-                <input type="date" class="form-control">
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">Incidentes Reportados</label>
-                <input type="text" class="form-control">
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">Estado de Alerta</label>
-                <select class="form-select">
-                    <option style="color:red;" value="urgente">Revisión Urgente</option>
-                    <option style="color:orange;" value="proximo">Próximo</option>
-                    <option style="color:yellow;" value="pendiente">Pendiente</option>
-                </select>
-            </div>
-            <div class="col-md-12">
-                <button class="btn btn-primary mt-2">Ingresar Alerta</button>
-            </div>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5>Alertas de Mantenimiento</h5>
+            <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#modalAlertas">
+                <i class="bi bi-plus-circle"></i> Crear Alerta
+            </button>
         </div>
 
         <table class="table table-bordered">
-            <thead class="table-light">
+            <thead class="table-dark">
             <tr>
                 <th>Unidad</th>
                 <th>Kilómetro Actual</th>
@@ -216,13 +119,18 @@
                 <th>Estado</th>
             </tr>
             </thead>
-            <tbody></tbody>
+            <tbody>
+            <!-- Los datos aparecerán aquí -->
+            </tbody>
         </table>
     </div>
 
     <!-- HISTORIAL DE MANTENIMIENTO -->
     <div id="seccionHistorial" style="display: none;">
-        <h5>Historial de Mantenimiento</h5>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5>Historial de Mantenimiento</h5>
+            <!-- El historial no tiene botón de agregar -->
+        </div>
         <div class="mb-3">
             <label class="form-label">Seleccionar Unidad</label>
             <select class="form-select" id="unidadHistorial">
@@ -230,7 +138,7 @@
             </select>
         </div>
         <table class="table table-bordered">
-            <thead class="table-light">
+            <thead class="table-dark">
             <tr>
                 <th>Unidad</th>
                 <th>Fecha</th>
@@ -243,17 +151,217 @@
                 <th>Estado Unidad</th>
             </tr>
             </thead>
-            <tbody></tbody>
+            <tbody>
+            <!-- Los datos aparecerán aquí -->
+            </tbody>
         </table>
     </div>
 
 </div>
 
-<!-- Bootstrap JS (si es necesario) -->
-{{-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script> --}}
+<!-- Modal Programación -->
+<div class="modal fade" id="modalProgramacion" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-clipboard-check me-2"></i>Programar Mantenimiento
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formProgramacion">
+                    @csrf
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Unidad</label>
+                            <select class="form-select" name="unidad" required>
+                                <option value="" selected disabled>Selecciona una unidad...</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Tipo de Mantenimiento</label>
+                            <select class="form-select" name="tipo_mantenimiento" required>
+                                <option value="preventivo">Preventivo</option>
+                                <option value="correctivo">Correctivo</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Fecha Programada</label>
+                            <input type="date" class="form-control" name="fecha_programada" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Motivo</label>
+                            <input type="text" class="form-control" name="motivo" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Kilometraje Actual</label>
+                            <input type="number" class="form-control" name="kmActual" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Operador</label>
+                            <select class="form-select" name="operador" required>
+                                <option value="" selected disabled>Selecciona un operador...</option>
+                            </select>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">Estado de la Unidad</label>
+                            <input type="text" class="form-control" name="estado_unidad" required>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-1"></i>Cancelar
+                </button>
+                <button type="button" class="btn btn-primary" onclick="procesarProgramacion()">
+                    <i class="bi bi-check-circle me-1"></i>Guardar Programación
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
-<!-- Script para cambiar secciones -->
+<!-- Modal Realizados -->
+<div class="modal fade" id="modalRealizados" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-clipboard-check me-2"></i>Registrar Mantenimiento Realizado
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formRealizados">
+                    @csrf
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Unidad</label>
+                            <select class="form-select" name="unidad" required>
+                                <option value="" selected disabled>Selecciona una unidad...</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Fecha de Mantenimiento</label>
+                            <input type="date" class="form-control" name="fecha_mantenimiento" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Tipo de Mantenimiento</label>
+                            <select class="form-select" name="tipo_mantenimiento" required>
+                                <option value="preventivo">Preventivo</option>
+                                <option value="correctivo">Correctivo</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Descripción</label>
+                            <input type="text" class="form-control" name="descripcion" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Piezas Reemplazadas</label>
+                            <input type="text" class="form-control" name="piezas_reemplazadas">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Operador</label>
+                            <select class="form-select" name="operador" required>
+                                <option value="" selected disabled>Selecciona un operador...</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Costo</label>
+                            <input type="number" class="form-control" name="costo" step="0.01" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Observaciones</label>
+                            <input type="text" class="form-control" name="observaciones">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Kilometraje Actual</label>
+                            <input type="number" class="form-control" name="kmActual" required>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-1"></i>Cancelar
+                </button>
+                <button type="button" class="btn btn-primary" onclick="procesarRealizado()">
+                    <i class="bi bi-check-circle me-1"></i>Guardar Mantenimiento
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Alertas -->
+<div class="modal fade" id="modalAlertas" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-clipboard-check me-2"></i>Crear Alerta de Mantenimiento
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formAlertas">
+                    @csrf
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Unidad</label>
+                            <select class="form-select" name="unidad" required>
+                                <option value="" selected disabled>Selecciona una unidad...</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Kilómetro Actual</label>
+                            <input type="number" class="form-control" name="km_actual" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Fecha del Último Mantenimiento</label>
+                            <input type="date" class="form-control" name="fechaUltimoMantenimiento" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Km para Próximo Mantenimiento</label>
+                            <input type="number" class="form-control" name="kmProxMantenimiento" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Fecha del Próximo Mantenimiento</label>
+                            <input type="date" class="form-control" name="fechaProxMantenimiento" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Incidentes Reportados</label>
+                            <input type="text" class="form-control" name="incidenteReportado">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Estado de Alerta</label>
+                            <select class="form-select" name="estadoAlerta" required>
+                                <option style="color:red;" value="urgente">Revisión Urgente</option>
+                                <option style="color:orange;" value="proximo">Próximo</option>
+                                <option style="color:yellow;" value="pendiente">Pendiente</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-1"></i>Cancelar
+                </button>
+                <button type="button" class="btn btn-primary" onclick="procesarAlerta()">
+                    <i class="bi bi-check-circle me-1"></i>Guardar Alerta
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS + Funcionalidad -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+    // Cambiar entre secciones
     const secciones = {
         programacion: document.getElementById('seccionProgramacion'),
         realizados: document.getElementById('seccionRealizados'),
@@ -272,8 +380,101 @@
     window.onload = () => {
         document.getElementById('vistaProgramacion').checked = true;
     };
+
+    // Función para procesar programación
+    function procesarProgramacion() {
+        const formData = new FormData(document.getElementById('formProgramacion'));
+
+        // Validar que todos los campos estén llenos
+        let valid = true;
+        for (let [key, value] of formData.entries()) {
+            if (!value) {
+                alert('Por favor completa todos los campos obligatorios.');
+                valid = false;
+                break;
+            }
+        }
+
+        if (!valid) return;
+
+        // Aquí iría tu petición AJAX para guardar en la base de datos
+        console.log('Datos de programación:', Object.fromEntries(formData));
+
+        alert('Mantenimiento programado correctamente');
+        const modal = bootstrap.Modal.getInstance(document.getElementById('modalProgramacion'));
+        modal.hide();
+        document.getElementById('formProgramacion').reset();
+
+        // Aquí podrías recargar la tabla o agregar el nuevo registro
+    }
+
+    // Función para procesar mantenimiento realizado
+    function procesarRealizado() {
+        const formData = new FormData(document.getElementById('formRealizados'));
+
+        // Validar que todos los campos obligatorios estén llenos
+        let valid = true;
+        for (let [key, value] of formData.entries()) {
+            if (key !== 'piezas_reemplazadas' && key !== 'observaciones' && !value) {
+                alert('Por favor completa todos los campos obligatorios.');
+                valid = false;
+                break;
+            }
+        }
+
+        if (!valid) return;
+
+        // Aquí iría tu petición AJAX para guardar en la base de datos
+        console.log('Datos de mantenimiento realizado:', Object.fromEntries(formData));
+
+        alert('Mantenimiento registrado correctamente');
+        const modal = bootstrap.Modal.getInstance(document.getElementById('modalRealizados'));
+        modal.hide();
+        document.getElementById('formRealizados').reset();
+
+        // Aquí podrías recargar la tabla o agregar el nuevo registro
+    }
+
+    // Función para procesar alerta
+    function procesarAlerta() {
+        const formData = new FormData(document.getElementById('formAlertas'));
+
+        // Validar que todos los campos obligatorios estén llenos
+        let valid = true;
+        for (let [key, value] of formData.entries()) {
+            if (key !== 'incidenteReportado' && !value) {
+                alert('Por favor completa todos los campos obligatorios.');
+                valid = false;
+                break;
+            }
+        }
+
+        if (!valid) return;
+
+        // Aquí iría tu petición AJAX para guardar en la base de datos
+        console.log('Datos de alerta:', Object.fromEntries(formData));
+
+        alert('Alerta registrada correctamente');
+        const modal = bootstrap.Modal.getInstance(document.getElementById('modalAlertas'));
+        modal.hide();
+        document.getElementById('formAlertas').reset();
+
+        // Aquí podrías recargar la tabla o agregar el nuevo registro
+    }
+
+    // Limpiar formularios cuando se cierran los modales
+    document.getElementById('modalProgramacion').addEventListener('hidden.bs.modal', function () {
+        document.getElementById('formProgramacion').reset();
+    });
+
+    document.getElementById('modalRealizados').addEventListener('hidden.bs.modal', function () {
+        document.getElementById('formRealizados').reset();
+    });
+
+    document.getElementById('modalAlertas').addEventListener('hidden.bs.modal', function () {
+        document.getElementById('formAlertas').reset();
+    });
 </script>
 
 </body>
 </html>
-
