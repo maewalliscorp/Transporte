@@ -61,33 +61,36 @@
     </div>
 </div>
 
-<!-- Modal para Agregar Horario -->
+<!-- Modal para Agregar/Editar Horario -->
 <div class="modal fade" id="modalAgregarHorario" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Agregar Horario</h5>
+                <h5 class="modal-title" id="modalTitulo">Agregar Horario</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form id="formHorario">
                 @csrf
+                <input type="hidden" id="horarioId" name="id_horario">
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label">Hora Salida</label>
-                        <input type="time" class="form-control" name="horaSalida" required>
+                        <label class="form-label">Hora Salida *</label>
+                        <input type="time" class="form-control" id="horaSalida" name="horaSalida" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Hora Llegada</label>
-                        <input type="time" class="form-control" name="horaLlegada" required>
+                        <label class="form-label">Hora Llegada *</label>
+                        <input type="time" class="form-control" id="horaLlegada" name="horaLlegada" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Fecha</label>
-                        <input type="date" class="form-control" name="fecha" required>
+                        <label class="form-label">Fecha *</label>
+                        <input type="date" class="form-control" id="fecha" name="fecha" required>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary" onclick="guardarHorario()">Guardar</button>
+                    <button type="button" class="btn btn-primary" onclick="guardarHorario()" id="btnGuardar">
+                        <i class="bi bi-check-circle"></i> Guardar
+                    </button>
                 </div>
             </form>
         </div>
@@ -96,22 +99,126 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+    let modoEdicion = false;
+
     function editarHorario(id) {
-        alert('Editar horario ID: ' + id);
-        // Aquí irá la lógica para editar
+        fetch(`/horarios/${id}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Llenar el formulario con los datos
+                    document.getElementById('horarioId').value = data.data.id_horario;
+                    document.getElementById('horaSalida').value = data.data.horaSalida;
+                    document.getElementById('horaLlegada').value = data.data.horaLlegada;
+                    document.getElementById('fecha').value = data.data.fecha;
+
+                    // Cambiar el modal a modo edición
+                    document.getElementById('modalTitulo').textContent = 'Editar Horario';
+                    document.getElementById('btnGuardar').innerHTML = '<i class="bi bi-check-circle"></i> Actualizar';
+                    modoEdicion = true;
+
+                    // Mostrar el modal
+                    const modal = new bootstrap.Modal(document.getElementById('modalAgregarHorario'));
+                    modal.show();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al cargar los datos del horario');
+            });
     }
 
     function eliminarHorario(id) {
         if (confirm('¿Estás seguro de que deseas eliminar este horario?')) {
-            alert('Eliminar horario ID: ' + id);
-            // Aquí irá la lógica para eliminar
+            fetch(`/horarios/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message);
+                        location.reload(); // Recargar la página para ver los cambios
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al eliminar el horario');
+                });
         }
     }
 
     function guardarHorario() {
-        // Aquí irá la lógica para guardar
-        alert('Guardar horario - Pendiente de implementar');
+        const horarioId = document.getElementById('horarioId').value;
+        const horaSalida = document.getElementById('horaSalida').value;
+        const horaLlegada = document.getElementById('horaLlegada').value;
+        const fecha = document.getElementById('fecha').value;
+
+        // Validaciones básicas
+        if (!horaSalida || !horaLlegada || !fecha) {
+            alert('Por favor complete todos los campos obligatorios');
+            return;
+        }
+
+        // Validar que la hora de llegada sea mayor que la de salida
+        if (horaSalida >= horaLlegada) {
+            alert('La hora de llegada debe ser posterior a la hora de salida');
+            return;
+        }
+
+        const url = modoEdicion ? `/horarios/${horarioId}` : '/horarios';
+        const method = modoEdicion ? 'PUT' : 'POST';
+
+        fetch(url, {
+            method: method,
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                horaSalida: horaSalida,
+                horaLlegada: horaLlegada,
+                fecha: fecha
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('modalAgregarHorario'));
+                    modal.hide();
+                    location.reload(); // Recargar la página para ver los cambios
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al guardar el horario');
+            });
     }
+
+    // Limpiar el formulario cuando se cierra el modal
+    document.getElementById('modalAgregarHorario').addEventListener('hidden.bs.modal', function () {
+        document.getElementById('formHorario').reset();
+        document.getElementById('horarioId').value = '';
+        document.getElementById('modalTitulo').textContent = 'Agregar Horario';
+        document.getElementById('btnGuardar').innerHTML = '<i class="bi bi-check-circle"></i> Guardar';
+        modoEdicion = false;
+    });
+
+    // Establecer fecha mínima como hoy
+    document.addEventListener('DOMContentLoaded', function() {
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('fecha').min = today;
+    });
 </script>
 </body>
 </html>
