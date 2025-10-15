@@ -8,6 +8,7 @@ use App\Http\Controllers\UnidadController;
 use App\Http\Controllers\OperadorController;
 use App\Http\Controllers\RutaController;
 use App\Http\Controllers\HorarioController;
+use App\Http\Controllers\IncidentesController;
 
 // Redirigir / al login
 Route::get('/', function () {
@@ -32,6 +33,13 @@ Route::get('/monitoreo', function () {
 Route::get('/incidentes', function (){
     return view('auth.incidentes');
 })->name('incidentes');
+
+// Rutas para Incidentes
+Route::get('/incidentes', [IncidentesController::class, 'index'])->name('incidentes.index');
+Route::post('/incidentes', [IncidentesController::class, 'store'])->name('incidentes.store');
+Route::post('/incidentes/solucion', [IncidentesController::class, 'updateSolucion'])->name('incidentes.solucion');
+Route::get('/incidentes/{id}', [IncidentesController::class, 'getIncidente'])->name('incidentes.show');
+
 
 //Página de contabilidad :)
 Route::get('/contabilidad', [App\Http\Controllers\ContabilidadController::class, 'index'])->name('contabilidad');
@@ -59,6 +67,30 @@ Route::prefix('agregar')->group(function () {
     Route::get('/horarios', [HorarioController::class, 'index'])->name('agregar.horarios');
 });
 
-Route::get('/agregar/horarios', [HorarioController::class, 'index'])->name('agregar.horarios');
+// Rutas para Horarios
+Route::get('/horarios', [HorarioController::class, 'index'])->name('horarios.index');
+Route::post('/horarios', [HorarioController::class, 'store'])->name('horarios.store');
+Route::get('/horarios/{id}', [HorarioController::class, 'show'])->name('horarios.show');
+Route::put('/horarios/{id}', [HorarioController::class, 'update'])->name('horarios.update');
+Route::delete('/horarios/{id}', [HorarioController::class, 'destroy'])->name('horarios.destroy');
 
+// Rutas para Unidades
+Route::get('/unidades', [UnidadController::class, 'index'])->name('unidades.index');
+Route::post('/unidades', [UnidadController::class, 'store'])->name('unidades.store');
+Route::get('/unidades/{id}', [UnidadController::class, 'show'])->name('unidades.show');
+Route::put('/unidades/{id}', [UnidadController::class, 'update'])->name('unidades.update');
+Route::delete('/unidades/{id}', [UnidadController::class, 'destroy'])->name('unidades.destroy');
 
+// Rutas para Rutas
+Route::get('/rutas', [RutaController::class, 'index'])->name('rutas.index');
+Route::post('/rutas', [RutaController::class, 'store'])->name('rutas.store');
+Route::get('/rutas/{id}', [RutaController::class, 'show'])->name('rutas.show');
+Route::put('/rutas/{id}', [RutaController::class, 'update'])->name('rutas.update');
+Route::delete('/rutas/{id}', [RutaController::class, 'destroy'])->name('rutas.destroy');
+
+// Rutas para Operadores
+Route::get('/operadores', [OperadorController::class, 'index'])->name('operadores.index');
+Route::post('/operadores', [OperadorController::class, 'store'])->name('operadores.store');
+Route::get('/operadores/{id}', [OperadorController::class, 'show'])->name('operadores.show');
+Route::put('/operadores/{id}', [OperadorController::class, 'update'])->name('operadores.update');
+Route::delete('/operadores/{id}', [OperadorController::class, 'destroy'])->name('operadores.destroy');
