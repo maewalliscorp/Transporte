@@ -12,9 +12,18 @@ class UnidadModel extends Model
 
     public function obtenerTodos()
     {
-        return $this->getConnection()
-            ->table('unidad')
-            ->orderBy('id_unidad')
+        $db = $this->getConnection();
+
+        $sql = "SELECT id_unidad, placa, modelo, capacidad FROM unidad ORDER BY id_unidad";
+        $result = $db->select($sql);
+
+        return array_map(fn($row) => (array) $row, $result);
+    }
+
+    // Método alternativo usando Eloquent
+    public function obtenerTodosEloquent()
+    {
+        return $this->orderBy('id_unidad')
             ->get()
             ->toArray();
     }
