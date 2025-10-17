@@ -14,7 +14,7 @@ class IncidentesController extends Controller
         // ✅ Llamadas corregidas correctamente al modelo
         $incidentes = $incidentesModel->obtenerIncidentes();
         $incidentesPendientes = $incidentesModel->obtenerIncidentesPendientes();
-        $historialIncidentes = $incidentesModel->obtenerIncidentes(); // ← AQUÍ ESTABA EL ERROR
+        $historialIncidentes = $incidentesModel->obtenerIncidentes();
         $asignaciones = $incidentesModel->obtenerAsignacionesActivas();
         $unidades = $incidentesModel->obtenerUnidades();
 

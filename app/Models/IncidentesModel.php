@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class IncidentesModel extends Model
 {
-    protected $table = 'incidente'; // nombre correcto de tu tabla
+    protected $table = 'incidente';
     protected $primaryKey = 'id_incidente';
     public $incrementing = true;
     public $timestamps = false;
@@ -19,8 +19,8 @@ class IncidentesModel extends Model
             SELECT
                 i.id_incidente, i.descripcion, i.fecha, i.hora, i.estado, i.solucion,
                 a.id_asignacion,
-                u.id_unidad, u.placa, u.modelo,
-                o.licencia,
+                a.id_unidad,
+                a.licencia,
                 r.origen, r.destino
             FROM incidente i
             LEFT JOIN asignacion a ON i.id_asignacion = a.id_asignacion
