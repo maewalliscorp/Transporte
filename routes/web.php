@@ -35,11 +35,7 @@ Route::get('/incidentes', function (){
 })->name('incidentes');
 
 // Rutas para Incidentes
-Route::get('/incidentes', [IncidentesController::class, 'index'])->name('incidentes.index');
-Route::post('/incidentes', [IncidentesController::class, 'store'])->name('incidentes.store');
-Route::post('/incidentes/solucion', [IncidentesController::class, 'updateSolucion'])->name('incidentes.solucion');
-Route::get('/incidentes/{id}', [IncidentesController::class, 'getIncidente'])->name('incidentes.show');
-
+Route::get('/incidentes', [App\Http\Controllers\IncidentesController::class, 'index'])->name('incidentes');
 
 //Página de contabilidad :)
 Route::get('/contabilidad', [App\Http\Controllers\ContabilidadController::class, 'index'])->name('contabilidad');

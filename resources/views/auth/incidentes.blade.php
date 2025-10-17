@@ -64,10 +64,10 @@
                         <td>{{ $incidente['hora'] }}</td>
                         <td>{{ $incidente['descripcion'] }}</td>
                         <td>
-                            @if($incidente['estado'] == 'pendiente')
-                                <span class="badge bg-warning">Pendiente</span>
+                            @if($incidente['estado'] == 'Pendiente')
+                                <span class="badge bg-warning">{{ $incidente['estado'] }}</span>
                             @else
-                                <span class="badge bg-success">Solucionado</span>
+                                <span class="badge bg-success">{{ $incidente['estado'] }}</span>
                             @endif
                         </td>
                     </tr>
@@ -113,7 +113,7 @@
                         <td>{{ $incidente['fecha'] }}</td>
                         <td>{{ $incidente['hora'] }}</td>
                         <td>{{ $incidente['descripcion'] }}</td>
-                        <td>{{ $incidente['solucion'] ?? 'Sin solución' }}</td>
+                        <td></td>
                         <td>
                             <span class="badge bg-warning">Pendiente</span>
                         </td>
@@ -170,9 +170,9 @@
                         <td>{{ $incidente['fecha'] }}</td>
                         <td>{{ $incidente['hora'] }}</td>
                         <td>{{ $incidente['descripcion'] }}</td>
-                        <td>{{ $incidente['solucion'] ?? 'Sin solución' }}</td>
+                        <td></td>
                         <td>
-                            @if($incidente['estado'] == 'pendiente')
+                            @if($incidente['estado'] == 'Pendiente')
                                 <span class="badge bg-warning">Pendiente</span>
                             @else
                                 <span class="badge bg-success">Solucionado</span>

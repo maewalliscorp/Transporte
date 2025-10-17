@@ -17,16 +17,17 @@ class IncidentesModel extends Model
 
         $sql = "
             SELECT
-                i.id_incidente, i.descripcion, i.fecha, i.hora, i.estado, i.solucion,
+                i.id_incidente, i.descripcion, i.fecha, i.hora, i.estado,
                 a.id_asignacion,
                 a.id_unidad,
-                a.licencia,
-                r.origen, r.destino
+                o.licencia,
+                r.origen,
+                r.destino, u.placa
             FROM incidente i
-            LEFT JOIN asignacion a ON i.id_asignacion = a.id_asignacion
-            LEFT JOIN unidad u ON a.id_unidad = u.id_unidad
-            LEFT JOIN operador o ON a.id_operador = o.id_operador
-            LEFT JOIN ruta r ON a.id_ruta = r.id_ruta
+            LEFT JOIN asignacion a ON a.id_asignacion = i.id_asignacion
+            LEFT JOIN unidad u ON u.id_unidad = a.id_unidad
+            LEFT JOIN operador o ON o.id_operator = a.id_operador
+            LEFT JOIN ruta r ON r.id_ruta = a.id_ruta
             ORDER BY i.fecha DESC, i.hora DESC
         ";
 
@@ -40,7 +41,7 @@ class IncidentesModel extends Model
 
         $sql = "
             SELECT
-                i.id_incidente, i.descripcion, i.fecha, i.hora, i.estado, i.solucion,
+                i.id_incidente, i.descripcion, i.fecha, i.hora, i.estado,
                 a.id_asignacion,
                 u.id_unidad, u.placa, u.modelo,
                 o.licencia,
@@ -48,7 +49,7 @@ class IncidentesModel extends Model
             FROM incidente i
             LEFT JOIN asignacion a ON i.id_asignacion = a.id_asignacion
             LEFT JOIN unidad u ON a.id_unidad = u.id_unidad
-            LEFT JOIN operador o ON a.id_operador = o.id_operador
+            LEFT JOIN operador o ON o.id_operator = a.id_operador
             LEFT JOIN ruta r ON a.id_ruta = r.id_ruta
             WHERE i.estado = 'pendiente'
             ORDER BY i.fecha DESC, i.hora DESC
@@ -70,7 +71,7 @@ class IncidentesModel extends Model
                 r.origen, r.destino
             FROM asignacion a
             LEFT JOIN unidad u ON a.id_unidad = u.id_unidad
-            LEFT JOIN operador o ON a.id_operador = o.id_operador
+            LEFT JOIN operador o ON o.id_operator = a.id_operador
             LEFT JOIN ruta r ON a.id_ruta = r.id_ruta
             ORDER BY a.fecha DESC
         ";
