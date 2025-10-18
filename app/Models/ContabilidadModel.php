@@ -6,8 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class ContabilidadModel extends Model
 {
-    protected $table = 'asignacion';
-    protected $primaryKey = 'id_asignacion';
+    protected $table = 'ingreso';
+    protected $primaryKey = 'id_ingreso';
     public $incrementing = true;
     public $timestamps = false;
 
@@ -16,17 +16,20 @@ class ContabilidadModel extends Model
         $db = $this->getConnection();
 
         $sql = "
-            SELECT
-            u.id_unidad, u.placa, u.modelo, u.capacidad,
-            o.id_operator, o.licencia,
+        SELECT
+    i.id_ingreso,
+    u.id_unidad,
+    i.fecha,
+    i.monto
 
-            i.id_ingreso, i.fecha, i.monto
-        FROM ingreso i
-        LEFT JOIN asignacion a ON i.id_ingreso = a.id_ingreso
-        LEFT JOIN unidad u ON a.id_unidad = u.id_unidad
-        LEFT JOIN operador o ON a.id_operador = o.id_operator
-        ORDER BY i.fecha ASC
-        ";
+FROM
+    ingreso i
+JOIN
+    unidad u
+ON
+    i.id_ingreso = u.id_unidad
+        ORDER BY i.fecha DESC
+    ";
 
         $result = $db->select($sql);
         return array_map(fn($row) => (array) $row, $result);

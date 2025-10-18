@@ -47,8 +47,8 @@
         <table class="table table-striped table-hover">
             <thead class="table-dark">
             <tr>
-                <th>Unidad</th>
-                <th>Operador</th>
+                <th>ID Ingreso</th>
+                <th>ID Unidad</th>
                 <th>Fecha</th>
                 <th>Cantidad</th>
             </tr>
@@ -57,12 +57,16 @@
             @isset($ingresos)
                 @foreach($ingresos as $i)
                     <tr>
-                        <td>{{ $i['placa'] }} - {{ $i['modelo'] }} - {{ $i['capacidad'] }}</td>
-                        <td>{{ $i['licencia'] ?? 'No asignado' }}</td>
+                        <td>{{ $i['id_ingreso'] }}</td>
+                        <td>{{ $i['id_unidad'] }}</td>
                         <td>{{ $i['fecha'] }}</td>
                         <td>${{ number_format($i['monto'], 2) }}</td>
                     </tr>
                 @endforeach
+            @else
+                <tr>
+                    <td colspan="4" class="text-center text-muted">No hay ingresos registrados</td>
+                </tr>
             @endisset
             </tbody>
         </table>
@@ -121,6 +125,8 @@
         </span></div>
     </div>
 
+
+
     <!-- SECCIÓN TARIFAS -->
     <div id="seccionTarifas" style="display: none;">
         <div class="d-flex justify-content-between align-items-center mb-3">
@@ -170,6 +176,10 @@
             </div>
         </div>
     </div>
+
+
+
+
 
     <!-- SECCIÓN BANCARIOS -->
     <div id="seccionBancarios" style="display: none;">
