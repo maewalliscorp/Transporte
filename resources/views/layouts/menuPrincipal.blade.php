@@ -68,7 +68,13 @@
 
                 <li class="nav-item">
                     <a class="nav-link" href="{{ route('incidentes') }}">
-                        <i class="bi bi-graph-up me-1"></i>Incidentes
+                        <i class="bi bi-exclamation-triangle me-1"></i>Incidentes
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('mantenimiento') }}">
+                        <i class="bi bi-tools me-1"></i>Mantenimiento
                     </a>
                 </li>
 
