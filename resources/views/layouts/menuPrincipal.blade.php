@@ -51,6 +51,11 @@
                                 <i class="bi bi-clock me-2"></i>Horarios
                             </a>
                         </li>
+                        <li>
+                            <a class="dropdown-item" href="{{ route('agregar.tincidente') }}">
+                                <i class="bi bi-exclamation-triangle me-2"></i>Incidentes
+                            </a>
+                        </li>
                     </ul>
                 </li>
 

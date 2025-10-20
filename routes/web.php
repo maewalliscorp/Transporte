@@ -4,12 +4,14 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\InicioController;
+use App\Http\Controllers\IncidentesController;
+use App\Http\Controllers\MantenimientoController;
+
 use App\Http\Controllers\UnidadController;
 use App\Http\Controllers\OperadorController;
 use App\Http\Controllers\RutaController;
 use App\Http\Controllers\HorarioController;
-use App\Http\Controllers\IncidentesController;
-use App\Http\Controllers\MantenimientoController;
+use App\Http\Controllers\TincidenteController;
 
 // Redirigir / al login
 Route::get('/', function () {
@@ -64,6 +66,7 @@ Route::prefix('agregar')->group(function () {
     Route::get('/operadores', [OperadorController::class, 'index'])->name('agregar.operadores');
     Route::get('/rutas', [RutaController::class, 'index'])->name('agregar.rutas');
     Route::get('/horarios', [HorarioController::class, 'index'])->name('agregar.horarios');
+    Route::get('/tincidente', [TincidenteController::class, 'index'])->name('agregar.tincidente');
 });
 
 // Rutas para Horarios
