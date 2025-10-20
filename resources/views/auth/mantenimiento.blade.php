@@ -65,7 +65,29 @@
             </tr>
             </thead>
             <tbody>
-            <!-- Los datos aparecerán aquí -->
+            @isset($mantenimientosProgramados)
+                @foreach($mantenimientosProgramados as $mantenimiento)
+                    <tr>
+                        <td>{{ $mantenimiento['placa'] ?? 'N/A' }} - {{ $mantenimiento['modelo'] ?? 'N/A' }}</td>
+                        <td>{{ $mantenimiento['motivo'] ?? 'N/A' }}</td>
+                        <td>{{ $mantenimiento['fecha_programada'] ?? 'N/A' }}</td>
+                        <td>{{ $mantenimiento['motivo'] ?? 'N/A' }}</td>
+                        <td>{{ isset($mantenimiento['kmActual']) ? number_format($mantenimiento['kmActual'], 0) . ' km' : 'N/A' }}</td>
+                        <td>{{ $mantenimiento['licencia'] ?? 'N/A' }}</td>
+                        <td>
+                            @if(isset($mantenimiento['estado']))
+                                <span class="badge bg-warning">{{ ucfirst($mantenimiento['estado']) }}</span>
+                            @else
+                                <span class="badge bg-secondary">N/A</span>
+                            @endif
+                        </td>
+                    </tr>
+                @endforeach
+            @else
+                <tr>
+                    <td colspan="7" class="text-center text-muted">No hay mantenimientos programados</td>
+                </tr>
+            @endisset
             </tbody>
         </table>
     </div>
@@ -93,7 +115,24 @@
             </tr>
             </thead>
             <tbody>
-            <!-- Los datos aparecerán aquí -->
+            @isset($mantenimientosRealizados)
+                @foreach($mantenimientosRealizados as $m)
+                    <tr>
+                        <td>{{ $mantenimiento['placa'] ?? 'N/A' }} - {{ $mantenimiento['modelo'] ?? 'N/A' }}</td>
+                        <td>{{ $mantenimiento['fecha'] ?? 'N/A' }}</td>
+                        <td>{{ $mantenimiento['descripcion'] ?? 'N/A' }}</td>
+                        <td>{{ $mantenimiento['descripcion'] ?? 'N/A' }}</td>
+                        <td>N/A</td>
+                        <td>{{ $mantenimiento['licencia'] ?? 'N/A' }}</td>
+                        <td>N/A</td>
+                        <td>{{ $mantenimiento['descripcion'] ?? 'N/A' }}</td>
+                    </tr>
+                @endforeach
+            @else
+                <tr>
+                    <td colspan="8" class="text-center text-muted">No hay mantenimientos realizados</td>
+                </tr>
+            @endisset
             </tbody>
         </table>
     </div>
@@ -120,7 +159,35 @@
             </tr>
             </thead>
             <tbody>
-            <!-- Los datos aparecerán aquí -->
+            @isset($alertasMantenimiento)
+                @foreach($alertasMantenimiento as $alerta)
+                    <tr>
+                        <td>{{ $alerta['placa'] ?? 'N/A' }} - {{ $alerta['modelo'] ?? 'N/A' }}</td>
+                        <td>{{ isset($alerta['kmActual']) ? number_format($alerta['kmActual'], 0) . ' km' : 'N/A' }}</td>
+                        <td>{{ $alerta['fechaUltimoMantenimiento'] ?? 'N/A' }}</td>
+                        <td>{{ isset($alerta['kmProxMantenimiento']) ? number_format($alerta['kmProxMantenimiento'], 0) . ' km' : 'N/A' }}</td>
+                        <td>{{ $alerta['fechaProxMantenimiento'] ?? 'N/A' }}</td>
+                        <td>{{ $alerta['incidenteReportado'] ?? 'Ninguno' }}</td>
+                        <td>
+                            @if(isset($alerta['estadoAlerta']))
+                                @if($alerta['estadoAlerta'] == 'urgente')
+                                    <span class="badge bg-danger">Urgente</span>
+                                @elseif($alerta['estadoAlerta'] == 'proximo')
+                                    <span class="badge bg-warning">Próximo</span>
+                                @else
+                                    <span class="badge bg-info">Pendiente</span>
+                                @endif
+                            @else
+                                <span class="badge bg-secondary">N/A</span>
+                            @endif
+                        </td>
+                    </tr>
+                @endforeach
+            @else
+                <tr>
+                    <td colspan="7" class="text-center text-muted">No hay alertas de mantenimiento</td>
+                </tr>
+            @endisset
             </tbody>
         </table>
     </div>
@@ -129,12 +196,18 @@
     <div id="seccionHistorial" style="display: none;">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h5>Historial de Mantenimiento</h5>
-            <!-- El historial no tiene botón de agregar -->
         </div>
         <div class="mb-3">
             <label class="form-label">Seleccionar Unidad</label>
             <select class="form-select" id="unidadHistorial">
                 <option selected disabled>Selecciona unidad</option>
+                @isset($unidades)
+                    @foreach($unidades as $unidad)
+                        <option value="{{ $unidad['id_unidad'] }}">
+                            {{ $unidad['placa'] }} - {{ $unidad['modelo'] }}
+                        </option>
+                    @endforeach
+                @endisset
             </select>
         </div>
         <table class="table table-bordered">
@@ -152,7 +225,31 @@
             </tr>
             </thead>
             <tbody>
-            <!-- Los datos aparecerán aquí -->
+            @isset($historialMantenimiento)
+                @foreach($historialMantenimiento as $mantenimiento)
+                    <tr>
+                        <td>{{ $mantenimiento['placa'] ?? 'N/A' }} - {{ $mantenimiento['modelo'] ?? 'N/A' }}</td>
+                        <td>{{ $mantenimiento['fecha'] ?? 'N/A' }}</td>
+                        <td>{{ $mantenimiento['descripcion'] ?? 'N/A' }}</td>
+                        <td>{{ $mantenimiento['descripcion'] ?? 'N/A' }}</td>
+                        <td>N/A</td>
+                        <td>{{ isset($mantenimiento['kmActual']) ? number_format($mantenimiento['kmActual'], 0) . ' km' : 'N/A' }}</td>
+                        <td>N/A</td>
+                        <td>{{ $mantenimiento['descripcion'] ?? 'N/A' }}</td>
+                        <td>
+                            @if(isset($mantenimiento['estado']))
+                                <span class="badge bg-success">{{ ucfirst($mantenimiento['estado']) }}</span>
+                            @else
+                                <span class="badge bg-secondary">N/A</span>
+                            @endif
+                        </td>
+                    </tr>
+                @endforeach
+            @else
+                <tr>
+                    <td colspan="9" class="text-center text-muted">No hay historial de mantenimiento</td>
+                </tr>
+            @endisset
             </tbody>
         </table>
     </div>
@@ -177,6 +274,13 @@
                             <label class="form-label">Unidad</label>
                             <select class="form-select" name="unidad" required>
                                 <option value="" selected disabled>Selecciona una unidad...</option>
+                                @isset($unidades)
+                                    @foreach($unidades as $unidad)
+                                        <option value="{{ $unidad['id_unidad'] }}">
+                                            {{ $unidad['placa'] }} - {{ $unidad['modelo'] }}
+                                        </option>
+                                    @endforeach
+                                @endisset
                             </select>
                         </div>
                         <div class="col-md-6">
@@ -202,6 +306,13 @@
                             <label class="form-label">Operador</label>
                             <select class="form-select" name="operador" required>
                                 <option value="" selected disabled>Selecciona un operador...</option>
+                                @isset($operadores)
+                                    @foreach($operadores as $operador)
+                                        <option value="{{ $operador['id_operator'] }}">
+                                            {{ $operador['licencia'] }}
+                                        </option>
+                                    @endforeach
+                                @endisset
                             </select>
                         </div>
                         <div class="col-md-12">
@@ -241,6 +352,13 @@
                             <label class="form-label">Unidad</label>
                             <select class="form-select" name="unidad" required>
                                 <option value="" selected disabled>Selecciona una unidad...</option>
+                                @isset($unidades)
+                                    @foreach($unidades as $unidad)
+                                        <option value="{{ $unidad['id_unidad'] }}">
+                                            {{ $unidad['placa'] }} - {{ $unidad['modelo'] }}
+                                        </option>
+                                    @endforeach
+                                @endisset
                             </select>
                         </div>
                         <div class="col-md-6">
@@ -266,6 +384,13 @@
                             <label class="form-label">Operador</label>
                             <select class="form-select" name="operador" required>
                                 <option value="" selected disabled>Selecciona un operador...</option>
+                                @isset($operadores)
+                                    @foreach($operadores as $operador)
+                                        <option value="{{ $operador['id_operator'] }}">
+                                            {{ $operador['licencia'] }}
+                                        </option>
+                                    @endforeach
+                                @endisset
                             </select>
                         </div>
                         <div class="col-md-6">
@@ -313,6 +438,13 @@
                             <label class="form-label">Unidad</label>
                             <select class="form-select" name="unidad" required>
                                 <option value="" selected disabled>Selecciona una unidad...</option>
+                                @isset($unidades)
+                                    @foreach($unidades as $unidad)
+                                        <option value="{{ $unidad['id_unidad'] }}">
+                                            {{ $unidad['placa'] }} - {{ $unidad['modelo'] }}
+                                        </option>
+                                    @endforeach
+                                @endisset
                             </select>
                         </div>
                         <div class="col-md-6">

@@ -9,6 +9,7 @@ use App\Http\Controllers\OperadorController;
 use App\Http\Controllers\RutaController;
 use App\Http\Controllers\HorarioController;
 use App\Http\Controllers\IncidentesController;
+use App\Http\Controllers\MantenimientoController;
 
 // Redirigir / al login
 Route::get('/', function () {
@@ -40,10 +41,12 @@ Route::get('/incidentes', [App\Http\Controllers\IncidentesController::class, 'in
 //Página de contabilidad :)
 Route::get('/contabilidad', [App\Http\Controllers\ContabilidadController::class, 'index'])->name('contabilidad');
 
-//Página de contabilidad :)
+//Página de mantenimiento :)
 Route::get('/mantenimiento', function (){
     return view('auth.mantenimiento');
 })->name('mantenimiento');
+
+Route::get('/mantenimiento', [MantenimientoController::class, 'index'])->name('mantenimiento');
 
 //Página de pasajero :)
 Route::get('/pasajerof', function (){
