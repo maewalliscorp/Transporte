@@ -3,8 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <title>Gestión de Unidades</title>
+
+    <!-- Bootstrap CSS & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- DataTables CSS -->
+    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css" rel="stylesheet">
 </head>
 <body>
 @include('layouts.menuPrincipal')
@@ -20,43 +26,45 @@
     <!-- Tabla de Unidades -->
     <div class="card">
         <div class="card-body">
-            <table class="table table-striped table-hover">
-                <thead class="table-dark">
-                <tr>
-                    <th>ID</th>
-                    <th>Placa</th>
-                    <th>Modelo</th>
-                    <th>Capacidad</th>
-                    <th>Acciones</th>
-                </tr>
-                </thead>
-                <tbody>
-                @if(count($unidades) > 0)
-                    @foreach($unidades as $unidad)
+            <div class="table-responsive">
+                <table class="table table-striped table-hover display nowrap" id="tablaUnidades" style="width:100%">
+                    <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Placa</th>
+                        <th>Modelo</th>
+                        <th>Capacidad</th>
+                        <th>Acciones</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @if(count($unidades) > 0)
+                        @foreach($unidades as $unidad)
+                            <tr>
+                                <td>{{ $unidad['id_unidad'] }}</td>
+                                <td>{{ $unidad['placa'] }}</td>
+                                <td>{{ $unidad['modelo'] }}</td>
+                                <td>{{ $unidad['capacidad'] }} personas</td>
+                                <td>
+                                    <button class="btn btn-warning btn-sm" onclick="editarUnidad({{ $unidad['id_unidad'] }})">
+                                        <i class="bi bi-pencil"></i> Editar
+                                    </button>
+                                    <button class="btn btn-danger btn-sm" onclick="eliminarUnidad({{ $unidad['id_unidad'] }})">
+                                        <i class="bi bi-trash"></i> Eliminar
+                                    </button>
+                                </td>
+                            </tr>
+                        @endforeach
+                    @else
                         <tr>
-                            <td>{{ $unidad['id_unidad'] }}</td>
-                            <td>{{ $unidad['placa'] }}</td>
-                            <td>{{ $unidad['modelo'] }}</td>
-                            <td>{{ $unidad['capacidad'] }} personas</td>
-                            <td>
-                                <button class="btn btn-warning btn-sm" onclick="editarUnidad({{ $unidad['id_unidad'] }})">
-                                    <i class="bi bi-pencil"></i> Editar
-                                </button>
-                                <button class="btn btn-danger btn-sm" onclick="eliminarUnidad({{ $unidad['id_unidad'] }})">
-                                    <i class="bi bi-trash"></i> Eliminar
-                                </button>
+                            <td colspan="5" class="text-center text-muted">
+                                <i class="bi bi-info-circle"></i> No hay unidades registradas
                             </td>
                         </tr>
-                    @endforeach
-                @else
-                    <tr>
-                        <td colspan="5" class="text-center text-muted">
-                            <i class="bi bi-info-circle"></i> No hay unidades registradas
-                        </td>
-                    </tr>
-                @endif
-                </tbody>
-            </table>
+                    @endif
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
@@ -103,9 +111,60 @@
     </div>
 </div>
 
+<!-- jQuery + Bootstrap + DataTables JS -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+
 <script>
     let modoEdicion = false;
+    let tableUnidades;
+
+    $(document).ready(function() {
+        // Inicializar DataTable
+        tableUnidades = $('#tablaUnidades').DataTable({
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay datos disponibles en la tabla",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                "infoEmpty": "Mostrando 0 a 0 de 0 entradas",
+                "infoFiltered": "(filtrado de _MAX_ entradas totales)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ entradas por página",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "No se encontraron registros coincidentes",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Último",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                },
+                "aria": {
+                    "sortAscending": ": activar para ordenar columna ascendente",
+                    "sortDescending": ": activar para ordenar columna descendente"
+                }
+            },
+            pageLength: 10,
+            lengthMenu: [5, 10, 25, 50, 100],
+            responsive: true,
+            autoWidth: false,
+            order: [[0, 'asc']], // Ordenar por ID ascendente por defecto
+            dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>rt<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>'
+        });
+
+        // Validar capacidad mínima
+        document.getElementById('capacidad').addEventListener('change', function() {
+            if (this.value < 1) {
+                this.value = 1;
+            }
+        });
+    });
 
     function editarUnidad(id) {
         fetch(`/unidades/${id}`)
@@ -214,13 +273,6 @@
         document.getElementById('modalTitulo').textContent = 'Agregar Unidad';
         document.getElementById('btnGuardar').innerHTML = '<i class="bi bi-check-circle"></i> Guardar';
         modoEdicion = false;
-    });
-
-    // Validar capacidad mínima
-    document.getElementById('capacidad').addEventListener('change', function() {
-        if (this.value < 1) {
-            this.value = 1;
-        }
     });
 </script>
 </body>

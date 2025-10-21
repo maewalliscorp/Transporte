@@ -3,8 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <title>Gestión de Operadores</title>
+
+    <!-- Bootstrap CSS & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- DataTables CSS -->
+    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css" rel="stylesheet">
 </head>
 <body>
 @include('layouts.menuPrincipal')
@@ -20,58 +26,60 @@
     <!-- Tabla de Operadores -->
     <div class="card">
         <div class="card-body">
-            <table class="table table-striped table-hover">
-                <thead class="table-dark">
-                <tr>
-                    <th>ID</th>
-                    <th>Usuario</th>
-                    <th>Email</th>
-                    <th>Licencia</th>
-                    <th>Teléfono</th>
-                    <th>Estado</th>
-                    <th>Acciones</th>
-                </tr>
-                </thead>
-                <tbody>
-                @if(count($operadores) > 0)
-                    @foreach($operadores as $operador)
+            <div class="table-responsive">
+                <table class="table table-striped table-hover display nowrap" id="tablaOperadores" style="width:100%">
+                    <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Usuario</th>
+                        <th>Email</th>
+                        <th>Licencia</th>
+                        <th>Teléfono</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @if(count($operadores) > 0)
+                        @foreach($operadores as $operador)
+                            <tr>
+                                <td>{{ $operador['id_operator'] }}</td>
+                                <td>{{ $operador['nombre_usuario'] ?? 'N/A' }}</td>
+                                <td>{{ $operador['email'] ?? 'N/A' }}</td>
+                                <td>{{ $operador['licencia'] }}</td>
+                                <td>{{ $operador['telefono'] }}</td>
+                                <td>
+                                    @php
+                                        $estadoClass = [
+                                            'activo' => 'bg-success',
+                                            'inactivo' => 'bg-secondary',
+                                            'suspendido' => 'bg-warning'
+                                        ][$operador['estado']] ?? 'bg-secondary';
+                                    @endphp
+                                    <span class="badge {{ $estadoClass }}">
+                                        {{ ucfirst($operador['estado']) }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <button class="btn btn-warning btn-sm" onclick="editarOperador({{ $operador['id_operator'] }})">
+                                        <i class="bi bi-pencil"></i> Editar
+                                    </button>
+                                    <button class="btn btn-danger btn-sm" onclick="eliminarOperador({{ $operador['id_operator'] }})">
+                                        <i class="bi bi-trash"></i> Eliminar
+                                    </button>
+                                </td>
+                            </tr>
+                        @endforeach
+                    @else
                         <tr>
-                            <td>{{ $operador['id_operator'] }}</td>
-                            <td>{{ $operador['nombre_usuario'] ?? 'N/A' }}</td>
-                            <td>{{ $operador['email'] ?? 'N/A' }}</td>
-                            <td>{{ $operador['licencia'] }}</td>
-                            <td>{{ $operador['telefono'] }}</td>
-                            <td>
-                                @php
-                                    $estadoClass = [
-                                        'activo' => 'bg-success',
-                                        'inactivo' => 'bg-secondary',
-                                        'suspendido' => 'bg-warning'
-                                    ][$operador['estado']] ?? 'bg-secondary';
-                                @endphp
-                                <span class="badge {{ $estadoClass }}">
-                                    {{ ucfirst($operador['estado']) }}
-                                </span>
-                            </td>
-                            <td>
-                                <button class="btn btn-warning btn-sm" onclick="editarOperador({{ $operador['id_operator'] }})">
-                                    <i class="bi bi-pencil"></i> Editar
-                                </button>
-                                <button class="btn btn-danger btn-sm" onclick="eliminarOperador({{ $operador['id_operator'] }})">
-                                    <i class="bi bi-trash"></i> Eliminar
-                                </button>
+                            <td colspan="7" class="text-center text-muted">
+                                <i class="bi bi-info-circle"></i> No hay operadores registrados
                             </td>
                         </tr>
-                    @endforeach
-                @else
-                    <tr>
-                        <td colspan="7" class="text-center text-muted">
-                            <i class="bi bi-info-circle"></i> No hay operadores registrados
-                        </td>
-                    </tr>
-                @endif
-                </tbody>
-            </table>
+                    @endif
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
@@ -138,20 +146,75 @@
     </div>
 </div>
 
+<!-- jQuery + Bootstrap + DataTables JS -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+
 <script>
     let modoEdicion = false;
+    let tableOperadores;
 
-    // Mostrar email del usuario seleccionado
-    document.getElementById('id').addEventListener('change', function() {
-        const selectedOption = this.options[this.selectedIndex];
-        const email = selectedOption.getAttribute('data-email');
+    $(document).ready(function() {
+        // Inicializar DataTable
+        tableOperadores = $('#tablaOperadores').DataTable({
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay datos disponibles en la tabla",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                "infoEmpty": "Mostrando 0 a 0 de 0 entradas",
+                "infoFiltered": "(filtrado de _MAX_ entradas totales)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ entradas por página",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "No se encontraron registros coincidentes",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Último",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                },
+                "aria": {
+                    "sortAscending": ": activar para ordenar columna ascendente",
+                    "sortDescending": ": activar para ordenar columna descendente"
+                }
+            },
+            pageLength: 10,
+            lengthMenu: [5, 10, 25, 50, 100],
+            responsive: true,
+            autoWidth: false,
+            order: [[0, 'asc']], // Ordenar por ID ascendente por defecto
+            dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>rt<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>'
+        });
 
-        if (email) {
-            document.getElementById('infoEmail').textContent = email;
-        } else {
-            document.getElementById('infoEmail').textContent = 'Ninguno seleccionado';
-        }
+        // Mostrar email del usuario seleccionado
+        document.getElementById('id').addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            const email = selectedOption.getAttribute('data-email');
+
+            if (email) {
+                document.getElementById('infoEmail').textContent = email;
+            } else {
+                document.getElementById('infoEmail').textContent = 'Ninguno seleccionado';
+            }
+        });
+
+        // Formatear teléfono mientras se escribe
+        document.getElementById('telefono').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 3 && value.length <= 6) {
+                value = value.replace(/(\d{3})(\d+)/, '$1-$2');
+            } else if (value.length > 6) {
+                value = value.replace(/(\d{3})(\d{3})(\d+)/, '$1-$2-$3');
+            }
+            e.target.value = value;
+        });
     });
 
     function editarOperador(id) {
@@ -276,17 +339,6 @@
         document.getElementById('modalTitulo').textContent = 'Agregar Operador';
         document.getElementById('btnGuardar').innerHTML = '<i class="bi bi-check-circle"></i> Guardar';
         modoEdicion = false;
-    });
-
-    // Formatear teléfono mientras se escribe
-    document.getElementById('telefono').addEventListener('input', function(e) {
-        let value = e.target.value.replace(/\D/g, '');
-        if (value.length > 3 && value.length <= 6) {
-            value = value.replace(/(\d{3})(\d+)/, '$1-$2');
-        } else if (value.length > 6) {
-            value = value.replace(/(\d{3})(\d{3})(\d+)/, '$1-$2-$3');
-        }
-        e.target.value = value;
     });
 </script>
 </body>

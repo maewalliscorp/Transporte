@@ -3,8 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <title>Gestión de Incidentes</title>
+
+    <!-- Bootstrap CSS & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- DataTables CSS -->
+    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css" rel="stylesheet">
 </head>
 <body>
 @include('layouts.menuPrincipal')
@@ -20,67 +26,69 @@
     <!-- Tabla de Incidentes -->
     <div class="card">
         <div class="card-body">
-            <table class="table table-striped table-hover">
-                <thead class="table-dark">
-                <tr>
-                    <th>ID</th>
-                    <th>Asignación</th>
-                    <th>Descripción</th>
-                    <th>Fecha</th>
-                    <th>Hora</th>
-                    <th>Estado</th>
-                    <th>Acciones</th>
-                </tr>
-                </thead>
-                <tbody>
-                @if(count($incidentes) > 0)
-                    @foreach($incidentes as $incidente)
+            <div class="table-responsive">
+                <table class="table table-striped table-hover display nowrap" id="tablaIncidentes" style="width:100%">
+                    <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Asignación</th>
+                        <th>Descripción</th>
+                        <th>Fecha</th>
+                        <th>Hora</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @if(count($incidentes) > 0)
+                        @foreach($incidentes as $incidente)
+                            <tr>
+                                <td>{{ $incidente['id_incidente'] }}</td>
+                                <td>
+                                    @if($incidente['placa'] && $incidente['licencia'])
+                                        {{ $incidente['placa'] }} - {{ $incidente['licencia'] }}
+                                        <br><small class="text-muted">{{ $incidente['origen'] }} - {{ $incidente['destino'] }}</small>
+                                    @else
+                                        <span class="text-muted">Asignación no disponible</span>
+                                    @endif
+                                </td>
+                                <td>{{ Str::limit($incidente['descripcion'], 50) }}</td>
+                                <td>{{ $incidente['fecha'] }}</td>
+                                <td>{{ $incidente['hora'] }}</td>
+                                <td>
+                                    @if($incidente['estado'] == 'pendiente')
+                                        <span class="badge bg-warning">Pendiente</span>
+                                    @else
+                                        <span class="badge bg-success">Resuelto</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    <button class="btn btn-warning btn-sm" onclick="editarIncidente({{ $incidente['id_incidente'] }})">
+                                        <i class="bi bi-pencil"></i> Editar
+                                    </button>
+                                    <button class="btn btn-danger btn-sm" onclick="eliminarIncidente({{ $incidente['id_incidente'] }})">
+                                        <i class="bi bi-trash"></i> Eliminar
+                                    </button>
+                                </td>
+                            </tr>
+                        @endforeach
+                    @else
                         <tr>
-                            <td>{{ $incidente['id_incidente'] }}</td>
-                            <td>
-                                @if($incidente['placa'] && $incidente['licencia'])
-                                    {{ $incidente['placa'] }} - {{ $incidente['licencia'] }}
-                                    <br><small class="text-muted">{{ $incidente['origen'] }} - {{ $incidente['destino'] }}</small>
-                                @else
-                                    <span class="text-muted">Asignación no disponible</span>
-                                @endif
-                            </td>
-                            <td>{{ Str::limit($incidente['descripcion'], 50) }}</td>
-                            <td>{{ $incidente['fecha'] }}</td>
-                            <td>{{ $incidente['hora'] }}</td>
-                            <td>
-                                @if($incidente['estado'] == 'pendiente')
-                                    <span class="badge bg-warning">Pendiente</span>
-                                @else
-                                    <span class="badge bg-success">Resuelto</span>
-                                @endif
-                            </td>
-                            <td>
-                                <button class="btn btn-warning btn-sm" onclick="editarIncidente({{ $incidente['id_incidente'] }})">
-                                    <i class="bi bi-pencil"></i> Editar
-                                </button>
-                                <button class="btn btn-danger btn-sm" onclick="eliminarIncidente({{ $incidente['id_incidente'] }})">
-                                    <i class="bi bi-trash"></i> Eliminar
-                                </button>
+                            <td colspan="7" class="text-center text-muted">
+                                <i class="bi bi-info-circle"></i> No hay incidentes registrados
                             </td>
                         </tr>
-                    @endforeach
-                @else
-                    <tr>
-                        <td colspan="7" class="text-center text-muted">
-                            <i class="bi bi-info-circle"></i> No hay incidentes registrados
-                        </td>
-                    </tr>
-                @endif
-                </tbody>
-            </table>
+                    @endif
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
 
 <!-- Modal para Agregar/Editar Incidente -->
 <div class="modal fade" id="modalAgregarIncidente" tabindex="-1">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="modalTitulo">Registrar Incidente</h5>
@@ -148,31 +156,73 @@
     </div>
 </div>
 
+<!-- jQuery + Bootstrap + DataTables JS -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+
 <script>
     let modoEdicion = false;
+    let tablaIncidentes;
 
-    // Mostrar información de la asignación seleccionada
-    document.getElementById('id_asignacion').addEventListener('change', function() {
-        const selectedOption = this.options[this.selectedIndex];
-        const placa = selectedOption.getAttribute('data-placa');
-        const licencia = selectedOption.getAttribute('data-licencia');
-        const ruta = selectedOption.getAttribute('data-ruta');
+    $(document).ready(function() {
+        // Inicializar DataTable
+        tablaIncidentes = $('#tablaIncidentes').DataTable({
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay datos disponibles en la tabla",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                "infoEmpty": "Mostrando 0 a 0 de 0 entradas",
+                "infoFiltered": "(filtrado de _MAX_ entradas totales)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ entradas por página",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "No se encontraron registros coincidentes",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Último",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                },
+                "aria": {
+                    "sortAscending": ": activar para ordenar columna ascendente",
+                    "sortDescending": ": activar para ordenar columna descendente"
+                }
+            },
+            pageLength: 10,
+            lengthMenu: [5, 10, 25, 50, 100],
+            responsive: true,
+            autoWidth: false,
+            order: [[0, 'asc']], // Ordenar por ID ascendente por defecto
+            dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>rt<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>'
+        });
 
-        if (placa && licencia) {
-            document.getElementById('infoAsignacion').textContent = `${placa} - ${licencia} (${ruta})`;
-        } else {
-            document.getElementById('infoAsignacion').textContent = 'Ninguna seleccionada';
-        }
-    });
+        // Mostrar información de la asignación seleccionada
+        document.getElementById('id_asignacion').addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            const placa = selectedOption.getAttribute('data-placa');
+            const licencia = selectedOption.getAttribute('data-licencia');
+            const ruta = selectedOption.getAttribute('data-ruta');
 
-    // Contador de caracteres para la descripción
-    document.getElementById('descripcion').addEventListener('input', function() {
-        document.getElementById('contadorCaracteres').textContent = this.value.length;
-    });
+            if (placa && licencia) {
+                document.getElementById('infoAsignacion').textContent = `${placa} - ${licencia} (${ruta})`;
+            } else {
+                document.getElementById('infoAsignacion').textContent = 'Ninguna seleccionada';
+            }
+        });
 
-    // Establecer fecha y hora actual por defecto
-    document.addEventListener('DOMContentLoaded', function() {
+        // Contador de caracteres para la descripción
+        document.getElementById('descripcion').addEventListener('input', function() {
+            document.getElementById('contadorCaracteres').textContent = this.value.length;
+        });
+
+        // Establecer fecha y hora actual por defecto
         const now = new Date();
         const fechaActual = now.toISOString().split('T')[0];
         const horas = now.getHours().toString().padStart(2, '0');
@@ -239,7 +289,7 @@
                 .then(data => {
                     if (data.success) {
                         alert(data.message);
-                        location.reload();
+                        location.reload(); // Recargar la página para ver los cambios
                     } else {
                         alert('Error: ' + data.message);
                     }
@@ -293,7 +343,7 @@
                     alert(data.message);
                     const modal = bootstrap.Modal.getInstance(document.getElementById('modalAgregarIncidente'));
                     modal.hide();
-                    location.reload();
+                    location.reload(); // Recargar la página para ver los cambios
                 } else {
                     alert('Error: ' + data.message);
                 }
