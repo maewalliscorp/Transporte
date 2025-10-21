@@ -8,6 +8,10 @@
     <!-- Bootstrap CSS & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- DataTables CSS -->
+    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css" rel="stylesheet">
 </head>
 <body>
 
@@ -52,44 +56,46 @@
             </div>
         </div>
 
-        <table class="table table-bordered">
-            <thead class="table-dark">
-            <tr>
-                <th>Unidad</th>
-                <th>Tipo</th>
-                <th>Fecha</th>
-                <th>Motivo</th>
-                <th>Kilometraje</th>
-                <th>Operador</th>
-                <th>Estado</th>
-            </tr>
-            </thead>
-            <tbody>
-            @isset($mantenimientosProgramados)
-                @foreach($mantenimientosProgramados as $mantenimiento)
-                    <tr>
-                        <td>{{ $mantenimiento['placa'] ?? 'N/A' }} - {{ $mantenimiento['modelo'] ?? 'N/A' }}</td>
-                        <td>{{ $mantenimiento['motivo'] ?? 'N/A' }}</td>
-                        <td>{{ $mantenimiento['fecha_programada'] ?? 'N/A' }}</td>
-                        <td>{{ $mantenimiento['motivo'] ?? 'N/A' }}</td>
-                        <td>{{ isset($mantenimiento['kmActual']) ? number_format($mantenimiento['kmActual'], 0) . ' km' : 'N/A' }}</td>
-                        <td>{{ $mantenimiento['licencia'] ?? 'N/A' }}</td>
-                        <td>
-                            @if(isset($mantenimiento['estado']))
-                                <span class="badge bg-warning">{{ ucfirst($mantenimiento['estado']) }}</span>
-                            @else
-                                <span class="badge bg-secondary">N/A</span>
-                            @endif
-                        </td>
-                    </tr>
-                @endforeach
-            @else
+        <div class="table-responsive">
+            <table class="table table-striped table-hover display nowrap" id="tablaProgramacion" style="width:100%">
+                <thead class="table-dark">
                 <tr>
-                    <td colspan="7" class="text-center text-muted">No hay mantenimientos programados</td>
+                    <th>Unidad</th>
+                    <th>Tipo</th>
+                    <th>Fecha</th>
+                    <th>Motivo</th>
+                    <th>Kilometraje</th>
+                    <th>Operador</th>
+                    <th>Estado</th>
                 </tr>
-            @endisset
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                @isset($mantenimientosProgramados)
+                    @foreach($mantenimientosProgramados as $mantenimiento)
+                        <tr>
+                            <td>{{ $mantenimiento['placa'] ?? 'N/A' }} - {{ $mantenimiento['modelo'] ?? 'N/A' }}</td>
+                            <td>{{ $mantenimiento['motivo'] ?? 'N/A' }}</td>
+                            <td>{{ $mantenimiento['fecha_programada'] ?? 'N/A' }}</td>
+                            <td>{{ $mantenimiento['motivo'] ?? 'N/A' }}</td>
+                            <td>{{ isset($mantenimiento['kmActual']) ? number_format($mantenimiento['kmActual'], 0) . ' km' : 'N/A' }}</td>
+                            <td>{{ $mantenimiento['licencia'] ?? 'N/A' }}</td>
+                            <td>
+                                @if(isset($mantenimiento['estado']))
+                                    <span class="badge bg-warning">{{ ucfirst($mantenimiento['estado']) }}</span>
+                                @else
+                                    <span class="badge bg-secondary">N/A</span>
+                                @endif
+                            </td>
+                        </tr>
+                    @endforeach
+                @else
+                    <tr>
+                        <td colspan="7" class="text-center text-muted">No hay mantenimientos programados</td>
+                    </tr>
+                @endisset
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <!-- MANTENIMIENTOS REALIZADOS -->
@@ -101,40 +107,42 @@
             </button>
         </div>
 
-        <table class="table table-bordered">
-            <thead class="table-dark">
-            <tr>
-                <th>Unidad</th>
-                <th>Fecha</th>
-                <th>Tipo</th>
-                <th>Descripción</th>
-                <th>Piezas</th>
-                <th>Operador</th>
-                <th>Costo</th>
-                <th>Observaciones</th>
-            </tr>
-            </thead>
-            <tbody>
-            @isset($mantenimientosRealizados)
-                @foreach($mantenimientosRealizados as $m)
-                    <tr>
-                        <td>{{ $mantenimiento['placa'] ?? 'N/A' }} - {{ $mantenimiento['modelo'] ?? 'N/A' }}</td>
-                        <td>{{ $mantenimiento['fecha'] ?? 'N/A' }}</td>
-                        <td>{{ $mantenimiento['descripcion'] ?? 'N/A' }}</td>
-                        <td>{{ $mantenimiento['descripcion'] ?? 'N/A' }}</td>
-                        <td>N/A</td>
-                        <td>{{ $mantenimiento['licencia'] ?? 'N/A' }}</td>
-                        <td>N/A</td>
-                        <td>{{ $mantenimiento['descripcion'] ?? 'N/A' }}</td>
-                    </tr>
-                @endforeach
-            @else
+        <div class="table-responsive">
+            <table class="table table-striped table-hover display nowrap" id="tablaRealizados" style="width:100%">
+                <thead class="table-dark">
                 <tr>
-                    <td colspan="8" class="text-center text-muted">No hay mantenimientos realizados</td>
+                    <th>Unidad</th>
+                    <th>Fecha</th>
+                    <th>Tipo</th>
+                    <th>Descripción</th>
+                    <th>Piezas</th>
+                    <th>Operador</th>
+                    <th>Costo</th>
+                    <th>Observaciones</th>
                 </tr>
-            @endisset
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                @isset($mantenimientosRealizados)
+                    @foreach($mantenimientosRealizados as $mantenimiento)
+                        <tr>
+                            <td>{{ $mantenimiento['placa'] ?? 'N/A' }} - {{ $mantenimiento['modelo'] ?? 'N/A' }}</td>
+                            <td>{{ $mantenimiento['fecha'] ?? 'N/A' }}</td>
+                            <td>{{ $mantenimiento['descripcion'] ?? 'N/A' }}</td>
+                            <td>{{ $mantenimiento['descripcion'] ?? 'N/A' }}</td>
+                            <td>N/A</td>
+                            <td>{{ $mantenimiento['licencia'] ?? 'N/A' }}</td>
+                            <td>N/A</td>
+                            <td>{{ $mantenimiento['descripcion'] ?? 'N/A' }}</td>
+                        </tr>
+                    @endforeach
+                @else
+                    <tr>
+                        <td colspan="8" class="text-center text-muted">No hay mantenimientos realizados</td>
+                    </tr>
+                @endisset
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <!-- ALERTAS DE MANTENIMIENTO -->
@@ -146,50 +154,52 @@
             </button>
         </div>
 
-        <table class="table table-bordered">
-            <thead class="table-dark">
-            <tr>
-                <th>Unidad</th>
-                <th>Kilómetro Actual</th>
-                <th>Fecha Último</th>
-                <th>Km Próximo</th>
-                <th>Fecha Próximo</th>
-                <th>Incidentes</th>
-                <th>Estado</th>
-            </tr>
-            </thead>
-            <tbody>
-            @isset($alertasMantenimiento)
-                @foreach($alertasMantenimiento as $alerta)
-                    <tr>
-                        <td>{{ $alerta['placa'] ?? 'N/A' }} - {{ $alerta['modelo'] ?? 'N/A' }}</td>
-                        <td>{{ isset($alerta['kmActual']) ? number_format($alerta['kmActual'], 0) . ' km' : 'N/A' }}</td>
-                        <td>{{ $alerta['fechaUltimoMantenimiento'] ?? 'N/A' }}</td>
-                        <td>{{ isset($alerta['kmProxMantenimiento']) ? number_format($alerta['kmProxMantenimiento'], 0) . ' km' : 'N/A' }}</td>
-                        <td>{{ $alerta['fechaProxMantenimiento'] ?? 'N/A' }}</td>
-                        <td>{{ $alerta['incidenteReportado'] ?? 'Ninguno' }}</td>
-                        <td>
-                            @if(isset($alerta['estadoAlerta']))
-                                @if($alerta['estadoAlerta'] == 'urgente')
-                                    <span class="badge bg-danger">Urgente</span>
-                                @elseif($alerta['estadoAlerta'] == 'proximo')
-                                    <span class="badge bg-warning">Próximo</span>
-                                @else
-                                    <span class="badge bg-info">Pendiente</span>
-                                @endif
-                            @else
-                                <span class="badge bg-secondary">N/A</span>
-                            @endif
-                        </td>
-                    </tr>
-                @endforeach
-            @else
+        <div class="table-responsive">
+            <table class="table table-striped table-hover display nowrap" id="tablaAlertas" style="width:100%">
+                <thead class="table-dark">
                 <tr>
-                    <td colspan="7" class="text-center text-muted">No hay alertas de mantenimiento</td>
+                    <th>Unidad</th>
+                    <th>Kilómetro Actual</th>
+                    <th>Fecha Último</th>
+                    <th>Km Próximo</th>
+                    <th>Fecha Próximo</th>
+                    <th>Incidentes</th>
+                    <th>Estado</th>
                 </tr>
-            @endisset
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                @isset($alertasMantenimiento)
+                    @foreach($alertasMantenimiento as $alerta)
+                        <tr>
+                            <td>{{ $alerta['placa'] ?? 'N/A' }} - {{ $alerta['modelo'] ?? 'N/A' }}</td>
+                            <td>{{ isset($alerta['kmActual']) ? number_format($alerta['kmActual'], 0) . ' km' : 'N/A' }}</td>
+                            <td>{{ $alerta['fechaUltimoMantenimiento'] ?? 'N/A' }}</td>
+                            <td>{{ isset($alerta['kmProxMantenimiento']) ? number_format($alerta['kmProxMantenimiento'], 0) . ' km' : 'N/A' }}</td>
+                            <td>{{ $alerta['fechaProxMantenimiento'] ?? 'N/A' }}</td>
+                            <td>{{ $alerta['incidenteReportado'] ?? 'Ninguno' }}</td>
+                            <td>
+                                @if(isset($alerta['estadoAlerta']))
+                                    @if($alerta['estadoAlerta'] == 'urgente')
+                                        <span class="badge bg-danger">Urgente</span>
+                                    @elseif($alerta['estadoAlerta'] == 'proximo')
+                                        <span class="badge bg-warning">Próximo</span>
+                                    @else
+                                        <span class="badge bg-info">Pendiente</span>
+                                    @endif
+                                @else
+                                    <span class="badge bg-secondary">N/A</span>
+                                @endif
+                            </td>
+                        </tr>
+                    @endforeach
+                @else
+                    <tr>
+                        <td colspan="7" class="text-center text-muted">No hay alertas de mantenimiento</td>
+                    </tr>
+                @endisset
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <!-- HISTORIAL DE MANTENIMIENTO -->
@@ -200,7 +210,7 @@
         <div class="mb-3">
             <label class="form-label">Seleccionar Unidad</label>
             <select class="form-select" id="unidadHistorial">
-                <option selected disabled>Selecciona unidad</option>
+                <option value="">Todas las unidades</option>
                 @isset($unidades)
                     @foreach($unidades as $unidad)
                         <option value="{{ $unidad['id_unidad'] }}">
@@ -210,48 +220,50 @@
                 @endisset
             </select>
         </div>
-        <table class="table table-bordered">
-            <thead class="table-dark">
-            <tr>
-                <th>Unidad</th>
-                <th>Fecha</th>
-                <th>Tipo</th>
-                <th>Descripción</th>
-                <th>Piezas</th>
-                <th>Kilometraje</th>
-                <th>Costo</th>
-                <th>Observaciones</th>
-                <th>Estado Unidad</th>
-            </tr>
-            </thead>
-            <tbody>
-            @isset($historialMantenimiento)
-                @foreach($historialMantenimiento as $mantenimiento)
-                    <tr>
-                        <td>{{ $mantenimiento['placa'] ?? 'N/A' }} - {{ $mantenimiento['modelo'] ?? 'N/A' }}</td>
-                        <td>{{ $mantenimiento['fecha'] ?? 'N/A' }}</td>
-                        <td>{{ $mantenimiento['descripcion'] ?? 'N/A' }}</td>
-                        <td>{{ $mantenimiento['descripcion'] ?? 'N/A' }}</td>
-                        <td>N/A</td>
-                        <td>{{ isset($mantenimiento['kmActual']) ? number_format($mantenimiento['kmActual'], 0) . ' km' : 'N/A' }}</td>
-                        <td>N/A</td>
-                        <td>{{ $mantenimiento['descripcion'] ?? 'N/A' }}</td>
-                        <td>
-                            @if(isset($mantenimiento['estado']))
-                                <span class="badge bg-success">{{ ucfirst($mantenimiento['estado']) }}</span>
-                            @else
-                                <span class="badge bg-secondary">N/A</span>
-                            @endif
-                        </td>
-                    </tr>
-                @endforeach
-            @else
+        <div class="table-responsive">
+            <table class="table table-striped table-hover display nowrap" id="tablaHistorial" style="width:100%">
+                <thead class="table-dark">
                 <tr>
-                    <td colspan="9" class="text-center text-muted">No hay historial de mantenimiento</td>
+                    <th>Unidad</th>
+                    <th>Fecha</th>
+                    <th>Tipo</th>
+                    <th>Descripción</th>
+                    <th>Piezas</th>
+                    <th>Kilometraje</th>
+                    <th>Costo</th>
+                    <th>Observaciones</th>
+                    <th>Estado Unidad</th>
                 </tr>
-            @endisset
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                @isset($historialMantenimiento)
+                    @foreach($historialMantenimiento as $mantenimiento)
+                        <tr>
+                            <td>{{ $mantenimiento['placa'] ?? 'N/A' }} - {{ $mantenimiento['modelo'] ?? 'N/A' }}</td>
+                            <td>{{ $mantenimiento['fecha'] ?? 'N/A' }}</td>
+                            <td>{{ $mantenimiento['descripcion'] ?? 'N/A' }}</td>
+                            <td>{{ $mantenimiento['descripcion'] ?? 'N/A' }}</td>
+                            <td>N/A</td>
+                            <td>{{ isset($mantenimiento['kmActual']) ? number_format($mantenimiento['kmActual'], 0) . ' km' : 'N/A' }}</td>
+                            <td>N/A</td>
+                            <td>{{ $mantenimiento['descripcion'] ?? 'N/A' }}</td>
+                            <td>
+                                @if(isset($mantenimiento['estado']))
+                                    <span class="badge bg-success">{{ ucfirst($mantenimiento['estado']) }}</span>
+                                @else
+                                    <span class="badge bg-secondary">N/A</span>
+                                @endif
+                            </td>
+                        </tr>
+                    @endforeach
+                @else
+                    <tr>
+                        <td colspan="9" class="text-center text-muted">No hay historial de mantenimiento</td>
+                    </tr>
+                @endisset
+                </tbody>
+            </table>
+        </div>
     </div>
 
 </div>
@@ -490,28 +502,84 @@
     </div>
 </div>
 
-<!-- Bootstrap JS + Funcionalidad -->
+<!-- jQuery + Bootstrap + DataTables JS -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-    // Cambiar entre secciones
-    const secciones = {
-        programacion: document.getElementById('seccionProgramacion'),
-        realizados: document.getElementById('seccionRealizados'),
-        alertas: document.getElementById('seccionAlertas'),
-        historial: document.getElementById('seccionHistorial')
-    };
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
 
-    document.querySelectorAll('input[name="vista"]').forEach(radio => {
-        radio.addEventListener('change', () => {
-            for (const key in secciones) {
-                secciones[key].style.display = (radio.value === key) ? 'block' : 'none';
-            }
+<script>
+    // Variables globales para las DataTables
+    let tableProgramacion, tableRealizados, tableAlertas, tableHistorial;
+
+    $(document).ready(function() {
+        // Configuración común para DataTables
+        const configComun = {
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay datos disponibles en la tabla",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                "infoEmpty": "Mostrando 0 a 0 de 0 entradas",
+                "infoFiltered": "(filtrado de _MAX_ entradas totales)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ entradas por página",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "No se encontraron registros coincidentes",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Último",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                },
+                "aria": {
+                    "sortAscending": ": activar para ordenar columna ascendente",
+                    "sortDescending": ": activar para ordenar columna descendente"
+                }
+            },
+            pageLength: 10,
+            lengthMenu: [5, 10, 25, 50, 100],
+            responsive: true,
+            autoWidth: false,
+            order: [[2, 'desc']], // Ordenar por fecha descendente por defecto
+            dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>rt<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>'
+        };
+
+        // Inicializar DataTables para cada sección
+        tableProgramacion = $('#tablaProgramacion').DataTable(configComun);
+        tableRealizados = $('#tablaRealizados').DataTable(configComun);
+        tableAlertas = $('#tablaAlertas').DataTable(configComun);
+        tableHistorial = $('#tablaHistorial').DataTable(configComun);
+
+        // Configurar filtro por unidad en el historial
+        $('#unidadHistorial').on('change', function() {
+            tableHistorial.column(0).search(this.value).draw();
         });
     });
 
-    window.onload = () => {
-        document.getElementById('vistaProgramacion').checked = true;
-    };
+    // Cambiar entre secciones
+    $('input[name="vista"]').change(function() {
+        actualizarVista();
+    });
+
+    function actualizarVista() {
+        $('#seccionProgramacion').toggle($('#vistaProgramacion').is(':checked'));
+        $('#seccionRealizados').toggle($('#vistaRealizados').is(':checked'));
+        $('#seccionAlertas').toggle($('#vistaAlertas').is(':checked'));
+        $('#seccionHistorial').toggle($('#vistaHistorial').is(':checked'));
+
+        // Redibujar las tablas cuando se muestren
+        setTimeout(() => {
+            if (tableProgramacion) tableProgramacion.draw();
+            if (tableRealizados) tableRealizados.draw();
+            if (tableAlertas) tableAlertas.draw();
+            if (tableHistorial) tableHistorial.draw();
+        }, 100);
+    }
 
     // Función para procesar programación
     function procesarProgramacion() {
@@ -595,16 +663,21 @@
     }
 
     // Limpiar formularios cuando se cierran los modales
-    document.getElementById('modalProgramacion').addEventListener('hidden.bs.modal', function () {
-        document.getElementById('formProgramacion').reset();
+    $('#modalProgramacion').on('hidden.bs.modal', function () {
+        $('#formProgramacion')[0].reset();
     });
 
-    document.getElementById('modalRealizados').addEventListener('hidden.bs.modal', function () {
-        document.getElementById('formRealizados').reset();
+    $('#modalRealizados').on('hidden.bs.modal', function () {
+        $('#formRealizados')[0].reset();
     });
 
-    document.getElementById('modalAlertas').addEventListener('hidden.bs.modal', function () {
-        document.getElementById('formAlertas').reset();
+    $('#modalAlertas').on('hidden.bs.modal', function () {
+        $('#formAlertas')[0].reset();
+    });
+
+    // Inicializar vista al cargar
+    $(window).on('load', function() {
+        actualizarVista();
     });
 </script>
 

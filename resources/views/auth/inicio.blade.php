@@ -9,10 +9,22 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 
+    <!-- DataTables CSS -->
+    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css" rel="stylesheet">
+
     <style>
         .filter-section {
             margin-top: 20px;
             margin-bottom: 20px;
+        }
+        .dataTables_wrapper .dataTables_length,
+        .dataTables_wrapper .dataTables_filter {
+            margin-bottom: 1rem;
+        }
+        .table-responsive {
+            border-radius: 8px;
+            overflow: hidden;
         }
     </style>
 </head>
@@ -22,6 +34,12 @@
 @include('layouts.menuPrincipal')
 
 <div class="container">
+
+    <!-- Debug Info
+    <div class="alert alert-info d-none" id="debugAlert">
+        <strong>Estado:</strong> <span id="debugText">Inicializando...</span>
+    </div>
+    -->
 
     <!-- Filtro de vista -->
     <div class="filter-section">
@@ -43,59 +61,66 @@
         </button>
     </div>
 
-
     <!-- Tabla de DISPONIBLES (se muestra por defecto) -->
     <div id="tablaDisponibles">
         <h5>DISPONIBLES</h5>
-        <table class="table table-striped table-hover">
-            <thead class="table-dark    ">
-            <tr>
-                <th>Unidad de transporte</th>
-                <th>Operador</th>
-                <th>Ruta</th>
-                <th>Horario</th>
-            </tr>
-            </thead>
-            <tbody>
-            @isset($disponibles)
-                @foreach($disponibles as $d)
-                    <tr>
-                        <td>{{ $d['placa'] }} - {{ $d['modelo'] }} - {{ $d['capacidad'] }}</td>
-                        <td>{{ $d['licencia'] ?? 'No asignado' }}</td>
-                        <td>{{ $d['origen'] }} - {{ $d['destino'] }}</td>
-                        <td>{{ $d['horaSalida'] ?? 'N/A' }} - {{ $d['horaLlegada'] ?? 'N/A' }}</td>
-                    </tr>
-                @endforeach
-            @endisset
-            </tbody>
-        </table>
+        <div class="table-responsive">
+            <table class="table table-striped table-hover display nowrap" id="tablaDisponiblesData" style="width:100%">
+                <thead class="table-dark">
+                <tr>
+                    <th>Unidad de transporte</th>
+                    <th>Operador</th>
+                    <th>Ruta</th>
+                    <th>Horario</th>
+                </tr>
+                </thead>
+                <tbody>
+                @isset($disponibles)
+                    @foreach($disponibles as $d)
+                        <tr>
+                            <td>{{ $d['placa'] }} - {{ $d['modelo'] }} - {{ $d['capacidad'] }}</td>
+                            <td>{{ $d['licencia'] ?? 'No asignado' }}</td>
+                            <td>{{ $d['origen'] }} - {{ $d['destino'] }}</td>
+                            <td>{{ $d['horaSalida'] ?? 'N/A' }} - {{ $d['horaLlegada'] ?? 'N/A' }}</td>
+                        </tr>
+                    @endforeach
+                @endisset
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <!-- Tabla de ASIGNADOS (se oculta por defecto) -->
     <div id="tablaAsignados" style="display: none;">
         <h5>ASIGNADOS</h5>
-        <table class="table table-striped table-hover">
-            <thead class="table-dark">
-            <tr>
-                <th>Unidad de transporte</th>
-                <th>Operador</th>
-                <th>Ruta</th>
-                <th>Horario</th>
-            </tr>
-            </thead>
-            <tbody>
-            @isset($asignados)
-                @foreach($asignados as $a)
-                    <tr>
-                        <td>{{ $a['id_asignacion']}} - {{$a['placa'] ?? 'N/A' }} - {{ $a['modelo'] ?? '' }} - {{ $a['capacidad'] ?? 'N/A' }}</td>
-                        <td>{{ $a['licencia'] ?? 'N/A' }}</td>
-                        <td>{{ $a['origen'] ?? 'N/A' }} - {{ $a['destino'] ?? 'N/A' }}</td>
-                        <td>{{ $a['horaSalida'] ?? 'N/A' }} - {{ $a['horaLlegada'] ?? 'N/A' }}</td>
-                    </tr>
-                @endforeach
-            @endisset
-            </tbody>
-        </table>
+        <div class="table-responsive">
+            <table class="table table-striped table-hover display nowrap" id="tablaAsignadosData" style="width:100%">
+                <thead class="table-dark">
+                <tr>
+                    <th>ID Asignación</th>
+                    <th>Unidad de transporte</th>
+                    <th>Operador</th>
+                    <th>Ruta</th>
+                    <th>Horario</th>
+                    <th>Fecha Asignación</th>
+                </tr>
+                </thead>
+                <tbody>
+                @isset($asignados)
+                    @foreach($asignados as $a)
+                        <tr>
+                            <td>{{ $a['id_asignacion'] }}</td>
+                            <td>{{ $a['placa'] ?? 'N/A' }} - {{ $a['modelo'] ?? '' }} - {{ $a['capacidad'] ?? 'N/A' }}</td>
+                            <td>{{ $a['licencia'] ?? 'N/A' }}</td>
+                            <td>{{ $a['origen'] ?? 'N/A' }} - {{ $a['destino'] ?? 'N/A' }}</td>
+                            <td>{{ $a['horaSalida'] ?? 'N/A' }} - {{ $a['horaLlegada'] ?? 'N/A' }}</td>
+                            <td>{{ $a['fecha'] ?? 'N/A' }} {{ $a['hora'] ?? '' }}</td>
+                        </tr>
+                    @endforeach
+                @endisset
+                </tbody>
+            </table>
+        </div>
     </div>
 
 </div>
@@ -190,41 +215,135 @@
     </div>
 </div>
 
-<!-- Bootstrap JS + Funcionalidad -->
+<!-- jQuery + Bootstrap + DataTables JS -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+
 <script>
+    // Variables globales para las DataTables
+    let tableDisponibles, tableAsignados;
+
+    $(document).ready(function() {
+        console.log('Documento listo, inicializando DataTables...');
+
+        // Mostrar debug
+        $('#debugAlert').removeClass('d-none');
+        $('#debugText').text('Inicializando DataTables...');
+
+        try {
+            // Configuración común para ambas tablas
+            const configComun = {
+                language: {
+                    "decimal": "",
+                    "emptyTable": "No hay datos disponibles en la tabla",
+                    "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                    "infoEmpty": "Mostrando 0 a 0 de 0 entradas",
+                    "infoFiltered": "(filtrado de _MAX_ entradas totales)",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "Mostrar _MENU_ entradas por página",
+                    "loadingRecords": "Cargando...",
+                    "processing": "Procesando...",
+                    "search": "Buscar:",
+                    "zeroRecords": "No se encontraron registros coincidentes",
+                    "paginate": {
+                        "first": "Primero",
+                        "last": "Último",
+                        "next": "Siguiente",
+                        "previous": "Anterior"
+                    },
+                    "aria": {
+                        "sortAscending": ": activar para ordenar columna ascendente",
+                        "sortDescending": ": activar para ordenar columna descendente"
+                    }
+                },
+                pageLength: 10,
+                lengthMenu: [5, 10, 25, 50, 100],
+                responsive: true,
+                autoWidth: false,
+                order: [], // No ordenar por defecto
+                dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>rt<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>'
+            };
+
+            // Inicializar DataTable para Disponibles
+            tableDisponibles = $('#tablaDisponiblesData').DataTable(configComun);
+            console.log('Tabla Disponibles inicializada');
+
+            // Inicializar DataTable para Asignados
+            tableAsignados = $('#tablaAsignadosData').DataTable({
+                ...configComun,
+                // Ordenar por ID de asignación descendente por defecto (más recientes primero)
+                order: [[0, 'desc']]
+            });
+            console.log('Tabla Asignados inicializada');
+
+            $('#debugText').text('DataTables inicializado correctamente');
+
+            // Ocultar debug después de 3 segundos
+            setTimeout(function() {
+                $('#debugAlert').fadeOut();
+            }, 3000);
+
+        } catch (error) {
+            console.error('Error inicializando DataTables:', error);
+            $('#debugText').text('Error: ' + error.message);
+            $('#debugAlert').removeClass('alert-info').addClass('alert-danger');
+        }
+
+        // Establecer fecha y hora actual por defecto
+        const now = new Date();
+        const fechaActual = now.toISOString().split('T')[0];
+        const horaActual = now.toTimeString().split(' ')[0].substring(0, 5);
+
+        document.getElementById('fechaAsignacion').value = fechaActual;
+        document.getElementById('horaAsignacion').value = horaActual;
+    });
+
     // Cambiar entre tablas de 'disponibles' y 'asignados'
-    const radioDisponibles = document.getElementById('verDisponibles');
-    const radioAsignados = document.getElementById('verAsignados');
-    const tablaDisponibles = document.getElementById('tablaDisponibles');
-    const tablaAsignados = document.getElementById('tablaAsignados');
-    const botonAsignarContainer = document.getElementById('botonAsignarContainer');
+    $('#verDisponibles, #verAsignados').change(function() {
+        actualizarVista();
+    });
 
     function actualizarVista() {
-        if (radioDisponibles.checked) {
-            tablaDisponibles.style.display = 'block';
-            tablaAsignados.style.display = 'none';
-            botonAsignarContainer.style.display = 'block'; // Mostrar botón en Disponibles
+        if ($('#verDisponibles').is(':checked')) {
+            $('#tablaDisponibles').show();
+            $('#tablaAsignados').hide();
+            $('#botonAsignarContainer').show();
+
+            // Redibujar la tabla de disponibles si es necesario
+            if (tableDisponibles) {
+                tableDisponibles.draw();
+            }
         } else {
-            tablaDisponibles.style.display = 'none';
-            tablaAsignados.style.display = 'block';
-            botonAsignarContainer.style.display = 'none'; // Ocultar botón en Asignados
+            $('#tablaDisponibles').hide();
+            $('#tablaAsignados').show();
+            $('#botonAsignarContainer').hide();
+
+            // Redibujar la tabla de asignados si es necesario
+            if (tableAsignados) {
+                tableAsignados.draw();
+            }
         }
     }
 
-    radioDisponibles.addEventListener('change', actualizarVista);
-    radioAsignados.addEventListener('change', actualizarVista);
-    window.onload = actualizarVista;
+    // Inicializar vista al cargar
+    $(window).on('load', function() {
+        actualizarVista();
+    });
 
     // Función para procesar la asignación
     function procesarAsignacion() {
         // Obtener los valores seleccionados
-        const unidad = document.getElementById('unidadModal').value;
-        const operador = document.getElementById('operadorModal').value;
-        const ruta = document.getElementById('rutaModal').value;
-        const horario = document.getElementById('horarioModal').value;
-        const fecha = document.getElementById('fechaAsignacion').value;
-        const hora = document.getElementById('horaAsignacion').value;
+        const unidad = $('#unidadModal').val();
+        const operador = $('#operadorModal').val();
+        const ruta = $('#rutaModal').val();
+        const horario = $('#horarioModal').val();
+        const fecha = $('#fechaAsignacion').val();
+        const hora = $('#horaAsignacion').val();
 
         // Validar que todos los campos estén llenos
         if (!unidad || !operador || !ruta || !horario || !fecha || !hora) {
@@ -273,18 +392,16 @@
     }
 
     // Limpiar el formulario cuando se cierra el modal
-    document.getElementById('modalAsignar').addEventListener('hidden.bs.modal', function () {
-        document.getElementById('formAsignar').reset();
-    });
+    $('#modalAsignar').on('hidden.bs.modal', function () {
+        $('#formAsignar')[0].reset();
 
-    // Establecer fecha y hora actual por defecto
-    document.addEventListener('DOMContentLoaded', function() {
+        // Restablecer fecha y hora actual
         const now = new Date();
         const fechaActual = now.toISOString().split('T')[0];
         const horaActual = now.toTimeString().split(' ')[0].substring(0, 5);
 
-        document.getElementById('fechaAsignacion').value = fechaActual;
-        document.getElementById('horaAsignacion').value = horaActual;
+        $('#fechaAsignacion').val(fechaActual);
+        $('#horaAsignacion').val(horaActual);
     });
 </script>
 

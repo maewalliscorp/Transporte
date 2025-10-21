@@ -4,8 +4,14 @@
     <meta charset="UTF-8">
     <title>Gestión de Incidentes</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- DataTables CSS -->
+    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css" rel="stylesheet">
 </head>
 <body>
 
@@ -40,45 +46,47 @@
             </button>
         </div>
 
-        <!-- Tabla registro -->
-        <table class="table table-striped table-hover">
-            <thead class="table-dark">
-            <tr>
-                <th>Unidad</th>
-                <th>Operador</th>
-                <th>Ruta</th>
-                <th>Fecha</th>
-                <th>Hora</th>
-                <th>Descripción</th>
-                <th>Estado</th>
-            </tr>
-            </thead>
-            <tbody>
-            @isset($incidentes)
-                @foreach($incidentes as $incidente)
-                    <tr>
-                        <td>{{ $incidente['placa'] ?? 'N/A' }}</td>
-                        <td>{{ $incidente['licencia'] ?? 'N/A' }}</td>
-                        <td>{{ $incidente['origen'] ?? 'N/A' }} - {{ $incidente['destino'] ?? 'N/A' }}</td>
-                        <td>{{ $incidente['fecha'] }}</td>
-                        <td>{{ $incidente['hora'] }}</td>
-                        <td>{{ $incidente['descripcion'] }}</td>
-                        <td>
-                            @if($incidente['estado'] == 'Pendiente')
-                                <span class="badge bg-warning">{{ $incidente['estado'] }}</span>
-                            @else
-                                <span class="badge bg-success">{{ $incidente['estado'] }}</span>
-                            @endif
-                        </td>
-                    </tr>
-                @endforeach
-            @else
+        <!-- Tabla registro con DataTable -->
+        <div class="table-responsive">
+            <table class="table table-striped table-hover display nowrap" id="tablaIncidentes" style="width:100%">
+                <thead class="table-dark">
                 <tr>
-                    <td colspan="7" class="text-center text-muted">No hay incidentes registrados</td>
+                    <th>Unidad</th>
+                    <th>Operador</th>
+                    <th>Ruta</th>
+                    <th>Fecha</th>
+                    <th>Hora</th>
+                    <th>Descripción</th>
+                    <th>Estado</th>
                 </tr>
-            @endisset
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                @isset($incidentes)
+                    @foreach($incidentes as $incidente)
+                        <tr>
+                            <td>{{ $incidente['placa'] ?? 'N/A' }}</td>
+                            <td>{{ $incidente['licencia'] ?? 'N/A' }}</td>
+                            <td>{{ $incidente['origen'] ?? 'N/A' }} - {{ $incidente['destino'] ?? 'N/A' }}</td>
+                            <td>{{ $incidente['fecha'] }}</td>
+                            <td>{{ $incidente['hora'] }}</td>
+                            <td>{{ $incidente['descripcion'] }}</td>
+                            <td>
+                                @if($incidente['estado'] == 'Pendiente')
+                                    <span class="badge bg-warning">{{ $incidente['estado'] }}</span>
+                                @else
+                                    <span class="badge bg-success">{{ $incidente['estado'] }}</span>
+                                @endif
+                            </td>
+                        </tr>
+                    @endforeach
+                @else
+                    <tr>
+                        <td colspan="7" class="text-center text-muted">No hay incidentes registrados</td>
+                    </tr>
+                @endisset
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <!-- SOLUCIÓN DE INCIDENTES -->
@@ -90,42 +98,45 @@
             </button>
         </div>
 
-        <table class="table table-striped table-hover">
-            <thead class="table-dark">
-            <tr>
-                <th>Unidad</th>
-                <th>Operador</th>
-                <th>Ruta</th>
-                <th>Fecha</th>
-                <th>Hora</th>
-                <th>Descripción</th>
-                <th>Solución</th>
-                <th>Estado</th>
-            </tr>
-            </thead>
-            <tbody>
-            @isset($incidentesPendientes)
-                @foreach($incidentesPendientes as $incidente)
-                    <tr>
-                        <td>{{ $incidente['placa'] ?? 'N/A' }}</td>
-                        <td>{{ $incidente['licencia'] ?? 'N/A' }}</td>
-                        <td>{{ $incidente['origen'] ?? 'N/A' }} - {{ $incidente['destino'] ?? 'N/A' }}</td>
-                        <td>{{ $incidente['fecha'] }}</td>
-                        <td>{{ $incidente['hora'] }}</td>
-                        <td>{{ $incidente['descripcion'] }}</td>
-                        <td></td>
-                        <td>
-                            <span class="badge bg-warning">Pendiente</span>
-                        </td>
-                    </tr>
-                @endforeach
-            @else
+        <!-- Tabla solución con DataTable -->
+        <div class="table-responsive">
+            <table class="table table-striped table-hover display nowrap" id="tablaSolucion" style="width:100%">
+                <thead class="table-dark">
                 <tr>
-                    <td colspan="8" class="text-center text-muted">No hay incidentes pendientes</td>
+                    <th>Unidad</th>
+                    <th>Operador</th>
+                    <th>Ruta</th>
+                    <th>Fecha</th>
+                    <th>Hora</th>
+                    <th>Descripción</th>
+                    <th>Solución</th>
+                    <th>Estado</th>
                 </tr>
-            @endisset
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                @isset($incidentesPendientes)
+                    @foreach($incidentesPendientes as $incidente)
+                        <tr>
+                            <td>{{ $incidente['placa'] ?? 'N/A' }}</td>
+                            <td>{{ $incidente['licencia'] ?? 'N/A' }}</td>
+                            <td>{{ $incidente['origen'] ?? 'N/A' }} - {{ $incidente['destino'] ?? 'N/A' }}</td>
+                            <td>{{ $incidente['fecha'] }}</td>
+                            <td>{{ $incidente['hora'] }}</td>
+                            <td>{{ $incidente['descripcion'] }}</td>
+                            <td>{{ $incidente['solucion'] ?? 'Sin solución' }}</td>
+                            <td>
+                                <span class="badge bg-warning">Pendiente</span>
+                            </td>
+                        </tr>
+                    @endforeach
+                @else
+                    <tr>
+                        <td colspan="8" class="text-center text-muted">No hay incidentes pendientes</td>
+                    </tr>
+                @endisset
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <!-- HISTORIAL DE INCIDENTES -->
@@ -134,7 +145,7 @@
             <h5>Historial de Incidentes</h5>
             <div class="col-md-4">
                 <label for="unidadHistorial" class="form-label">Filtrar por Unidad</label>
-                <select id="unidadHistorial" class="form-select" onchange="filtrarHistorial()">
+                <select id="unidadHistorial" class="form-select">
                     <option value="">Todas las unidades</option>
                     @isset($unidades)
                         @foreach($unidades as $unidad)
@@ -147,46 +158,49 @@
             </div>
         </div>
 
-        <table class="table table-striped table-hover">
-            <thead class="table-dark">
-            <tr>
-                <th>Unidad</th>
-                <th>Operador</th>
-                <th>Ruta</th>
-                <th>Fecha</th>
-                <th>Hora</th>
-                <th>Descripción</th>
-                <th>Solución</th>
-                <th>Estado</th>
-            </tr>
-            </thead>
-            <tbody id="tablaHistorial">
-            @isset($historialIncidentes)
-                @foreach($historialIncidentes as $incidente)
-                    <tr data-unidad="{{ $incidente['id_unidad'] }}">
-                        <td>{{ $incidente['placa'] ?? 'N/A' }}</td>
-                        <td>{{ $incidente['licencia'] ?? 'N/A' }}</td>
-                        <td>{{ $incidente['origen'] ?? 'N/A' }} - {{ $incidente['destino'] ?? 'N/A' }}</td>
-                        <td>{{ $incidente['fecha'] }}</td>
-                        <td>{{ $incidente['hora'] }}</td>
-                        <td>{{ $incidente['descripcion'] }}</td>
-                        <td></td>
-                        <td>
-                            @if($incidente['estado'] == 'Pendiente')
-                                <span class="badge bg-warning">Pendiente</span>
-                            @else
-                                <span class="badge bg-success">Solucionado</span>
-                            @endif
-                        </td>
-                    </tr>
-                @endforeach
-            @else
+        <!-- Tabla historial con DataTable -->
+        <div class="table-responsive">
+            <table class="table table-striped table-hover display nowrap" id="tablaHistorial" style="width:100%">
+                <thead class="table-dark">
                 <tr>
-                    <td colspan="8" class="text-center text-muted">No hay historial de incidentes</td>
+                    <th>Unidad</th>
+                    <th>Operador</th>
+                    <th>Ruta</th>
+                    <th>Fecha</th>
+                    <th>Hora</th>
+                    <th>Descripción</th>
+                    <th>Solución</th>
+                    <th>Estado</th>
                 </tr>
-            @endisset
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                @isset($historialIncidentes)
+                    @foreach($historialIncidentes as $incidente)
+                        <tr>
+                            <td>{{ $incidente['placa'] ?? 'N/A' }}</td>
+                            <td>{{ $incidente['licencia'] ?? 'N/A' }}</td>
+                            <td>{{ $incidente['origen'] ?? 'N/A' }} - {{ $incidente['destino'] ?? 'N/A' }}</td>
+                            <td>{{ $incidente['fecha'] }}</td>
+                            <td>{{ $incidente['hora'] }}</td>
+                            <td>{{ $incidente['descripcion'] }}</td>
+                            <td>{{ $incidente['solucion'] ?? 'Sin solución' }}</td>
+                            <td>
+                                @if($incidente['estado'] == 'Pendiente')
+                                    <span class="badge bg-warning">Pendiente</span>
+                                @else
+                                    <span class="badge bg-success">Solucionado</span>
+                                @endif
+                            </td>
+                        </tr>
+                    @endforeach
+                @else
+                    <tr>
+                        <td colspan="8" class="text-center text-muted">No hay historial de incidentes</td>
+                    </tr>
+                @endisset
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
@@ -276,40 +290,89 @@
     </div>
 </div>
 
+<!-- jQuery + Bootstrap + DataTables JS -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+
 <script>
-    // Cambiar entre secciones
-    const radioRegistro = document.getElementById('vistaRegistro');
-    const radioSolucion = document.getElementById('vistaSolucion');
-    const radioHistorial = document.getElementById('vistaHistorial');
+    // Variables globales para las DataTables
+    let tableIncidentes, tableSolucion, tableHistorial;
 
-    const seccionRegistro = document.getElementById('seccionRegistro');
-    const seccionSolucion = document.getElementById('seccionSolucion');
-    const seccionHistorial = document.getElementById('seccionHistorial');
+    $(document).ready(function() {
+        // Configuración común para DataTables
+        const configComun = {
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay datos disponibles en la tabla",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                "infoEmpty": "Mostrando 0 a 0 de 0 entradas",
+                "infoFiltered": "(filtrado de _MAX_ entradas totales)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ entradas por página",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "No se encontraron registros coincidentes",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Último",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                },
+                "aria": {
+                    "sortAscending": ": activar para ordenar columna ascendente",
+                    "sortDescending": ": activar para ordenar columna descendente"
+                }
+            },
+            pageLength: 10,
+            lengthMenu: [5, 10, 25, 50, 100],
+            responsive: true,
+            autoWidth: false,
+            order: [[3, 'desc']], // Ordenar por fecha descendente por defecto
+            dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>rt<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>'
+        };
 
-    function actualizarVista() {
-        seccionRegistro.style.display = radioRegistro.checked ? 'block' : 'none';
-        seccionSolucion.style.display = radioSolucion.checked ? 'block' : 'none';
-        seccionHistorial.style.display = radioHistorial.checked ? 'block' : 'none';
-    }
+        // Inicializar DataTables
+        tableIncidentes = $('#tablaIncidentes').DataTable(configComun);
+        tableSolucion = $('#tablaSolucion').DataTable(configComun);
+        tableHistorial = $('#tablaHistorial').DataTable(configComun);
 
-    radioRegistro.addEventListener('change', actualizarVista);
-    radioSolucion.addEventListener('change', actualizarVista);
-    radioHistorial.addEventListener('change', actualizarVista);
-    window.onload = actualizarVista;
+        // Configurar filtro por unidad en el historial
+        $('#unidadHistorial').on('change', function() {
+            tableHistorial.column(0).search(this.value).draw();
+        });
 
-    // Filtrar historial por unidad
-    function filtrarHistorial() {
-        const unidadId = document.getElementById('unidadHistorial').value;
-        const filas = document.querySelectorAll('#tablaHistorial tr');
-
-        filas.forEach(fila => {
-            if (!unidadId || fila.getAttribute('data-unidad') === unidadId) {
-                fila.style.display = '';
-            } else {
-                fila.style.display = 'none';
+        // Establecer fecha actual por defecto en modales
+        const now = new Date();
+        const fechaActual = now.toISOString().split('T')[0];
+        $('input[type="date"]').each(function() {
+            if (!$(this).val()) {
+                $(this).val(fechaActual);
             }
         });
+    });
+
+    // Cambiar entre secciones
+    $('input[name="tipoVista"]').change(function() {
+        actualizarVista();
+    });
+
+    function actualizarVista() {
+        $('#seccionRegistro').toggle($('#vistaRegistro').is(':checked'));
+        $('#seccionSolucion').toggle($('#vistaSolucion').is(':checked'));
+        $('#seccionHistorial').toggle($('#vistaHistorial').is(':checked'));
+
+        // Redibujar las tablas cuando se muestren
+        setTimeout(() => {
+            if (tableIncidentes) tableIncidentes.draw();
+            if (tableSolucion) tableSolucion.draw();
+            if (tableHistorial) tableHistorial.draw();
+        }, 100);
     }
 
     // Funciones para guardar (pendientes de implementar)
@@ -325,15 +388,9 @@
         modal.hide();
     }
 
-    // Establecer fecha actual por defecto
-    document.addEventListener('DOMContentLoaded', function() {
-        const now = new Date();
-        const fechaActual = now.toISOString().split('T')[0];
-        document.querySelectorAll('input[type="date"]').forEach(input => {
-            if (!input.value) {
-                input.value = fechaActual;
-            }
-        });
+    // Inicializar vista al cargar
+    $(window).on('load', function() {
+        actualizarVista();
     });
 </script>
 </body>

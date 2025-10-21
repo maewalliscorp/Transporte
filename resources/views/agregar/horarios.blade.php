@@ -3,8 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <title>Gestión de Horarios</title>
+
+    <!-- Bootstrap CSS & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- DataTables CSS -->
+    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css" rel="stylesheet">
 </head>
 <body>
 @include('layouts.menuPrincipal')
@@ -20,43 +26,45 @@
     <!-- Tabla de Horarios -->
     <div class="card">
         <div class="card-body">
-            <table class="table table-striped table-hover">
-                <thead class="table-dark">
-                <tr>
-                    <th>ID</th>
-                    <th>Hora Salida</th>
-                    <th>Hora Llegada</th>
-                    <th>Fecha</th>
-                    <th>Acciones</th>
-                </tr>
-                </thead>
-                <tbody>
-                @if(count($horarios) > 0)
-                    @foreach($horarios as $horario)
+            <div class="table-responsive">
+                <table class="table table-striped table-hover display nowrap" id="tablaHorarios" style="width:100%">
+                    <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Hora Salida</th>
+                        <th>Hora Llegada</th>
+                        <th>Fecha</th>
+                        <th>Acciones</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @if(count($horarios) > 0)
+                        @foreach($horarios as $horario)
+                            <tr>
+                                <td>{{ $horario['id_horario'] }}</td>
+                                <td>{{ $horario['horaSalida'] }}</td>
+                                <td>{{ $horario['horaLlegada'] }}</td>
+                                <td>{{ \Carbon\Carbon::parse($horario['fecha'])->format('d/m/Y') }}</td>
+                                <td>
+                                    <button class="btn btn-warning btn-sm" onclick="editarHorario({{ $horario['id_horario'] }})">
+                                        <i class="bi bi-pencil"></i> Editar
+                                    </button>
+                                    <button class="btn btn-danger btn-sm" onclick="eliminarHorario({{ $horario['id_horario'] }})">
+                                        <i class="bi bi-trash"></i> Eliminar
+                                    </button>
+                                </td>
+                            </tr>
+                        @endforeach
+                    @else
                         <tr>
-                            <td>{{ $horario['id_horario'] }}</td>
-                            <td>{{ $horario['horaSalida'] }}</td>
-                            <td>{{ $horario['horaLlegada'] }}</td>
-                            <td>{{ \Carbon\Carbon::parse($horario['fecha'])->format('d/m/Y') }}</td>
-                            <td>
-                                <button class="btn btn-warning btn-sm" onclick="editarHorario({{ $horario['id_horario'] }})">
-                                    <i class="bi bi-pencil"></i> Editar
-                                </button>
-                                <button class="btn btn-danger btn-sm" onclick="eliminarHorario({{ $horario['id_horario'] }})">
-                                    <i class="bi bi-trash"></i> Eliminar
-                                </button>
+                            <td colspan="5" class="text-center text-muted">
+                                <i class="bi bi-info-circle"></i> No hay horarios registrados
                             </td>
                         </tr>
-                    @endforeach
-                @else
-                    <tr>
-                        <td colspan="5" class="text-center text-muted">
-                            <i class="bi bi-info-circle"></i> No hay horarios registrados
-                        </td>
-                    </tr>
-                @endif
-                </tbody>
-            </table>
+                    @endif
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
@@ -97,9 +105,57 @@
     </div>
 </div>
 
+<!-- jQuery + Bootstrap + DataTables JS -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+
 <script>
     let modoEdicion = false;
+    let tableHorarios;
+
+    $(document).ready(function() {
+        // Inicializar DataTable
+        tableHorarios = $('#tablaHorarios').DataTable({
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay datos disponibles en la tabla",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                "infoEmpty": "Mostrando 0 a 0 de 0 entradas",
+                "infoFiltered": "(filtrado de _MAX_ entradas totales)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ entradas por página",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "No se encontraron registros coincidentes",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Último",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                },
+                "aria": {
+                    "sortAscending": ": activar para ordenar columna ascendente",
+                    "sortDescending": ": activar para ordenar columna descendente"
+                }
+            },
+            pageLength: 10,
+            lengthMenu: [5, 10, 25, 50, 100],
+            responsive: true,
+            autoWidth: false,
+            order: [[3, 'desc']], // Ordenar por fecha descendente por defecto
+            dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>rt<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>'
+        });
+
+        // Establecer fecha mínima como hoy
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('fecha').min = today;
+    });
 
     function editarHorario(id) {
         fetch(`/horarios/${id}`)
@@ -212,12 +268,6 @@
         document.getElementById('modalTitulo').textContent = 'Agregar Horario';
         document.getElementById('btnGuardar').innerHTML = '<i class="bi bi-check-circle"></i> Guardar';
         modoEdicion = false;
-    });
-
-    // Establecer fecha mínima como hoy
-    document.addEventListener('DOMContentLoaded', function() {
-        const today = new Date().toISOString().split('T')[0];
-        document.getElementById('fecha').min = today;
     });
 </script>
 </body>
