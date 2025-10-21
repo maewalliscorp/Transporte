@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\InicioController;
 use App\Http\Controllers\IncidentesController;
 use App\Http\Controllers\MantenimientoController;
-
+use App\Http\Controllers\FinanzasController;
 use App\Http\Controllers\UnidadController;
 use App\Http\Controllers\OperadorController;
 use App\Http\Controllers\RutaController;
@@ -41,7 +41,7 @@ Route::get('/incidentes', function (){
 Route::get('/incidentes', [App\Http\Controllers\IncidentesController::class, 'index'])->name('incidentes');
 
 //Página de contabilidad :)
-Route::get('/contabilidad', [App\Http\Controllers\ContabilidadController::class, 'index'])->name('contabilidad');
+Route::get('/finanzas', [FinanzasController::class, 'index'])->name('finanzas');
 
 //Página de mantenimiento :)
 Route::get('/mantenimiento', function (){
