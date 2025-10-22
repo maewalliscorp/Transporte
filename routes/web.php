@@ -43,6 +43,7 @@ Route::get('/incidentes', [App\Http\Controllers\IncidentesController::class, 'in
 //Página de contabilidad :)
 Route::get('/finanzas', [FinanzasController::class, 'index'])->name('finanzas');
 
+
 //Página de mantenimiento :)
 Route::get('/mantenimiento', function (){
     return view('auth.mantenimiento');
