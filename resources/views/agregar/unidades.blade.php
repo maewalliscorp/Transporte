@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Gestión de Unidades</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <!-- Bootstrap CSS & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -23,6 +24,9 @@
         </button>
     </div>
 
+    <!-- Alertas -->
+    <div id="alertContainer"></div>
+
     <!-- Tabla de Unidades -->
     <div class="card">
         <div class="card-body">
@@ -40,7 +44,7 @@
                     <tbody>
                     @if(count($unidades) > 0)
                         @foreach($unidades as $unidad)
-                            <tr>
+                            <tr id="fila-{{ $unidad['id_unidad'] }}">
                                 <td>{{ $unidad['id_unidad'] }}</td>
                                 <td>{{ $unidad['placa'] }}</td>
                                 <td>{{ $unidad['modelo'] }}</td>
@@ -82,19 +86,19 @@
                 <input type="hidden" id="unidadId" name="id_unidad">
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label">Placa *</label>
+                        <label for="placa" class="form-label">Placa *</label>
                         <input type="text" class="form-control" id="placa" name="placa" required
                                maxlength="10" placeholder="Ej: ABC123">
                         <div class="form-text">Ingrese la placa de la unidad</div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Modelo *</label>
+                        <label for="modelo" class="form-label">Modelo *</label>
                         <input type="text" class="form-control" id="modelo" name="modelo" required
                                maxlength="100" placeholder="Ej: Volvo 2023">
                         <div class="form-text">Ingrese el modelo de la unidad</div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Capacidad *</label>
+                        <label for="capacidad" class="form-label">Capacidad *</label>
                         <input type="number" class="form-control" id="capacidad" name="capacidad" required
                                min="1" max="100" placeholder="Ej: 45">
                         <div class="form-text">Número de personas que puede transportar</div>
@@ -154,7 +158,7 @@
             lengthMenu: [5, 10, 25, 50, 100],
             responsive: true,
             autoWidth: false,
-            order: [[0, 'asc']], // Ordenar por ID ascendente por defecto
+            order: [[0, 'asc']],
             dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>rt<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>'
         });
 
@@ -164,11 +168,54 @@
                 this.value = 1;
             }
         });
+
+        // Convertir placa a mayúsculas automáticamente
+        document.getElementById('placa').addEventListener('input', function() {
+            this.value = this.value.toUpperCase();
+        });
     });
 
+    function mostrarAlerta(mensaje, tipo = 'success') {
+        const alertContainer = document.getElementById('alertContainer');
+        const alertClass = tipo === 'success' ? 'alert-success' : 'alert-danger';
+
+        alertContainer.innerHTML = `
+            <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
+                <i class="bi ${tipo === 'success' ? 'bi-check-circle' : 'bi-exclamation-triangle'} me-2"></i>
+                ${mensaje}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        `;
+
+        // Auto-ocultar después de 5 segundos
+        setTimeout(() => {
+            const alert = alertContainer.querySelector('.alert');
+            if (alert) {
+                bootstrap.Alert.getOrCreateInstance(alert).close();
+            }
+        }, 5000);
+    }
+
     function editarUnidad(id) {
-        fetch(`/unidades/${id}`)
-            .then(response => response.json())
+        // Mostrar loading
+        const btnGuardar = document.getElementById('btnGuardar');
+        const originalText = btnGuardar.innerHTML;
+        btnGuardar.innerHTML = '<i class="bi bi-hourglass-split"></i> Cargando...';
+        btnGuardar.disabled = true;
+
+        fetch(`/unidades/${id}`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error en la respuesta del servidor');
+                }
+                return response.json();
+            })
             .then(data => {
                 if (data.success) {
                     // Llenar el formulario con los datos
@@ -186,42 +233,69 @@
                     const modal = new bootstrap.Modal(document.getElementById('modalAgregarUnidad'));
                     modal.show();
                 } else {
-                    alert('Error: ' + data.message);
+                    mostrarAlerta('Error: ' + data.message, 'danger');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Error al cargar los datos de la unidad');
+                mostrarAlerta('Error al cargar los datos de la unidad', 'danger');
+            })
+            .finally(() => {
+                // Restaurar botón
+                btnGuardar.innerHTML = originalText;
+                btnGuardar.disabled = false;
             });
     }
 
     function eliminarUnidad(id) {
         if (confirm('¿Estás seguro de que deseas eliminar esta unidad?')) {
+            // Para mostrar loading en el botón
+            const btnEliminar = event.target;
+            const originalText = btnEliminar.innerHTML;
+            btnEliminar.innerHTML = '<i class="bi bi-hourglass-split"></i> Eliminando...';
+            btnEliminar.disabled = true;
+
             fetch(`/unidades/${id}`, {
                 method: 'DELETE',
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
                 }
             })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Error en la respuesta del servidor');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if (data.success) {
-                        alert(data.message);
-                        location.reload(); // Recargar la página para ver los cambios
+                        mostrarAlerta(data.message, 'success');
+                        // Eliminar la fila de la tabla sin recargar
+                        tableUnidades.row('#fila-' + id).remove().draw();
+
+                        // Verificar si la tabla quedó vacía
+                        if (tableUnidades.rows().count() === 0) {
+                            location.reload();
+                        }
                     } else {
-                        alert('Error: ' + data.message);
+                        mostrarAlerta('Error: ' + data.message, 'danger');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('Error al eliminar la unidad');
+                    mostrarAlerta('Error al eliminar la unidad', 'danger');
+                })
+                .finally(() => {
+                    // Restaurar botón
+                    btnEliminar.innerHTML = originalText;
+                    btnEliminar.disabled = false;
                 });
         }
     }
 
     function guardarUnidad() {
-        const formData = new FormData(document.getElementById('formUnidad'));
         const unidadId = document.getElementById('unidadId').value;
 
         // Validaciones básicas
@@ -230,49 +304,107 @@
         const capacidad = document.getElementById('capacidad').value;
 
         if (!placa || !modelo || !capacidad) {
-            alert('Por favor complete todos los campos obligatorios');
+            mostrarAlerta('Por favor complete todos los campos obligatorios', 'danger');
+            return;
+        }
+
+        if (placa.length < 3) {
+            mostrarAlerta('La placa debe tener al menos 3 caracteres', 'danger');
+            return;
+        }
+
+        if (capacidad < 1 || capacidad > 100) {
+            mostrarAlerta('La capacidad debe estar entre 1 y 100 personas', 'danger');
             return;
         }
 
         const url = modoEdicion ? `/unidades/${unidadId}` : '/unidades';
         const method = modoEdicion ? 'PUT' : 'POST';
 
+        // Mostrar loading en el botón
+        const btnGuardar = document.getElementById('btnGuardar');
+        const originalText = btnGuardar.innerHTML;
+        btnGuardar.innerHTML = '<i class="bi bi-hourglass-split"></i> Guardando...';
+        btnGuardar.disabled = true;
+
         fetch(url, {
             method: method,
             headers: {
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
             },
             body: JSON.stringify({
-                placa: placa,
+                placa: placa.toUpperCase(),
                 modelo: modelo,
                 capacidad: parseInt(capacidad)
             })
         })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error en la respuesta del servidor');
+                }
+                return response.json();
+            })
             .then(data => {
                 if (data.success) {
-                    alert(data.message);
+                    mostrarAlerta(data.message, 'success');
                     const modal = bootstrap.Modal.getInstance(document.getElementById('modalAgregarUnidad'));
                     modal.hide();
-                    location.reload(); // Recargar la página para ver los cambios
+
+                    // Recargar la página después de un breve delay
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
                 } else {
-                    alert('Error: ' + data.message);
+                    mostrarAlerta('Error: ' + data.message, 'danger');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Error al guardar la unidad');
+                mostrarAlerta('Error al guardar la unidad', 'danger');
+            })
+            .finally(() => {
+                // Restaurar botón
+                btnGuardar.innerHTML = originalText;
+                btnGuardar.disabled = false;
             });
     }
 
-    // Limpiar el formulario cuando se cierra el modal
+    // Limpiar el formulario cuando se cierra el modal :3
     document.getElementById('modalAgregarUnidad').addEventListener('hidden.bs.modal', function () {
         document.getElementById('formUnidad').reset();
         document.getElementById('unidadId').value = '';
         document.getElementById('modalTitulo').textContent = 'Agregar Unidad';
         document.getElementById('btnGuardar').innerHTML = '<i class="bi bi-check-circle"></i> Guardar';
         modoEdicion = false;
+
+        // Limpiar clases de validación
+        const inputs = document.querySelectorAll('#formUnidad input');
+        inputs.forEach(input => {
+            input.classList.remove('is-invalid');
+            input.classList.remove('is-valid');
+        });
+    });
+
+    // Validación en tiempo real
+    document.getElementById('formUnidad').addEventListener('input', function(e) {
+        const input = e.target;
+        if (input.value.trim() === '') {
+            input.classList.remove('is-valid');
+            input.classList.add('is-invalid');
+        } else {
+            input.classList.remove('is-invalid');
+            input.classList.add('is-valid');
+        }
+    });
+
+    // Prevenir envío del formulario con Enter
+    document.getElementById('formUnidad').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            guardarUnidad();
+        }
     });
 </script>
 </body>

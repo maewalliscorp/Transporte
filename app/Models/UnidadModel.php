@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class UnidadModel extends Model
 {
@@ -12,42 +13,83 @@ class UnidadModel extends Model
 
     public function obtenerTodos()
     {
-        $db = $this->getConnection();
+        $db = DB::connection();
 
-        $sql = "SELECT id_unidad, placa, modelo, capacidad FROM unidad ORDER BY id_unidad";
+        $sql = "SELECT id_unidad, placa, modelo, capacidad
+                FROM unidad
+                ORDER BY id_unidad ASC";
         $result = $db->select($sql);
 
         return array_map(fn($row) => (array) $row, $result);
     }
 
-    // Método alternativo usando Eloquent
-    public function obtenerTodosEloquent()
+    public function obtenerPorId($id)
     {
-        return $this->orderBy('id_unidad')
-            ->get()
-            ->toArray();
+        $db = DB::connection();
+
+        $sql = "SELECT id_unidad, placa, modelo, capacidad
+                FROM unidad
+                WHERE id_unidad = ?";
+        $result = $db->select($sql, [$id]);
+
+        return $result ? (array) $result[0] : null;
     }
 
     public function crear($datos)
     {
-        return $this->getConnection()
-            ->table('unidad')
-            ->insert($datos);
+        $db = DB::connection();
+
+        $sql = "INSERT INTO unidad (placa, modelo, capacidad)
+                VALUES (?, ?, ?)";
+
+        return $db->insert($sql, [
+            $datos['placa'],
+            $datos['modelo'],
+            $datos['capacidad']
+        ]);
     }
 
     public function actualizar($id, $datos)
     {
-        return $this->getConnection()
-            ->table('unidad')
-            ->where('id_unidad', $id)
-            ->update($datos);
+        $db = DB::connection();
+
+        $sql = "UPDATE unidad
+                SET placa = ?, modelo = ?, capacidad = ?
+                WHERE id_unidad = ?";
+
+        return $db->update($sql, [
+            $datos['placa'],
+            $datos['modelo'],
+            $datos['capacidad'],
+            $id
+        ]);
     }
 
     public function eliminar($id)
     {
-        return $this->getConnection()
-            ->table('unidad')
-            ->where('id_unidad', $id)
-            ->delete();
+        $db = DB::connection();
+
+        $sql = "DELETE FROM unidad WHERE id_unidad = ?";
+        return $db->delete($sql, [$id]);
+    }
+
+    // Método para verificar si existe una unidad con la misma placa
+    public function existePlaca($placa, $excluirId = null)
+    {
+        $db = DB::connection();
+
+        $sql = "SELECT COUNT(*) as count
+                FROM unidad
+                WHERE placa = ?";
+
+        $params = [$placa];
+
+        if ($excluirId) {
+            $sql .= " AND id_unidad != ?";
+            $params[] = $excluirId;
+        }
+
+        $result = $db->select($sql, $params);
+        return $result[0]->count > 0;
     }
 }
