@@ -66,7 +66,7 @@
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('contabilidad') }}">
+                    <a class="nav-link" href="{{ route('finanzas') }}">
                         <i class="bi bi-calculator me-1"></i>Contabilidad
                     </a>
                 </li>
