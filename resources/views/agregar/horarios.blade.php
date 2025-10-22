@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Gestión de Horarios</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <!-- Bootstrap CSS & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -23,6 +24,9 @@
         </button>
     </div>
 
+    <!-- Alertas -->
+    <div id="alertContainer"></div>
+
     <!-- Tabla de Horarios -->
     <div class="card">
         <div class="card-body">
@@ -40,11 +44,11 @@
                     <tbody>
                     @if(count($horarios) > 0)
                         @foreach($horarios as $horario)
-                            <tr>
+                            <tr id="fila-{{ $horario['id_horario'] }}">
                                 <td>{{ $horario['id_horario'] }}</td>
-                                <td>{{ $horario['horaSalida'] }}</td>
-                                <td>{{ $horario['horaLlegada'] }}</td>
-                                <td>{{ \Carbon\Carbon::parse($horario['fecha'])->format('d/m/Y') }}</td>
+                                <td>{{ date('H:i', strtotime($horario['horaSalida'])) }}</td>
+                                <td>{{ date('H:i', strtotime($horario['horaLlegada'])) }}</td>
+                                <td>{{ date('d/m/Y', strtotime($horario['fecha'])) }}</td>
                                 <td>
                                     <button class="btn btn-warning btn-sm" onclick="editarHorario({{ $horario['id_horario'] }})">
                                         <i class="bi bi-pencil"></i> Editar
@@ -82,16 +86,19 @@
                 <input type="hidden" id="horarioId" name="id_horario">
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label">Hora Salida *</label>
+                        <label for="horaSalida" class="form-label">Hora Salida *</label>
                         <input type="time" class="form-control" id="horaSalida" name="horaSalida" required>
+                        <div class="form-text">Seleccione la hora de salida</div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Hora Llegada *</label>
+                        <label for="horaLlegada" class="form-label">Hora Llegada *</label>
                         <input type="time" class="form-control" id="horaLlegada" name="horaLlegada" required>
+                        <div class="form-text">Seleccione la hora de llegada (debe ser posterior a la salida)</div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Fecha *</label>
+                        <label for="fecha" class="form-label">Fecha *</label>
                         <input type="date" class="form-control" id="fecha" name="fecha" required>
+                        <div class="form-text">Seleccione la fecha del horario</div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -148,65 +155,140 @@
             lengthMenu: [5, 10, 25, 50, 100],
             responsive: true,
             autoWidth: false,
-            order: [[3, 'desc']], // Ordenar por fecha descendente por defecto
+            order: [[3, 'desc']],
             dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>rt<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>'
         });
 
         // Establecer fecha mínima como hoy
         const today = new Date().toISOString().split('T')[0];
         document.getElementById('fecha').min = today;
+
+        // Validar que la hora de llegada sea mayor que la de salida
+        document.getElementById('horaLlegada').addEventListener('change', validarHoras);
+        document.getElementById('horaSalida').addEventListener('change', validarHoras);
     });
 
+    function validarHoras() {
+        const horaSalida = document.getElementById('horaSalida').value;
+        const horaLlegada = document.getElementById('horaLlegada').value;
+
+        if (horaSalida && horaLlegada && horaSalida >= horaLlegada) {
+            document.getElementById('horaLlegada').classList.add('is-invalid');
+            document.getElementById('horaLlegada').classList.remove('is-valid');
+        } else if (horaSalida && horaLlegada) {
+            document.getElementById('horaLlegada').classList.remove('is-invalid');
+            document.getElementById('horaLlegada').classList.add('is-valid');
+        }
+    }
+
+    function mostrarAlerta(mensaje, tipo = 'success') {
+        const alertContainer = document.getElementById('alertContainer');
+        const alertClass = tipo === 'success' ? 'alert-success' : 'alert-danger';
+
+        alertContainer.innerHTML = `
+            <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
+                <i class="bi ${tipo === 'success' ? 'bi-check-circle' : 'bi-exclamation-triangle'} me-2"></i>
+                ${mensaje}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        `;
+
+        setTimeout(() => {
+            const alert = alertContainer.querySelector('.alert');
+            if (alert) {
+                bootstrap.Alert.getOrCreateInstance(alert).close();
+            }
+        }, 5000);
+    }
+
     function editarHorario(id) {
-        fetch(`/horarios/${id}`)
-            .then(response => response.json())
+        const btnGuardar = document.getElementById('btnGuardar');
+        const originalText = btnGuardar.innerHTML;
+        btnGuardar.innerHTML = '<i class="bi bi-hourglass-split"></i> Cargando...';
+        btnGuardar.disabled = true;
+
+        fetch(`/horarios/${id}`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error en la respuesta del servidor');
+                }
+                return response.json();
+            })
             .then(data => {
                 if (data.success) {
-                    // Llenar el formulario con los datos
                     document.getElementById('horarioId').value = data.data.id_horario;
                     document.getElementById('horaSalida').value = data.data.horaSalida;
                     document.getElementById('horaLlegada').value = data.data.horaLlegada;
                     document.getElementById('fecha').value = data.data.fecha;
 
-                    // Cambiar el modal a modo edición
                     document.getElementById('modalTitulo').textContent = 'Editar Horario';
                     document.getElementById('btnGuardar').innerHTML = '<i class="bi bi-check-circle"></i> Actualizar';
                     modoEdicion = true;
 
-                    // Mostrar el modal
+                    validarHoras();
+
                     const modal = new bootstrap.Modal(document.getElementById('modalAgregarHorario'));
                     modal.show();
                 } else {
-                    alert('Error: ' + data.message);
+                    mostrarAlerta('Error: ' + data.message, 'danger');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Error al cargar los datos del horario');
+                mostrarAlerta('Error al cargar los datos del horario', 'danger');
+            })
+            .finally(() => {
+                btnGuardar.innerHTML = originalText;
+                btnGuardar.disabled = false;
             });
     }
 
     function eliminarHorario(id) {
         if (confirm('¿Estás seguro de que deseas eliminar este horario?')) {
+            const btnEliminar = event.target;
+            const originalText = btnEliminar.innerHTML;
+            btnEliminar.innerHTML = '<i class="bi bi-hourglass-split"></i> Eliminando...';
+            btnEliminar.disabled = true;
+
             fetch(`/horarios/${id}`, {
                 method: 'DELETE',
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
                 }
             })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Error en la respuesta del servidor');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if (data.success) {
-                        alert(data.message);
-                        location.reload(); // Recargar la página para ver los cambios
+                        mostrarAlerta(data.message, 'success');
+                        tableHorarios.row('#fila-' + id).remove().draw();
+
+                        if (tableHorarios.rows().count() === 0) {
+                            location.reload();
+                        }
                     } else {
-                        alert('Error: ' + data.message);
+                        mostrarAlerta('Error: ' + data.message, 'danger');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('Error al eliminar el horario');
+                    mostrarAlerta('Error al eliminar el horario', 'danger');
+                })
+                .finally(() => {
+                    btnEliminar.innerHTML = originalText;
+                    btnEliminar.disabled = false;
                 });
         }
     }
@@ -217,26 +299,30 @@
         const horaLlegada = document.getElementById('horaLlegada').value;
         const fecha = document.getElementById('fecha').value;
 
-        // Validaciones básicas
         if (!horaSalida || !horaLlegada || !fecha) {
-            alert('Por favor complete todos los campos obligatorios');
+            mostrarAlerta('Por favor complete todos los campos obligatorios', 'danger');
             return;
         }
 
-        // Validar que la hora de llegada sea mayor que la de salida
         if (horaSalida >= horaLlegada) {
-            alert('La hora de llegada debe ser posterior a la hora de salida');
+            mostrarAlerta('La hora de llegada debe ser posterior a la hora de salida', 'danger');
             return;
         }
 
         const url = modoEdicion ? `/horarios/${horarioId}` : '/horarios';
         const method = modoEdicion ? 'PUT' : 'POST';
 
+        const btnGuardar = document.getElementById('btnGuardar');
+        const originalText = btnGuardar.innerHTML;
+        btnGuardar.innerHTML = '<i class="bi bi-hourglass-split"></i> Guardando...';
+        btnGuardar.disabled = true;
+
         fetch(url, {
             method: method,
             headers: {
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
             },
             body: JSON.stringify({
                 horaSalida: horaSalida,
@@ -247,17 +333,24 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert(data.message);
+                    mostrarAlerta(data.message, 'success');
                     const modal = bootstrap.Modal.getInstance(document.getElementById('modalAgregarHorario'));
                     modal.hide();
-                    location.reload(); // Recargar la página para ver los cambios
+
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
                 } else {
-                    alert('Error: ' + data.message);
+                    mostrarAlerta('Error: ' + data.message, 'danger');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Error al guardar el horario');
+                mostrarAlerta('Error al guardar el horario', 'danger');
+            })
+            .finally(() => {
+                btnGuardar.innerHTML = originalText;
+                btnGuardar.disabled = false;
             });
     }
 
@@ -268,6 +361,33 @@
         document.getElementById('modalTitulo').textContent = 'Agregar Horario';
         document.getElementById('btnGuardar').innerHTML = '<i class="bi bi-check-circle"></i> Guardar';
         modoEdicion = false;
+
+        const inputs = document.querySelectorAll('#formHorario input');
+        inputs.forEach(input => {
+            input.classList.remove('is-invalid');
+            input.classList.remove('is-valid');
+        });
+
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('fecha').min = today;
+    });
+
+    document.getElementById('formHorario').addEventListener('input', function(e) {
+        const input = e.target;
+        if (input.value.trim() === '') {
+            input.classList.remove('is-valid');
+            input.classList.add('is-invalid');
+        } else {
+            input.classList.remove('is-invalid');
+            input.classList.add('is-valid');
+        }
+    });
+
+    document.getElementById('formHorario').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            guardarHorario();
+        }
     });
 </script>
 </body>

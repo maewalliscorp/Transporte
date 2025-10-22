@@ -3,53 +3,95 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class HorarioModel extends Model
 {
     protected $table = 'horario';
     protected $primaryKey = 'id_horario';
-    public $incrementing = true;
     public $timestamps = false;
 
     public function obtenerTodos()
     {
-        $db = $this->getConnection();
+        $db = DB::connection();
 
-        $sql = "SELECT id_horario, horaSalida, horaLlegada, fecha FROM horario ORDER BY fecha, horaSalida";
+        $sql = "SELECT id_horario, horaSalida, horaLlegada, fecha
+                FROM horario
+                ORDER BY fecha DESC, horaSalida ASC";
         $result = $db->select($sql);
 
         return array_map(fn($row) => (array) $row, $result);
     }
 
-    // Método alternativo usando Eloquent (más moderno)
-    public function obtenerTodosEloquent()
+    public function obtenerPorId($id)
     {
-        return $this->orderBy('fecha')
-            ->orderBy('horaSalida')
-            ->get()
-            ->toArray();
+        $db = DB::connection();
+
+        $sql = "SELECT id_horario, horaSalida, horaLlegada, fecha
+                FROM horario
+                WHERE id_horario = ?";
+        $result = $db->select($sql, [$id]);
+
+        return $result ? (array) $result[0] : null;
     }
 
     public function crear($datos)
     {
-        return $this->getConnection()
-            ->table('horario')
-            ->insert($datos);
+        $db = DB::connection();
+
+        $sql = "INSERT INTO horario (horaSalida, horaLlegada, fecha)
+                VALUES (?, ?, ?)";
+
+        return $db->insert($sql, [
+            $datos['horaSalida'],
+            $datos['horaLlegada'],
+            $datos['fecha']
+        ]);
     }
 
     public function actualizar($id, $datos)
     {
-        return $this->getConnection()
-            ->table('horario')
-            ->where('id_horario', $id)
-            ->update($datos);
+        $db = DB::connection();
+
+        $sql = "UPDATE horario
+                SET horaSalida = ?, horaLlegada = ?, fecha = ?
+                WHERE id_horario = ?";
+
+        return $db->update($sql, [
+            $datos['horaSalida'],
+            $datos['horaLlegada'],
+            $datos['fecha'],
+            $id
+        ]);
     }
 
     public function eliminar($id)
     {
-        return $this->getConnection()
-            ->table('horario')
-            ->where('id_horario', $id)
-            ->delete();
+        $db = DB::connection();
+
+        $sql = "DELETE FROM horario WHERE id_horario = ?";
+        return $db->delete($sql, [$id]);
+    }
+
+    // Método para verificar si existe un horario con los mismos datos
+    public function existeHorario($horaSalida, $horaLlegada, $fecha, $excluirId = null)
+    {
+        $db = DB::connection();
+
+        $sql = "SELECT COUNT(*) as count
+                FROM horario
+                WHERE horaSalida = ?
+                AND horaLlegada = ?
+                AND fecha = ?";
+
+        $params = [$horaSalida, $horaLlegada, $fecha];
+
+        if ($excluirId) {
+            $sql .= " AND id_horario != ?";
+            $params[] = $excluirId;
+        }
+
+        $result = $db->select($sql, $params);
+        return $result[0]->count > 0;
     }
 }

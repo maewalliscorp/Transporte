@@ -7,11 +7,13 @@ use App\Http\Controllers\InicioController;
 use App\Http\Controllers\IncidentesController;
 use App\Http\Controllers\MantenimientoController;
 use App\Http\Controllers\FinanzasController;
+
 use App\Http\Controllers\UnidadController;
 use App\Http\Controllers\OperadorController;
 use App\Http\Controllers\RutaController;
 use App\Http\Controllers\HorarioController;
 use App\Http\Controllers\TincidenteController;
+
 
 // Redirigir / al login
 Route::get('/', function () {
@@ -70,6 +72,13 @@ Route::prefix('agregar')->group(function () {
     Route::get('/tincidente', [TincidenteController::class, 'index'])->name('agregar.tincidente');
 });
 
+// Rutas para Unidades
+Route::get('/unidades', [UnidadController::class, 'index'])->name('unidades.index');
+Route::post('/unidades', [UnidadController::class, 'store'])->name('unidades.store');
+Route::get('/unidades/{id}', [UnidadController::class, 'show'])->name('unidades.show');
+Route::put('/unidades/{id}', [UnidadController::class, 'update'])->name('unidades.update');
+Route::delete('/unidades/{id}', [UnidadController::class, 'destroy'])->name('unidades.destroy');
+
 // Rutas para Horarios
 Route::get('/horarios', [HorarioController::class, 'index'])->name('horarios.index');
 Route::post('/horarios', [HorarioController::class, 'store'])->name('horarios.store');
@@ -77,12 +86,6 @@ Route::get('/horarios/{id}', [HorarioController::class, 'show'])->name('horarios
 Route::put('/horarios/{id}', [HorarioController::class, 'update'])->name('horarios.update');
 Route::delete('/horarios/{id}', [HorarioController::class, 'destroy'])->name('horarios.destroy');
 
-// Rutas para Unidades
-Route::get('/unidades', [UnidadController::class, 'index'])->name('unidades.index');
-Route::post('/unidades', [UnidadController::class, 'store'])->name('unidades.store');
-Route::get('/unidades/{id}', [UnidadController::class, 'show'])->name('unidades.show');
-Route::put('/unidades/{id}', [UnidadController::class, 'update'])->name('unidades.update');
-Route::delete('/unidades/{id}', [UnidadController::class, 'destroy'])->name('unidades.destroy');
 
 // Rutas para Rutas
 Route::get('/rutas', [RutaController::class, 'index'])->name('rutas.index');
