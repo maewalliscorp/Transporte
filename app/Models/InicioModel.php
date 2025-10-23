@@ -33,14 +33,13 @@ class InicioModel extends Model
             LEFT JOIN operador o ON ult_asign.id_operador = o.id_operator
             LEFT JOIN ruta r ON ult_asign.id_ruta = r.id_ruta
             LEFT JOIN horario h ON r.id_horario = h.id_horario
+            WHERE ult_asign.id_asignacion IS NULL
             ORDER BY u.id_unidad
         ";
 
         $result = $db->select($sql);
-
         return array_map(fn($row) => (array) $row, $result);
     }
-
 
     public function obtenerAsignados(): array
     {
@@ -59,7 +58,7 @@ class InicioModel extends Model
             LEFT JOIN operador o ON a.id_operador = o.id_operator
             LEFT JOIN ruta r ON a.id_ruta = r.id_ruta
             LEFT JOIN horario h ON r.id_horario = h.id_horario
-            ORDER BY a.id_asignacion
+            ORDER BY a.id_asignacion DESC
         ";
 
         $result = $db->select($sql);
@@ -69,7 +68,6 @@ class InicioModel extends Model
     public function obtenerUnidades(): array
     {
         $db = $this->getConnection();
-
         $sql = "SELECT id_unidad, placa, modelo, capacidad FROM unidad ORDER BY id_unidad";
         $result = $db->select($sql);
         return array_map(fn($row) => (array)$row, $result);
@@ -78,7 +76,6 @@ class InicioModel extends Model
     public function obtenerOperadores(): array
     {
         $db = $this->getConnection();
-
         $sql = "SELECT id_operator, licencia FROM operador ORDER BY id_operator";
         $result = $db->select($sql);
         return array_map(fn($row) => (array)$row, $result);
@@ -87,7 +84,6 @@ class InicioModel extends Model
     public function obtenerRutas(): array
     {
         $db = $this->getConnection();
-
         $sql = "SELECT id_ruta, nombre, origen, destino FROM ruta ORDER BY id_ruta";
         $result = $db->select($sql);
         return array_map(fn($row) => (array)$row, $result);
@@ -96,10 +92,8 @@ class InicioModel extends Model
     public function obtenerHorarios(): array
     {
         $db = $this->getConnection();
-
         $sql = "SELECT id_horario, horaSalida, horaLlegada FROM horario ORDER BY id_horario";
         $result = $db->select($sql);
         return array_map(fn($row) => (array)$row, $result);
     }
-
 }

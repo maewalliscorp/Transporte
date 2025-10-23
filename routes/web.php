@@ -61,6 +61,9 @@ Route::get('/pasajerof', function (){
 // Ruta para guardar la asignación
 Route::post('/asignar', [InicioController::class, 'asignar'])->name('asignar');
 
+// Ruta para la asignación
+Route::post('/asignar', [InicioController::class, 'asignar'])->name('asignar.store');
+
 Route::post('/gestionar-registro', [InicioController::class, 'gestionarRegistro'])->name('gestionar.registro');
 
 // Rutas para el menú "Agregar"
@@ -93,6 +96,7 @@ Route::post('/rutas', [RutaController::class, 'store'])->name('rutas.store');
 Route::get('/rutas/{id}', [RutaController::class, 'show'])->name('rutas.show');
 Route::put('/rutas/{id}', [RutaController::class, 'update'])->name('rutas.update');
 Route::delete('/rutas/{id}', [RutaController::class, 'destroy'])->name('rutas.destroy');
+
 
 // Rutas para Operadores
 Route::get('/operadores', [OperadorController::class, 'index'])->name('operadores.index');
