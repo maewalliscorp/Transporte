@@ -17,6 +17,7 @@ class OperadorModel extends Model
         $sql = "
             SELECT
                 o.id_operator,
+                o.codigo,
                 o.licencia,
                 o.telefono,
                 o.estado,
@@ -32,21 +33,33 @@ class OperadorModel extends Model
         return array_map(fn($row) => (array) $row, $result);
     }
 
-    public function obtenerUsuariosDisponibles()
+    public function obtenerUsuariosDisponibles($excluirId = null)
     {
         $db = $this->getConnection();
 
         $sql = "
-            SELECT
-                id,
-                name,
-                email
-            FROM users
-            WHERE id NOT IN (SELECT id FROM operador WHERE id IS NOT NULL)
-            ORDER BY name
-        ";
+        SELECT u.id, u.name, u.email
+        FROM users u
+        WHERE u.id NOT IN (
+            SELECT o.id FROM operador o
+            UNION
+            SELECT a.id FROM administrador a
+            UNION
+            SELECT s.id FROM supervisor s
+            UNION
+            SELECT p.id FROM pasajero p
+            UNION
+            SELECT c.id FROM contador c
+        )
+    ";
 
-        $result = $db->select($sql);
+        if ($excluirId) {
+            $sql .= " OR u.id = ?";
+            $result = $db->select($sql . " ORDER BY u.name ASC", [$excluirId]);
+        } else {
+            $result = $db->select($sql . " ORDER BY u.name ASC");
+        }
+
         return array_map(fn($row) => (array) $row, $result);
     }
 
@@ -80,6 +93,7 @@ class OperadorModel extends Model
         $sql = "
             SELECT
                 o.id_operator,
+                o.codigo,
                 o.licencia,
                 o.telefono,
                 o.estado,

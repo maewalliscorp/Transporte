@@ -21,6 +21,7 @@ class OperadorController extends Controller
         try {
             $request->validate([
                 'id' => 'required|integer|exists:users,id|unique:operador,id',
+                'codigo' => 'required|numeric|unique:operador,codigo',
                 'licencia' => 'required|string|max:20|unique:operador,licencia',
                 'telefono' => 'required|string|max:15',
                 'estado' => 'required|in:activo,inactivo,suspendido'
@@ -30,6 +31,7 @@ class OperadorController extends Controller
 
             $datos = [
                 'id' => $request->id,
+                'codigo' => $request->codigo,
                 'licencia' => $request->licencia,
                 'telefono' => $request->telefono,
                 'estado' => $request->estado
@@ -39,7 +41,8 @@ class OperadorController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Operador agregado correctamente'
+                'message' => 'Operador agregado correctamente',
+                'codigo' => $request->codigo
             ]);
 
         } catch (\Exception $e) {
@@ -54,6 +57,7 @@ class OperadorController extends Controller
     {
         try {
             $request->validate([
+                'codigo' => 'required|numeric|unique:operador,codigo,' . $id . ',id_operator',
                 'licencia' => 'required|string|max:20|unique:operador,licencia,' . $id . ',id_operator',
                 'telefono' => 'required|string|max:15',
                 'estado' => 'required|in:activo,inactivo,suspendido'
@@ -62,6 +66,7 @@ class OperadorController extends Controller
             $operadorModel = new OperadorModel();
 
             $datos = [
+                'codigo' => $request->codigo,
                 'licencia' => $request->licencia,
                 'telefono' => $request->telefono,
                 'estado' => $request->estado
@@ -108,9 +113,12 @@ class OperadorController extends Controller
             $operador = $operadorModel->obtenerPorId($id);
 
             if ($operador) {
+                $usuarios = $operadorModel->obtenerUsuariosDisponibles($operador['user_id']);
+
                 return response()->json([
                     'success' => true,
-                    'data' => $operador
+                    'data' => $operador,
+                    'usuarios' => $usuarios
                 ]);
             }
 
