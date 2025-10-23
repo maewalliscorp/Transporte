@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class RutaModel extends Model
 {
@@ -12,7 +13,7 @@ class RutaModel extends Model
 
     public function obtenerTodosConHorario()
     {
-        $db = $this->getConnection();
+        $db = DB::connection();
 
         $sql = "
             SELECT
@@ -35,7 +36,7 @@ class RutaModel extends Model
 
     public function obtenerHorariosDisponibles()
     {
-        $db = $this->getConnection();
+        $db = DB::connection();
 
         $sql = "
             SELECT
@@ -44,6 +45,11 @@ class RutaModel extends Model
                 horaLlegada,
                 fecha
             FROM horario
+            WHERE id_horario NOT IN (
+                SELECT DISTINCT id_horario
+                FROM ruta
+                WHERE id_horario IS NOT NULL
+            )
             ORDER BY fecha, horaSalida
         ";
 
@@ -51,32 +57,9 @@ class RutaModel extends Model
         return array_map(fn($row) => (array) $row, $result);
     }
 
-    public function crear($datos)
-    {
-        return $this->getConnection()
-            ->table('ruta')
-            ->insert($datos);
-    }
-
-    public function actualizar($id, $datos)
-    {
-        return $this->getConnection()
-            ->table('ruta')
-            ->where('id_ruta', $id)
-            ->update($datos);
-    }
-
-    public function eliminar($id)
-    {
-        return $this->getConnection()
-            ->table('ruta')
-            ->where('id_ruta', $id)
-            ->delete();
-    }
-
     public function obtenerPorId($id)
     {
-        $db = $this->getConnection();
+        $db = DB::connection();
 
         $sql = "
             SELECT
@@ -94,6 +77,88 @@ class RutaModel extends Model
         ";
 
         $result = $db->select($sql, [$id]);
-        return count($result) > 0 ? (array)$result[0] : null;
+        return $result ? (array) $result[0] : null;
+    }
+
+    public function crear($datos)
+    {
+        $db = DB::connection();
+
+        $sql = "INSERT INTO ruta (nombre, origen, destino, duracion_estimada, id_horario)
+                VALUES (?, ?, ?, ?, ?)";
+
+        return $db->insert($sql, [
+            $datos['nombre'],
+            $datos['origen'],
+            $datos['destino'],
+            $datos['duracion_estimada'],
+            $datos['id_horario']
+        ]);
+    }
+
+    public function actualizar($id, $datos)
+    {
+        $db = DB::connection();
+
+        $sql = "UPDATE ruta
+                SET nombre = ?, origen = ?, destino = ?, duracion_estimada = ?, id_horario = ?
+                WHERE id_ruta = ?";
+
+        return $db->update($sql, [
+            $datos['nombre'],
+            $datos['origen'],
+            $datos['destino'],
+            $datos['duracion_estimada'],
+            $datos['id_horario'],
+            $id
+        ]);
+    }
+
+    public function eliminar($id)
+    {
+        $db = DB::connection();
+
+        $sql = "DELETE FROM ruta WHERE id_ruta = ?";
+        return $db->delete($sql, [$id]);
+    }
+
+    // Método para verificar si ya existe una ruta con el mismo nombre
+    public function existeRuta($nombre, $excluirId = null)
+    {
+        $db = DB::connection();
+
+        $sql = "SELECT COUNT(*) as count
+                FROM ruta
+                WHERE nombre = ?";
+
+        $params = [$nombre];
+
+        if ($excluirId) {
+            $sql .= " AND id_ruta != ?";
+            $params[] = $excluirId;
+        }
+
+        $result = $db->select($sql, $params);
+        return $result[0]->count > 0;
+    }
+
+    // Método para verificar si el horario ya está asignado a otra ruta
+    public function horarioOcupado($idHorario, $excluirId = null)
+    {
+        $db = DB::connection();
+
+        $sql = "SELECT COUNT(*) as count
+                FROM ruta
+                WHERE id_horario = ?";
+
+        $params = [$idHorario];
+
+        if ($excluirId) {
+            $sql .= " AND id_ruta != ?";
+            $params[] = $excluirId;
+        }
+
+        $result = $db->select($sql, $params);
+        return $result[0]->count > 0;
     }
 }

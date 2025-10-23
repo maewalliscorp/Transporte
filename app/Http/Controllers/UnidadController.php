@@ -37,16 +37,19 @@ class UnidadController extends Controller
                 ], 422);
             }
 
+            // Convertir placa a mayúsculas para la verificación
+            $placa = strtoupper($request->placa);
+
             // Verificar si ya existe una unidad con la misma placa
-            if ($this->unidadModel->existePlaca($request->placa)) {
+            if ($this->unidadModel->existePlaca($placa)) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Ya existe una unidad con la misma placa.'
+                    'message' => 'Error: Ya existe una unidad con la placa ' . $placa
                 ], 422);
             }
 
             $datos = [
-                'placa' => strtoupper($request->placa),
+                'placa' => $placa,
                 'modelo' => $request->modelo,
                 'capacidad' => $request->capacidad
             ];
@@ -123,16 +126,19 @@ class UnidadController extends Controller
                 ], 404);
             }
 
+            // Convertir placa a mayúsculas para la verificación
+            $placa = strtoupper($request->placa);
+
             // Verificar si ya existe otra unidad con la misma placa
-            if ($this->unidadModel->existePlaca($request->placa, $id)) {
+            if ($this->unidadModel->existePlaca($placa, $id)) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Ya existe otra unidad con la misma placa.'
+                    'message' => 'Error: Ya existe otra unidad con la placa ' . $placa
                 ], 422);
             }
 
             $datos = [
-                'placa' => strtoupper($request->placa),
+                'placa' => $placa,
                 'modelo' => $request->modelo,
                 'capacidad' => $request->capacidad
             ];

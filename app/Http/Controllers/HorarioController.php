@@ -48,7 +48,7 @@ class HorarioController extends Controller
             )) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Ya existe un horario con la misma hora de salida, llegada y fecha.'
+                    'message' => 'Error: Ya existe un horario con la misma hora de salida, llegada y fecha.'
                 ], 422);
             }
 
@@ -141,7 +141,7 @@ class HorarioController extends Controller
             )) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Ya existe otro horario con la misma hora de salida, llegada y fecha.'
+                    'message' => 'Error: Ya existe otro horario con la misma hora de salida, llegada y fecha.'
                 ], 422);
             }
 

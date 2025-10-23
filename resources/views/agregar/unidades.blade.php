@@ -12,6 +12,15 @@
     <!-- DataTables CSS -->
     <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
     <link href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css" rel="stylesheet">
+
+    <!-- SweetAlert2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", Helvetica, Arial, sans-serif;
+        }
+    </style>
 </head>
 <body>
 @include('layouts.menuPrincipal')
@@ -23,9 +32,6 @@
             <i class="bi bi-plus-circle"></i> Agregar Unidad
         </button>
     </div>
-
-    <!-- Alertas -->
-    <div id="alertContainer"></div>
 
     <!-- Tabla de Unidades -->
     <div class="card">
@@ -123,6 +129,9 @@
 <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
 <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
 
+<!-- SweetAlert2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
     let modoEdicion = false;
     let tableUnidades;
@@ -176,24 +185,13 @@
     });
 
     function mostrarAlerta(mensaje, tipo = 'success') {
-        const alertContainer = document.getElementById('alertContainer');
-        const alertClass = tipo === 'success' ? 'alert-success' : 'alert-danger';
-
-        alertContainer.innerHTML = `
-            <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
-                <i class="bi ${tipo === 'success' ? 'bi-check-circle' : 'bi-exclamation-triangle'} me-2"></i>
-                ${mensaje}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        `;
-
-        // Auto-ocultar después de 5 segundos
-        setTimeout(() => {
-            const alert = alertContainer.querySelector('.alert');
-            if (alert) {
-                bootstrap.Alert.getOrCreateInstance(alert).close();
-            }
-        }, 5000);
+        Swal.fire({
+            position: "center",
+            icon: tipo,
+            title: mensaje,
+            showConfirmButton: false,
+            timer: 1500
+        });
     }
 
     function editarUnidad(id) {
@@ -211,13 +209,16 @@
             }
         })
             .then(response => {
-                if (!response.ok) {
-                    throw new Error('Error en la respuesta del servidor');
-                }
-                return response.json();
+                return response.json().then(data => {
+                    return {
+                        data: data,
+                        status: response.status,
+                        ok: response.ok
+                    };
+                });
             })
-            .then(data => {
-                if (data.success) {
+            .then(({data, status, ok}) => {
+                if (ok) {
                     // Llenar el formulario con los datos
                     document.getElementById('unidadId').value = data.data.id_unidad;
                     document.getElementById('placa').value = data.data.placa;
@@ -233,12 +234,12 @@
                     const modal = new bootstrap.Modal(document.getElementById('modalAgregarUnidad'));
                     modal.show();
                 } else {
-                    mostrarAlerta('Error: ' + data.message, 'danger');
+                    mostrarAlerta('Error: ' + data.message, 'error');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                mostrarAlerta('Error al cargar los datos de la unidad', 'danger');
+                mostrarAlerta('Error al cargar los datos de la unidad', 'error');
             })
             .finally(() => {
                 // Restaurar botón
@@ -248,51 +249,62 @@
     }
 
     function eliminarUnidad(id) {
-        if (confirm('¿Estás seguro de que deseas eliminar esta unidad?')) {
-            // Para mostrar loading en el botón
-            const btnEliminar = event.target;
-            const originalText = btnEliminar.innerHTML;
-            btnEliminar.innerHTML = '<i class="bi bi-hourglass-split"></i> Eliminando...';
-            btnEliminar.disabled = true;
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: "¿Estás seguro de que deseas eliminar esta unidad?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Para mostrar loading en el botón
+                const btnEliminar = event.target;
+                const originalText = btnEliminar.innerHTML;
+                btnEliminar.innerHTML = '<i class="bi bi-hourglass-split"></i> Eliminando...';
+                btnEliminar.disabled = true;
 
-            fetch(`/unidades/${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                }
-            })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Error en la respuesta del servidor');
+                fetch(`/unidades/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
                     }
-                    return response.json();
                 })
-                .then(data => {
-                    if (data.success) {
-                        mostrarAlerta(data.message, 'success');
-                        // Eliminar la fila de la tabla sin recargar
-                        tableUnidades.row('#fila-' + id).remove().draw();
-
-                        // Verificar si la tabla quedó vacía
-                        if (tableUnidades.rows().count() === 0) {
-                            location.reload();
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Error en la respuesta del servidor');
                         }
-                    } else {
-                        mostrarAlerta('Error: ' + data.message, 'danger');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    mostrarAlerta('Error al eliminar la unidad', 'danger');
-                })
-                .finally(() => {
-                    // Restaurar botón
-                    btnEliminar.innerHTML = originalText;
-                    btnEliminar.disabled = false;
-                });
-        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            mostrarAlerta(data.message, 'success');
+                            // Eliminar la fila de la tabla sin recargar
+                            tableUnidades.row('#fila-' + id).remove().draw();
+
+                            // Verificar si la tabla quedó vacía
+                            if (tableUnidades.rows().count() === 0) {
+                                location.reload();
+                            }
+                        } else {
+                            mostrarAlerta('Error: ' + data.message, 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        mostrarAlerta('Error al eliminar la unidad', 'error');
+                    })
+                    .finally(() => {
+                        // Restaurar botón
+                        btnEliminar.innerHTML = originalText;
+                        btnEliminar.disabled = false;
+                    });
+            }
+        });
     }
 
     function guardarUnidad() {
@@ -304,17 +316,17 @@
         const capacidad = document.getElementById('capacidad').value;
 
         if (!placa || !modelo || !capacidad) {
-            mostrarAlerta('Por favor complete todos los campos obligatorios', 'danger');
+            mostrarAlerta('Por favor complete todos los campos obligatorios', 'error');
             return;
         }
 
         if (placa.length < 3) {
-            mostrarAlerta('La placa debe tener al menos 3 caracteres', 'danger');
+            mostrarAlerta('La placa debe tener al menos 3 caracteres', 'error');
             return;
         }
 
         if (capacidad < 1 || capacidad > 100) {
-            mostrarAlerta('La capacidad debe estar entre 1 y 100 personas', 'danger');
+            mostrarAlerta('La capacidad debe estar entre 1 y 100 personas', 'error');
             return;
         }
 
@@ -341,13 +353,19 @@
             })
         })
             .then(response => {
-                if (!response.ok) {
-                    throw new Error('Error en la respuesta del servidor');
-                }
-                return response.json();
+                // Primero intentamos parsear la respuesta como JSON
+                return response.json().then(data => {
+                    // Creamos un objeto con la respuesta y el status
+                    return {
+                        data: data,
+                        status: response.status,
+                        ok: response.ok
+                    };
+                });
             })
-            .then(data => {
-                if (data.success) {
+            .then(({data, status, ok}) => {
+                if (ok) {
+                    // Éxito (status 200-299)
                     mostrarAlerta(data.message, 'success');
                     const modal = bootstrap.Modal.getInstance(document.getElementById('modalAgregarUnidad'));
                     modal.hide();
@@ -357,12 +375,18 @@
                         location.reload();
                     }, 1500);
                 } else {
-                    mostrarAlerta('Error: ' + data.message, 'danger');
+                    // Error del servidor (status 400-599)
+                    if (data && data.message) {
+                        // Mostrar el mensaje específico del servidor
+                        mostrarAlerta(data.message, 'error');
+                    } else {
+                        mostrarAlerta('Error al guardar la unidad', 'error');
+                    }
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                mostrarAlerta('Error al guardar la unidad', 'danger');
+                mostrarAlerta('Error de conexión al guardar la unidad', 'error');
             })
             .finally(() => {
                 // Restaurar botón
