@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Gestión de Incidentes</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <!-- Bootstrap CSS & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -11,6 +12,18 @@
     <!-- DataTables CSS -->
     <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
     <link href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css" rel="stylesheet">
+
+    <!-- SweetAlert2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", Helvetica, Arial, sans-serif;
+        }
+        .table-actions {
+            white-space: nowrap;
+        }
+    </style>
 </head>
 <body>
 @include('layouts.menuPrincipal')
@@ -36,7 +49,7 @@
                         <th>Fecha</th>
                         <th>Hora</th>
                         <th>Estado</th>
-                        <th>Acciones</th>
+                        <th class="table-actions">Acciones</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -62,7 +75,7 @@
                                         <span class="badge bg-success">Resuelto</span>
                                     @endif
                                 </td>
-                                <td>
+                                <td class="table-actions">
                                     <button class="btn btn-warning btn-sm" onclick="editarIncidente({{ $incidente['id_incidente'] }})">
                                         <i class="bi bi-pencil"></i> Editar
                                     </button>
@@ -156,13 +169,14 @@
     </div>
 </div>
 
-<!-- jQuery + Bootstrap + DataTables JS -->
+<!-- jQuery + Bootstrap + DataTables + SweetAlert2 JS -->
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
 <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
 
 <script>
     let modoEdicion = false;
@@ -199,7 +213,7 @@
             lengthMenu: [5, 10, 25, 50, 100],
             responsive: true,
             autoWidth: false,
-            order: [[0, 'asc']], // Ordenar por ID ascendente por defecto
+            order: [[0, 'asc']],
             dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>rt<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>'
         });
 
@@ -234,8 +248,13 @@
     });
 
     function editarIncidente(id) {
-        fetch(`/incidentes/${id}`)
-            .then(response => response.json())
+        fetch(`/tincidente/${id}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error en la respuesta del servidor');
+                }
+                return response.json();
+            })
             .then(data => {
                 if (data.success) {
                     // Llenar el formulario con los datos
@@ -267,38 +286,76 @@
                     const modal = new bootstrap.Modal(document.getElementById('modalAgregarIncidente'));
                     modal.show();
                 } else {
-                    alert('Error: ' + data.message);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message || 'Error al cargar los datos del incidente',
+                        confirmButtonColor: '#3085d6'
+                    });
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Error al cargar los datos del incidente');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error al cargar los datos del incidente: ' + error.message,
+                    confirmButtonColor: '#3085d6'
+                });
             });
     }
 
     function eliminarIncidente(id) {
-        if (confirm('¿Estás seguro de que deseas eliminar este incidente?')) {
-            fetch(`/incidentes/${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                    'Content-Type': 'application/json'
-                }
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert(data.message);
-                        location.reload(); // Recargar la página para ver los cambios
-                    } else {
-                        alert('Error: ' + data.message);
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: "¡No podrás revertir esta acción!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch(`/tincidente/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Content-Type': 'application/json'
                     }
                 })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Error al eliminar el incidente');
-                });
-        }
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire({
+                                position: "center",
+                                icon: "success",
+                                title: data.message,
+                                showConfirmButton: false,
+                                timer: 1500
+                            }).then(() => {
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: data.message,
+                                confirmButtonColor: '#3085d6'
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Error al eliminar el incidente',
+                            confirmButtonColor: '#3085d6'
+                        });
+                    });
+            }
+        });
     }
 
     function guardarIncidente() {
@@ -311,16 +368,26 @@
 
         // Validaciones básicas
         if (!idAsignacion || !descripcion || !fecha || !hora || !estado) {
-            alert('Por favor complete todos los campos obligatorios');
+            Swal.fire({
+                icon: 'warning',
+                title: 'Campos incompletos',
+                text: 'Por favor complete todos los campos obligatorios',
+                confirmButtonColor: '#3085d6'
+            });
             return;
         }
 
         if (descripcion.length > 500) {
-            alert('La descripción no puede exceder los 500 caracteres');
+            Swal.fire({
+                icon: 'warning',
+                title: 'Descripción muy larga',
+                text: 'La descripción no puede exceder los 500 caracteres',
+                confirmButtonColor: '#3085d6'
+            });
             return;
         }
 
-        const url = modoEdicion ? `/incidentes/${incidenteId}` : '/incidentes';
+        const url = modoEdicion ? `/tincidente/${incidenteId}` : '/tincidente';
         const method = modoEdicion ? 'PUT' : 'POST';
 
         fetch(url, {
@@ -340,17 +407,34 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert(data.message);
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('modalAgregarIncidente'));
-                    modal.hide();
-                    location.reload(); // Recargar la página para ver los cambios
+                    Swal.fire({
+                        position: "center",
+                        icon: "success",
+                        title: data.message,
+                        showConfirmButton: false,
+                        timer: 1500
+                    }).then(() => {
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('modalAgregarIncidente'));
+                        modal.hide();
+                        location.reload();
+                    });
                 } else {
-                    alert('Error: ' + data.message);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message,
+                        confirmButtonColor: '#3085d6'
+                    });
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Error al guardar el incidente');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error al guardar el incidente',
+                    confirmButtonColor: '#3085d6'
+                });
             });
     }
 

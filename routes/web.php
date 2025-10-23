@@ -71,14 +71,14 @@
         Route::get('/tincidente', [TincidenteController::class, 'index'])->name('agregar.tincidente');
     });
 
-    // Rutas para Unidades
+    // Rutas para TABLA Unidades
     Route::get('/unidades', [UnidadController::class, 'index'])->name('unidades.index');
     Route::post('/unidades', [UnidadController::class, 'store'])->name('unidades.store');
     Route::get('/unidades/{id}', [UnidadController::class, 'show'])->name('unidades.show');
     Route::put('/unidades/{id}', [UnidadController::class, 'update'])->name('unidades.update');
     Route::delete('/unidades/{id}', [UnidadController::class, 'destroy'])->name('unidades.destroy');
 
-    // Rutas para Horarios
+    // Rutas para TABLA Horarios
     Route::get('/horarios', [HorarioController::class, 'index'])->name('horarios.index');
     Route::post('/horarios', [HorarioController::class, 'store'])->name('horarios.store');
     Route::get('/horarios/{id}', [HorarioController::class, 'show'])->name('horarios.show');
@@ -86,16 +86,24 @@
     Route::delete('/horarios/{id}', [HorarioController::class, 'destroy'])->name('horarios.destroy');
 
 
-    // Rutas para Rutas
+    // Rutas para TABLA Rutas
     Route::get('/rutas', [RutaController::class, 'index'])->name('rutas.index');
     Route::post('/rutas', [RutaController::class, 'store'])->name('rutas.store');
     Route::get('/rutas/{id}', [RutaController::class, 'show'])->name('rutas.show');
     Route::put('/rutas/{id}', [RutaController::class, 'update'])->name('rutas.update');
     Route::delete('/rutas/{id}', [RutaController::class, 'destroy'])->name('rutas.destroy');
 
-    // Rutas para Operadores
+    // Rutas para TABLA Operadores
     Route::get('/operadores', [OperadorController::class, 'index'])->name('operadores.index');
     Route::post('/operadores', [OperadorController::class, 'store'])->name('operadores.store');
     Route::get('/operadores/{id}', [OperadorController::class, 'show'])->name('operadores.show');
     Route::put('/operadores/{id}', [OperadorController::class, 'update'])->name('operadores.update');
     Route::delete('/operadores/{id}', [OperadorController::class, 'destroy'])->name('operadores.destroy');
+
+    // Rutas para TABLA incidentes (TincidenteController)
+    Route::get('/tincidente', [TincidenteController::class, 'index'])->name('tincidente.index');
+    Route::post('/tincidente', [TincidenteController::class, 'store'])->name('tincidente.store');
+    Route::get('/tincidente/{id}', [TincidenteController::class, 'show'])->name('tincidente.show');
+    Route::put('/tincidente/{id}', [TincidenteController::class, 'update'])->name('tincidente.update');
+    Route::delete('/tincidente/{id}', [TincidenteController::class, 'destroy'])->name('tincidente.destroy');
+
