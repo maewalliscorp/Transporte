@@ -12,6 +12,9 @@
     <!-- DataTables CSS -->
     <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
     <link href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css" rel="stylesheet">
+
+    <!-- SweetAlert2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
 </head>
 <body>
 @include('layouts.menuPrincipal')
@@ -23,9 +26,6 @@
             <i class="bi bi-plus-circle"></i> Agregar Horario
         </button>
     </div>
-
-    <!-- Alertas -->
-    <div id="alertContainer"></div>
 
     <!-- Tabla de Horarios -->
     <div class="card">
@@ -120,6 +120,9 @@
 <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
 <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
 
+<!-- SweetAlert2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
     let modoEdicion = false;
     let tableHorarios;
@@ -182,23 +185,13 @@
     }
 
     function mostrarAlerta(mensaje, tipo = 'success') {
-        const alertContainer = document.getElementById('alertContainer');
-        const alertClass = tipo === 'success' ? 'alert-success' : 'alert-danger';
-
-        alertContainer.innerHTML = `
-            <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
-                <i class="bi ${tipo === 'success' ? 'bi-check-circle' : 'bi-exclamation-triangle'} me-2"></i>
-                ${mensaje}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        `;
-
-        setTimeout(() => {
-            const alert = alertContainer.querySelector('.alert');
-            if (alert) {
-                bootstrap.Alert.getOrCreateInstance(alert).close();
-            }
-        }, 5000);
+        Swal.fire({
+            position: "center",
+            icon: tipo,
+            title: mensaje,
+            showConfirmButton: false,
+            timer: 1500
+        });
     }
 
     function editarHorario(id) {
@@ -215,13 +208,16 @@
             }
         })
             .then(response => {
-                if (!response.ok) {
-                    throw new Error('Error en la respuesta del servidor');
-                }
-                return response.json();
+                return response.json().then(data => {
+                    return {
+                        data: data,
+                        status: response.status,
+                        ok: response.ok
+                    };
+                });
             })
-            .then(data => {
-                if (data.success) {
+            .then(({data, status, ok}) => {
+                if (ok) {
                     document.getElementById('horarioId').value = data.data.id_horario;
                     document.getElementById('horaSalida').value = data.data.horaSalida;
                     document.getElementById('horaLlegada').value = data.data.horaLlegada;
@@ -236,12 +232,12 @@
                     const modal = new bootstrap.Modal(document.getElementById('modalAgregarHorario'));
                     modal.show();
                 } else {
-                    mostrarAlerta('Error: ' + data.message, 'danger');
+                    mostrarAlerta('Error: ' + data.message, 'error');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                mostrarAlerta('Error al cargar los datos del horario', 'danger');
+                mostrarAlerta('Error al cargar los datos del horario', 'error');
             })
             .finally(() => {
                 btnGuardar.innerHTML = originalText;
@@ -250,47 +246,61 @@
     }
 
     function eliminarHorario(id) {
-        if (confirm('¿Estás seguro de que deseas eliminar este horario?')) {
-            const btnEliminar = event.target;
-            const originalText = btnEliminar.innerHTML;
-            btnEliminar.innerHTML = '<i class="bi bi-hourglass-split"></i> Eliminando...';
-            btnEliminar.disabled = true;
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: "¿Estás seguro de que deseas eliminar este horario?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const btnEliminar = event.target;
+                const originalText = btnEliminar.innerHTML;
+                btnEliminar.innerHTML = '<i class="bi bi-hourglass-split"></i> Eliminando...';
+                btnEliminar.disabled = true;
 
-            fetch(`/horarios/${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                }
-            })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Error en la respuesta del servidor');
+                fetch(`/horarios/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
                     }
-                    return response.json();
                 })
-                .then(data => {
-                    if (data.success) {
-                        mostrarAlerta(data.message, 'success');
-                        tableHorarios.row('#fila-' + id).remove().draw();
+                    .then(response => {
+                        return response.json().then(data => {
+                            return {
+                                data: data,
+                                status: response.status,
+                                ok: response.ok
+                            };
+                        });
+                    })
+                    .then(({data, status, ok}) => {
+                        if (ok) {
+                            mostrarAlerta(data.message, 'success');
+                            tableHorarios.row('#fila-' + id).remove().draw();
 
-                        if (tableHorarios.rows().count() === 0) {
-                            location.reload();
+                            if (tableHorarios.rows().count() === 0) {
+                                location.reload();
+                            }
+                        } else {
+                            mostrarAlerta('Error: ' + data.message, 'error');
                         }
-                    } else {
-                        mostrarAlerta('Error: ' + data.message, 'danger');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    mostrarAlerta('Error al eliminar el horario', 'danger');
-                })
-                .finally(() => {
-                    btnEliminar.innerHTML = originalText;
-                    btnEliminar.disabled = false;
-                });
-        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        mostrarAlerta('Error al eliminar el horario', 'error');
+                    })
+                    .finally(() => {
+                        btnEliminar.innerHTML = originalText;
+                        btnEliminar.disabled = false;
+                    });
+            }
+        });
     }
 
     function guardarHorario() {
@@ -300,12 +310,12 @@
         const fecha = document.getElementById('fecha').value;
 
         if (!horaSalida || !horaLlegada || !fecha) {
-            mostrarAlerta('Por favor complete todos los campos obligatorios', 'danger');
+            mostrarAlerta('Por favor complete todos los campos obligatorios', 'error');
             return;
         }
 
         if (horaSalida >= horaLlegada) {
-            mostrarAlerta('La hora de llegada debe ser posterior a la hora de salida', 'danger');
+            mostrarAlerta('La hora de llegada debe ser posterior a la hora de salida', 'error');
             return;
         }
 
@@ -330,23 +340,36 @@
                 fecha: fecha
             })
         })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
+            .then(response => {
+                return response.json().then(data => {
+                    return {
+                        data: data,
+                        status: response.status,
+                        ok: response.ok
+                    };
+                });
+            })
+            .then(({data, status, ok}) => {
+                if (ok) {
                     mostrarAlerta(data.message, 'success');
                     const modal = bootstrap.Modal.getInstance(document.getElementById('modalAgregarHorario'));
                     modal.hide();
 
+                    // Recargar la página para mostrar los datos actualizados
                     setTimeout(() => {
                         location.reload();
-                    }, 1500);
+                    }, 1000);
                 } else {
-                    mostrarAlerta('Error: ' + data.message, 'danger');
+                    if (data && data.message) {
+                        mostrarAlerta(data.message, 'error');
+                    } else {
+                        mostrarAlerta('Error al guardar el horario', 'error');
+                    }
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                mostrarAlerta('Error al guardar el horario', 'danger');
+                mostrarAlerta('Error de conexión al guardar el horario', 'error');
             })
             .finally(() => {
                 btnGuardar.innerHTML = originalText;
