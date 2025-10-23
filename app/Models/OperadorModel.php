@@ -70,6 +70,7 @@ class OperadorModel extends Model
             ->insert($datos);
     }
 
+
     public function actualizar($id, $datos)
     {
         return $this->getConnection()
