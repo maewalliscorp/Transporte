@@ -95,12 +95,13 @@
         </div>
     </div>
 
+
     <!-- Tabla de DISPONIBLES (se muestra por defecto) -->
     <div id="tablaDisponibles">
         <div class="card">
             <div class="card-header bg-success text-white">
                 <h5 class="mb-0">
-                    <i class="bi bi-check-circle me-2"></i>UNIDADES DISPONIBLES
+                    <i class="bi bi-check-circle me-2"></i>RECURSOS DISPONIBLES
                     <span class="badge bg-light text-dark ms-2">{{ count($disponibles ?? []) }}</span>
                 </h5>
             </div>
@@ -109,10 +110,9 @@
                     <table class="table table-striped table-hover display nowrap" id="tablaDisponiblesData" style="width:100%">
                         <thead class="table-dark">
                         <tr>
-                            <th>Unidad de Transporte</th>
-                            <th>Operador</th>
-                            <th>Ruta</th>
-                            <th>Horario</th>
+                            <th>Tipo</th>
+                            <th>Descripción</th>
+                            <th>Información</th>
                             <th>Estado</th>
                         </tr>
                         </thead>
@@ -121,55 +121,44 @@
                             @foreach($disponibles as $d)
                                 <tr>
                                     <td>
-                                        <strong class="text-primary">{{ $d['placa'] ?? 'N/A' }}</strong>
-                                        <br>
-                                        <small class="text-muted">{{ $d['modelo'] ?? 'Sin modelo' }}</small>
-                                        <br>
-                                        <span class="badge bg-info badge-custom">Capacidad: {{ $d['capacidad'] ?? '0' }} personas</span>
-                                    </td>
-                                    <td>
-                                        @if(!empty($d['licencia']))
-                                            <span class="badge bg-success">{{ $d['licencia'] }}</span>
-                                        @else
-                                            <span class="badge bg-secondary">Sin operador asignado</span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        @if(!empty($d['origen']) && !empty($d['destino']))
-                                            <strong>{{ $d['origen'] }}</strong>
-                                            <i class="bi bi-arrow-right mx-2 text-muted"></i>
-                                            <strong>{{ $d['destino'] }}</strong>
-                                            @if(!empty($d['nombre']))
-                                                <br>
-                                                <small class="text-muted">{{ $d['nombre'] }}</small>
-                                            @endif
-                                        @else
-                                            <span class="text-muted">Sin ruta asignada</span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        @if(!empty($d['horaSalida']) && !empty($d['horaLlegada']))
+                                        @if($d['tipo'] == 'Unidad de Transporte')
                                             <span class="badge bg-primary">
-                                            {{ $d['horaSalida'] }} - {{ $d['horaLlegada'] }}
+                                            <i class="bi bi-bus-front me-1"></i>{{ $d['tipo'] }}
+                                        </span>
+                                        @elseif($d['tipo'] == 'Operador')
+                                            <span class="badge bg-info">
+                                            <i class="bi bi-person-badge me-1"></i>{{ $d['tipo'] }}
+                                        </span>
+                                        @elseif($d['tipo'] == 'Ruta')
+                                            <span class="badge bg-warning text-dark">
+                                            <i class="bi bi-geo-alt me-1"></i>{{ $d['tipo'] }}
                                         </span>
                                         @else
-                                            <span class="badge bg-secondary">Sin horario</span>
+                                            <span class="badge bg-secondary">
+                                            <i class="bi bi-clock me-1"></i>{{ $d['tipo'] }}
+                                        </span>
                                         @endif
+                                    </td>
+                                    <td>
+                                        <strong>{{ $d['descripcion'] ?? 'N/A' }}</strong>
+                                    </td>
+                                    <td>
+                                        {{ $d['informacion'] ?? 'N/A' }}
                                     </td>
                                     <td>
                                     <span class="badge bg-success">
-                                        <i class="bi bi-check-circle me-1"></i>Disponible
+                                        <i class="bi bi-check-circle me-1"></i>{{ $d['estado'] }}
                                     </span>
                                     </td>
                                 </tr>
                             @endforeach
                         @else
                             <tr>
-                                <td colspan="5" class="text-center py-4">
+                                <td colspan="4" class="text-center py-4">
                                     <div class="text-muted">
                                         <i class="bi bi-inbox display-4"></i>
-                                        <h5 class="mt-3">No hay unidades disponibles</h5>
-                                        <p>Todas las unidades están asignadas para hoy.</p>
+                                        <h5 class="mt-3">No hay recursos disponibles</h5>
+                                        <p>Todos los recursos están asignados para hoy.</p>
                                     </div>
                                 </td>
                             </tr>
