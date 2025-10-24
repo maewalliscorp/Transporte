@@ -20,6 +20,9 @@
         body {
             font-family: "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", Helvetica, Arial, sans-serif;
         }
+        /* Estilos para los badges de estado */
+        .badge-pendiente { background-color: #ffc107; color: #000; }
+        .badge-resuelto { background-color: #198754; color: #fff; }
     </style>
 </head>
 <body>
@@ -77,9 +80,9 @@
                             <td>{{ $incidente['descripcion'] }}</td>
                             <td>
                                 @if($incidente['estado'] == 'Pendiente')
-                                    <span class="badge bg-warning">{{ $incidente['estado'] }}</span>
+                                    <span class="badge badge-pendiente">{{ $incidente['estado'] }}</span>
                                 @else
-                                    <span class="badge bg-success">{{ $incidente['estado'] }}</span>
+                                    <span class="badge badge-resuelto">{{ $incidente['estado'] }}</span>
                                 @endif
                             </td>
                         </tr>
@@ -130,7 +133,7 @@
                             <td>{{ $incidente['descripcion'] }}</td>
                             <td>{{ $incidente['solucion'] ?? 'Sin solución' }}</td>
                             <td>
-                                <span class="badge bg-warning">Pendiente</span>
+                                <span class="badge badge-pendiente">Pendiente</span>
                             </td>
                         </tr>
                     @endforeach
@@ -177,6 +180,14 @@
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Hora del Incidente</label>
                             <input type="time" class="form-control" name="hora" required>
+                        </div>
+                        <!-- CAMPO DE ESTADO AGREGADO - SOLO 2 OPCIONES -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Estado del Incidente</label>
+                            <select class="form-select" name="estado" required>
+                                <option value="Pendiente" selected>Pendiente</option>
+                                <option value="Resuelto">Resuelto</option>
+                            </select>
                         </div>
                         <div class="col-12 mb-3">
                             <label class="form-label">Descripción del Incidente</label>
@@ -285,12 +296,24 @@
         tableIncidentes = $('#tablaIncidentes').DataTable(configComun);
         tableSolucion = $('#tablaSolucion').DataTable(configComun);
 
-        // Establecer fecha actual por defecto en modales
+        // Establecer fecha y hora actual por defecto en modales
         const now = new Date();
         const fechaActual = now.toISOString().split('T')[0];
+
+        // Formatear hora actual (HH:MM)
+        const horas = now.getHours().toString().padStart(2, '0');
+        const minutos = now.getMinutes().toString().padStart(2, '0');
+        const horaActual = `${horas}:${minutos}`;
+
         $('input[type="date"]').each(function() {
             if (!$(this).val()) {
                 $(this).val(fechaActual);
+            }
+        });
+
+        $('input[type="time"]').each(function() {
+            if (!$(this).val()) {
+                $(this).val(horaActual);
             }
         });
 

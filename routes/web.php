@@ -42,6 +42,9 @@
     // Rutas para Incidentes
     Route::get('/incidentes', [App\Http\Controllers\IncidentesController::class, 'index'])->name('incidentes');
 
+    Route::post('/incidentes', [IncidentesController::class, 'store'])->name('incidentes.store');
+    Route::post('/incidentes/solucionar', [IncidentesController::class, 'solucionar'])->name('incidentes.solucionar');
+
     //Página de contabilidad :)
     Route::get('/finanzas', [FinanzasController::class, 'index'])->name('finanzas');
 

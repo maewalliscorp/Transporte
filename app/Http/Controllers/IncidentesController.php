@@ -35,10 +35,9 @@ class IncidentesController extends Controller
                 'id_asignacion' => 'required|exists:asignacion,id_asignacion',
                 'fecha' => 'required|date',
                 'hora' => 'required',
-                'descripcion' => 'required|string|max:1000'
+                'descripcion' => 'required|string|max:1000',
+                'estado' => 'required|in:Pendiente,Resuelto'
             ]);
-
-            $incidentesModel = new IncidentesModel();
 
             // Insertar el incidente
             DB::table('incidente')->insert([
@@ -46,8 +45,8 @@ class IncidentesController extends Controller
                 'fecha' => $request->fecha,
                 'hora' => $request->hora,
                 'descripcion' => $request->descripcion,
-                'estado' => 'Pendiente'
-               // 'solucion' => null
+                'estado' => $request->estado
+                // 'solucion' => null
             ]);
 
             DB::commit();
