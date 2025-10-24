@@ -316,47 +316,87 @@
             confirmButtonText: 'Sí, eliminar',
             cancelButtonText: 'Cancelar'
         }).then((result) => {
-            if (result.isConfirmed) {
-                fetch(`/tincidente/${id}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        'Content-Type': 'application/json'
+            if (result.isConffunction eliminarRuta(id) {
+                Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: "¿Estás seguro de que deseas eliminar esta ruta?",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Obtener el botón que disparó el evento
+                        const btnEliminar = document.querySelector(`button[onclick="eliminarRuta(${id})"]`);
+                        const originalText = btnEliminar.innerHTML;
+                        btnEliminar.innerHTML = '<i class="bi bi-hourglass-split"></i> Eliminando...';
+                        btnEliminar.disabled = true;
+
+                        fetch(`/rutas/${id}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json'
+                            }
+                        })
+                            .then(response => {
+                                return response.json().then(data => {
+                                    return {
+                                        data: data,
+                                        status: response.status,
+                                        ok: response.ok
+                                    };
+                                });
+                            })
+                            .then(({data, status, ok}) => {
+                                if (ok && data.success) {
+                                    Swal.fire({
+                                        position: "top-end",
+                                        icon: "success",
+                                        title: data.message,
+                                        showConfirmButton: false,
+                                        timer: 1500
+                                    });
+
+                                    // Si estás usando DataTables
+                                    if (typeof tableRutas !== 'undefined') {
+                                        tableRutas.row(`#fila-${id}`).remove().draw();
+
+                                        if (tableRutas.rows().count() === 0) {
+                                            setTimeout(() => location.reload(), 1500);
+                                        }
+                                    } else {
+                                        // Si no usas DataTables, recargar la página
+                                        setTimeout(() => location.reload(), 1500);
+                                    }
+                                } else {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Error',
+                                        text: data.message || 'Error al eliminar la ruta',
+                                        confirmButtonColor: '#3085d6'
+                                    });
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: 'Error al eliminar la ruta',
+                                    confirmButtonColor: '#3085d6'
+                                });
+                            })
+                            .finally(() => {
+                                btnEliminar.innerHTML = originalText;
+                                btnEliminar.disabled = false;
+                            });
                     }
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            Swal.fire({
-                                position: "center",
-                                icon: "success",
-                                title: data.message,
-                                showConfirmButton: false,
-                                timer: 1500
-                            }).then(() => {
-                                location.reload();
-                            });
-                        } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: data.message,
-                                confirmButtonColor: '#3085d6'
-                            });
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: 'Error al eliminar el incidente',
-                            confirmButtonColor: '#3085d6'
-                        });
-                    });
+                });
             }
-        });
-    }
 
     function guardarIncidente() {
         const incidenteId = document.getElementById('incidenteId').value;
