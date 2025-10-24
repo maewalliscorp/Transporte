@@ -12,6 +12,15 @@
     <!-- DataTables CSS -->
     <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
     <link href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css" rel="stylesheet">
+
+    <!-- SweetAlert2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", Helvetica, Arial, sans-serif;
+        }
+    </style>
 </head>
 <body>
 
@@ -30,10 +39,6 @@
         <div class="form-check form-check-inline">
             <input class="form-check-input" type="radio" name="tipoVista" id="vistaSolucion" value="solucion">
             <label class="form-check-label" for="vistaSolucion">Solución de Incidentes</label>
-        </div>
-        <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="tipoVista" id="vistaHistorial" value="historial">
-            <label class="form-check-label" for="vistaHistorial">Historial de Incidentes</label>
         </div>
     </div>
 
@@ -138,70 +143,6 @@
             </table>
         </div>
     </div>
-
-    <!-- HISTORIAL DE INCIDENTES -->
-    <div id="seccionHistorial" style="display: none;">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5>Historial de Incidentes</h5>
-            <div class="col-md-4">
-                <label for="unidadHistorial" class="form-label">Filtrar por Unidad</label>
-                <select id="unidadHistorial" class="form-select">
-                    <option value="">Todas las unidades</option>
-                    @isset($unidades)
-                        @foreach($unidades as $unidad)
-                            <option value="{{ $unidad['id_unidad'] }}">
-                                {{ $unidad['placa'] }} - {{ $unidad['modelo'] }}
-                            </option>
-                        @endforeach
-                    @endisset
-                </select>
-            </div>
-        </div>
-
-        <!-- Tabla historial con DataTable -->
-        <div class="table-responsive">
-            <table class="table table-striped table-hover display nowrap" id="tablaHistorial" style="width:100%">
-                <thead class="table-dark">
-                <tr>
-                    <th>Unidad</th>
-                    <th>Operador</th>
-                    <th>Ruta</th>
-                    <th>Fecha</th>
-                    <th>Hora</th>
-                    <th>Descripción</th>
-                    <th>Solución</th>
-                    <th>Estado</th>
-                </tr>
-                </thead>
-                <tbody>
-                @isset($historialIncidentes)
-                    @foreach($historialIncidentes as $incidente)
-                        <tr>
-                            <td>{{ $incidente['placa'] ?? 'N/A' }}</td>
-                            <td>{{ $incidente['licencia'] ?? 'N/A' }}</td>
-                            <td>{{ $incidente['origen'] ?? 'N/A' }} - {{ $incidente['destino'] ?? 'N/A' }}</td>
-                            <td>{{ $incidente['fecha'] }}</td>
-                            <td>{{ $incidente['hora'] }}</td>
-                            <td>{{ $incidente['descripcion'] }}</td>
-                            <td>{{ $incidente['solucion'] ?? 'Sin solución' }}</td>
-                            <td>
-                                @if($incidente['estado'] == 'Pendiente')
-                                    <span class="badge bg-warning">Pendiente</span>
-                                @else
-                                    <span class="badge bg-success">Solucionado</span>
-                                @endif
-                            </td>
-                        </tr>
-                    @endforeach
-                @else
-                    <tr>
-                        <td colspan="8" class="text-center text-muted">No hay historial de incidentes</td>
-                    </tr>
-                @endisset
-                </tbody>
-            </table>
-        </div>
-    </div>
 </div>
 
 <!-- MODAL PARA REGISTRAR INCIDENTE -->
@@ -214,6 +155,7 @@
             </div>
             <div class="modal-body">
                 <form id="formIncidente">
+                    @csrf
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Asignación</label>
@@ -245,7 +187,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" onclick="guardarIncidente()">Guardar Incidente</button>
+                <button type="button" class="btn btn-primary" id="btnGuardarIncidente">Guardar Incidente</button>
             </div>
         </div>
     </div>
@@ -261,6 +203,7 @@
             </div>
             <div class="modal-body">
                 <form id="formSolucion">
+                    @csrf
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Incidente</label>
@@ -284,23 +227,24 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-success" onclick="guardarSolucion()">Guardar Solución</button>
+                <button type="button" class="btn btn-success" id="btnGuardarSolucion">Guardar Solución</button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- jQuery + Bootstrap + DataTables JS -->
+<!-- jQuery + Bootstrap + DataTables + SweetAlert2 JS -->
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
 <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
 
 <script>
     // Variables globales para las DataTables
-    let tableIncidentes, tableSolucion, tableHistorial;
+    let tableIncidentes, tableSolucion;
 
     $(document).ready(function() {
         // Configuración común para DataTables
@@ -340,12 +284,6 @@
         // Inicializar DataTables
         tableIncidentes = $('#tablaIncidentes').DataTable(configComun);
         tableSolucion = $('#tablaSolucion').DataTable(configComun);
-        tableHistorial = $('#tablaHistorial').DataTable(configComun);
-
-        // Configurar filtro por unidad en el historial
-        $('#unidadHistorial').on('change', function() {
-            tableHistorial.column(0).search(this.value).draw();
-        });
 
         // Establecer fecha actual por defecto en modales
         const now = new Date();
@@ -355,6 +293,10 @@
                 $(this).val(fechaActual);
             }
         });
+
+        // Event listeners para los botones
+        $('#btnGuardarIncidente').on('click', guardarIncidente);
+        $('#btnGuardarSolucion').on('click', guardarSolucion);
     });
 
     // Cambiar entre secciones
@@ -365,27 +307,121 @@
     function actualizarVista() {
         $('#seccionRegistro').toggle($('#vistaRegistro').is(':checked'));
         $('#seccionSolucion').toggle($('#vistaSolucion').is(':checked'));
-        $('#seccionHistorial').toggle($('#vistaHistorial').is(':checked'));
 
         // Redibujar las tablas cuando se muestren
         setTimeout(() => {
             if (tableIncidentes) tableIncidentes.draw();
             if (tableSolucion) tableSolucion.draw();
-            if (tableHistorial) tableHistorial.draw();
         }, 100);
     }
 
-    // Funciones para guardar (pendientes de implementar)
-    function guardarIncidente() {
-        alert('Funcionalidad para guardar incidente - Pendiente de implementar');
-        const modal = bootstrap.Modal.getInstance(document.getElementById('modalIncidente'));
-        modal.hide();
+    // Función para guardar incidente
+    async function guardarIncidente() {
+        const formData = new FormData(document.getElementById('formIncidente'));
+
+        try {
+            const response = await fetch('{{ route("incidentes.store") }}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                // Mostrar alerta de éxito
+                Swal.fire({
+                    position: "center",
+                    icon: "success",
+                    title: "Incidente guardado correctamente",
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+
+                // Cerrar modal y limpiar formulario
+                const modal = bootstrap.Modal.getInstance(document.getElementById('modalIncidente'));
+                modal.hide();
+                document.getElementById('formIncidente').reset();
+
+                // Recargar la página después de un tiempo para ver los cambios
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1600);
+            } else {
+                throw new Error(data.message || 'Error al guardar el incidente');
+            }
+        } catch (error) {
+            Swal.fire({
+                position: "center",
+                icon: "error",
+                title: "Error",
+                text: error.message,
+                showConfirmButton: true
+            });
+        }
     }
 
+    // Función para guardar solución - TEMPORALMENTE DESHABILITADA
     function guardarSolucion() {
-        alert('Funcionalidad para guardar solución - Pendiente de implementar');
-        const modal = bootstrap.Modal.getInstance(document.getElementById('modalSolucion'));
-        modal.hide();
+        Swal.fire({
+            position: "center",
+            icon: "info",
+            title: "Función en desarrollo",
+            text: "La función de guardar solución estará disponible pronto",
+            showConfirmButton: true
+        });
+    }
+
+    // Función para guardar solución
+    async function guardarSolucion() {
+        const formData = new FormData(document.getElementById('formSolucion'));
+
+        try {
+            const response = await fetch('{{ route("incidentes.solucionar") }}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                // Mostrar alerta de éxito
+                Swal.fire({
+                    position: "center",
+                    icon: "success",
+                    title: "Solución guardada correctamente",
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+
+                // Cerrar modal y limpiar formulario
+                const modal = bootstrap.Modal.getInstance(document.getElementById('modalSolucion'));
+                modal.hide();
+                document.getElementById('formSolucion').reset();
+
+                // Recargar la página después de un tiempo para ver los cambios
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1600);
+            } else {
+                throw new Error(data.message || 'Error al guardar la solución');
+            }
+        } catch (error) {
+            Swal.fire({
+                position: "center",
+                icon: "error",
+                title: "Error",
+                text: error.message,
+                showConfirmButton: true
+            });
+        }
     }
 
     // Inicializar vista al cargar
