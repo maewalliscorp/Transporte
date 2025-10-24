@@ -55,7 +55,7 @@
                     <tbody>
                     @if(count($incidentes) > 0)
                         @foreach($incidentes as $incidente)
-                            <tr>
+                            <tr id="fila-{{ $incidente['id_incidente'] }}">
                                 <td>{{ $incidente['id_incidente'] }}</td>
                                 <td>
                                     @if($incidente['placa'] && $incidente['licencia'])
@@ -79,7 +79,7 @@
                                     <button class="btn btn-warning btn-sm" onclick="editarIncidente({{ $incidente['id_incidente'] }})">
                                         <i class="bi bi-pencil"></i> Editar
                                     </button>
-                                    <button class="btn btn-danger btn-sm" onclick="eliminarIncidente({{ $incidente['id_incidente'] }})">
+                                    <button class="btn btn-danger btn-sm" onclick="eliminarIncidente({{ $incidente['id_incidente'] }}, event)">
                                         <i class="bi bi-trash"></i> Eliminar
                                     </button>
                                 </td>
@@ -305,7 +305,7 @@
             });
     }
 
-    function eliminarIncidente(id) {
+    function eliminarIncidente(id, event) {
         Swal.fire({
             title: '¿Estás seguro?',
             text: "¡No podrás revertir esta acción!",
@@ -316,87 +316,73 @@
             confirmButtonText: 'Sí, eliminar',
             cancelButtonText: 'Cancelar'
         }).then((result) => {
-            if (result.isConffunction eliminarRuta(id) {
-                Swal.fire({
-                    title: '¿Estás seguro?',
-                    text: "¿Estás seguro de que deseas eliminar esta ruta?",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'Sí, eliminar',
-                    cancelButtonText: 'Cancelar'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        // Obtener el botón que disparó el evento
-                        const btnEliminar = document.querySelector(`button[onclick="eliminarRuta(${id})"]`);
-                        const originalText = btnEliminar.innerHTML;
-                        btnEliminar.innerHTML = '<i class="bi bi-hourglass-split"></i> Eliminando...';
-                        btnEliminar.disabled = true;
+            if (result.isConfirmed) {
+                const btnEliminar = event.target;
+                const originalText = btnEliminar.innerHTML;
+                btnEliminar.innerHTML = '<i class="bi bi-hourglass-split"></i> Eliminando...';
+                btnEliminar.disabled = true;
 
-                        fetch(`/rutas/${id}`, {
-                            method: 'DELETE',
-                            headers: {
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                                'Content-Type': 'application/json',
-                                'Accept': 'application/json'
-                            }
-                        })
-                            .then(response => {
-                                return response.json().then(data => {
-                                    return {
-                                        data: data,
-                                        status: response.status,
-                                        ok: response.ok
-                                    };
-                                });
-                            })
-                            .then(({data, status, ok}) => {
-                                if (ok && data.success) {
-                                    Swal.fire({
-                                        position: "top-end",
-                                        icon: "success",
-                                        title: data.message,
-                                        showConfirmButton: false,
-                                        timer: 1500
-                                    });
-
-                                    // Si estás usando DataTables
-                                    if (typeof tableRutas !== 'undefined') {
-                                        tableRutas.row(`#fila-${id}`).remove().draw();
-
-                                        if (tableRutas.rows().count() === 0) {
-                                            setTimeout(() => location.reload(), 1500);
-                                        }
-                                    } else {
-                                        // Si no usas DataTables, recargar la página
-                                        setTimeout(() => location.reload(), 1500);
-                                    }
-                                } else {
-                                    Swal.fire({
-                                        icon: 'error',
-                                        title: 'Error',
-                                        text: data.message || 'Error al eliminar la ruta',
-                                        confirmButtonColor: '#3085d6'
-                                    });
-                                }
-                            })
-                            .catch(error => {
-                                console.error('Error:', error);
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Error',
-                                    text: 'Error al eliminar la ruta',
-                                    confirmButtonColor: '#3085d6'
-                                });
-                            })
-                            .finally(() => {
-                                btnEliminar.innerHTML = originalText;
-                                btnEliminar.disabled = false;
-                            });
+                fetch(`/tincidente/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
                     }
-                });
+                })
+                    .then(response => {
+                        return response.json().then(data => {
+                            return {
+                                data: data,
+                                status: response.status,
+                                ok: response.ok
+                            };
+                        });
+                    })
+                    .then(({data, status, ok}) => {
+                        if (ok) {
+                            Swal.fire({
+                                position: "center",
+                                icon: "success",
+                                title: data.message,
+                                showConfirmButton: false,
+                                timer: 1500
+                            });
+
+                            // Eliminar la fila de DataTables usando el ID
+                            tablaIncidentes.row('#fila-' + id).remove().draw();
+
+                            // Verificar si quedan filas
+                            if (tablaIncidentes.rows().count() === 0) {
+                                setTimeout(() => {
+                                    location.reload();
+                                }, 1500);
+                            }
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: data.message || 'Error al eliminar el incidente',
+                                confirmButtonColor: '#3085d6'
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Error al eliminar el incidente',
+                            confirmButtonColor: '#3085d6'
+                        });
+                    })
+                    .finally(() => {
+                        btnEliminar.innerHTML = originalText;
+                        btnEliminar.disabled = false;
+                    });
             }
+        });
+    }
 
     function guardarIncidente() {
         const incidenteId = document.getElementById('incidenteId').value;
