@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class MantenimientoModel extends Model
 {
@@ -13,8 +14,6 @@ class MantenimientoModel extends Model
 
     public function obtenerMantenimientosProgramados(): array
     {
-        $db = $this->getConnection();
-
         $sql = "
             SELECT
                 m.id_mantenimiento,
@@ -32,14 +31,12 @@ class MantenimientoModel extends Model
             ORDER BY m.fecha_programada ASC
         ";
 
-        $result = $db->select($sql);
+        $result = DB::select($sql);
         return array_map(fn($row) => (array)$row, $result);
     }
 
     public function obtenerMantenimientosRealizados(): array
     {
-        $db = $this->getConnection();
-
         $sql = "
             SELECT
                 m.id_mantenimiento,
@@ -54,18 +51,15 @@ class MantenimientoModel extends Model
             LEFT JOIN unidad u ON m.id_unidad = u.id_unidad
             LEFT JOIN asignacion a ON u.id_unidad = a.id_unidad
             LEFT JOIN operador o ON a.id_operador = o.id_operator
-       /*WHERE m.estado = 'completado' */
             ORDER BY m.fecha_programada DESC
         ";
 
-        $result = $db->select($sql);
+        $result = DB::select($sql);
         return array_map(fn($row) => (array)$row, $result);
     }
 
     public function obtenerAlertasMantenimiento(): array
     {
-        $db = $this->getConnection();
-
         $sql = "
             SELECT
                 a.id_alertaMantenimiento,
@@ -83,14 +77,12 @@ class MantenimientoModel extends Model
             ORDER BY a.fechaProxMantenimiento ASC
         ";
 
-        $result = $db->select($sql);
+        $result = DB::select($sql);
         return array_map(fn($row) => (array)$row, $result);
     }
 
     public function obtenerHistorialMantenimiento(): array
     {
-        $db = $this->getConnection();
-
         $sql = "
             SELECT
                 m.id_mantenimiento,
@@ -102,29 +94,95 @@ class MantenimientoModel extends Model
                 u.modelo
             FROM mantenimiento m
             LEFT JOIN unidad u ON m.id_unidad = u.id_unidad
-            /*WHERE m.estado IN ('completado', 'cancelado') */
             ORDER BY m.fecha_programada DESC
         ";
 
-        $result = $db->select($sql);
+        $result = DB::select($sql);
         return array_map(fn($row) => (array)$row, $result);
     }
 
     public function obtenerUnidades(): array
     {
-        $db = $this->getConnection();
-
         $sql = "SELECT id_unidad, placa, modelo FROM unidad ORDER BY placa";
-        $result = $db->select($sql);
+        $result = DB::select($sql);
         return array_map(fn($row) => (array)$row, $result);
     }
 
     public function obtenerOperadores(): array
     {
-        $db = $this->getConnection();
-
         $sql = "SELECT id_operator, licencia FROM operador ORDER BY licencia";
-        $result = $db->select($sql);
+        $result = DB::select($sql);
         return array_map(fn($row) => (array)$row, $result);
+    }
+
+    // Nuevos métodos para CRUD
+    public function obtenerMantenimientoPorId($id)
+    {
+        return DB::table('mantenimiento')
+            ->where('id_mantenimiento', $id)
+            ->first();
+    }
+
+    public function actualizarMantenimiento($id, $data)
+    {
+        try {
+            return DB::table('mantenimiento')
+                ->where('id_mantenimiento', $id)
+                ->update([
+                    'fecha_programada' => $data['fecha_programada'],
+                    'motivo' => $data['motivo'],
+                    'kmActual' => $data['kmActual'],
+                    'estado' => $data['estado'] ?? 'programado',
+                    'id_unidad' => $data['unidad']
+                ]);
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    public function eliminarMantenimiento($id)
+    {
+        try {
+            return DB::table('mantenimiento')
+                ->where('id_mantenimiento', $id)
+                ->delete();
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    public function obtenerAlertaPorId($id)
+    {
+        return DB::table('alertamantenimiento')
+            ->where('id_alertaMantenimiento', $id)
+            ->first();
+    }
+
+    public function actualizarAlerta($id, $data)
+    {
+        try {
+            return DB::table('alertamantenimiento')
+                ->where('id_alertaMantenimiento', $id)
+                ->update([
+                    'fechaUltimoMantenimiento' => $data['fechaUltimoMantenimiento'],
+                    'kmProxMantenimiento' => $data['kmProxMantenimiento'],
+                    'fechaProxMantenimiento' => $data['fechaProxMantenimiento'],
+                    'incidenteReportado' => $data['incidenteReportado'],
+                    'estadoAlerta' => $data['estadoAlerta']
+                ]);
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    public function eliminarAlerta($id)
+    {
+        try {
+            return DB::table('alertamantenimiento')
+                ->where('id_alertaMantenimiento', $id)
+                ->delete();
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 }

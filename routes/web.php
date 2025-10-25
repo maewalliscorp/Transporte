@@ -48,12 +48,21 @@
     //Página de contabilidad :)
     Route::get('/finanzas', [FinanzasController::class, 'index'])->name('finanzas');
 
+
+    // ------- RUTAS PARA  MANTENIMIENTO -------
     //Página de mantenimiento :)
     Route::get('/mantenimiento', function (){
         return view('auth.mantenimiento');
     })->name('mantenimiento');
 
     Route::get('/mantenimiento', [MantenimientoController::class, 'index'])->name('mantenimiento');
+    Route::get('/mantenimiento/{id}', [MantenimientoController::class, 'obtenerMantenimiento']);
+    Route::put('/mantenimiento/{id}', [MantenimientoController::class, 'actualizarMantenimiento']);
+    Route::delete('/mantenimiento/{id}', [MantenimientoController::class, 'eliminarMantenimiento']);
+    //Rutas para alertas de mantenimiento :)
+    Route::get('/alerta/{id}', [MantenimientoController::class, 'obtenerAlerta']);
+    Route::put('/alerta/{id}', [MantenimientoController::class, 'actualizarAlerta']);
+    Route::delete('/alerta/{id}', [MantenimientoController::class, 'eliminarAlerta']);
 
     //Página de pasajero :)
     Route::get('/pasajerof', function (){
@@ -109,4 +118,5 @@
     Route::get('/tincidente/{id}', [TincidenteController::class, 'show'])->name('tincidente.show');
     Route::put('/tincidente/{id}', [TincidenteController::class, 'update'])->name('tincidente.update');
     Route::delete('/tincidente/{id}', [TincidenteController::class, 'destroy'])->name('tincidente.destroy');
+
 

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Gestión de Mantenimientos</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <!-- Bootstrap CSS & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -67,6 +68,7 @@
                     <th>Kilometraje</th>
                     <th>Operador</th>
                     <th>Estado</th>
+                    <th>Acciones</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -86,11 +88,25 @@
                                     <span class="badge bg-secondary">N/A</span>
                                 @endif
                             </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-outline-primary btn-editar"
+                                            data-id="{{ $mantenimiento['id_mantenimiento'] }}"
+                                            data-tipo="programacion">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button class="btn btn-outline-danger btn-eliminar"
+                                            data-id="{{ $mantenimiento['id_mantenimiento'] }}"
+                                            data-tipo="programacion">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
                         </tr>
                     @endforeach
                 @else
                     <tr>
-                        <td colspan="7" class="text-center text-muted">No hay mantenimientos programados</td>
+                        <td colspan="8" class="text-center text-muted">No hay mantenimientos programados</td>
                     </tr>
                 @endisset
                 </tbody>
@@ -119,6 +135,7 @@
                     <th>Operador</th>
                     <th>Costo</th>
                     <th>Observaciones</th>
+                    <th>Acciones</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -133,11 +150,25 @@
                             <td>{{ $mantenimiento['licencia'] ?? 'N/A' }}</td>
                             <td>N/A</td>
                             <td>{{ $mantenimiento['descripcion'] ?? 'N/A' }}</td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-outline-primary btn-editar"
+                                            data-id="{{ $mantenimiento['id_mantenimiento'] }}"
+                                            data-tipo="realizado">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button class="btn btn-outline-danger btn-eliminar"
+                                            data-id="{{ $mantenimiento['id_mantenimiento'] }}"
+                                            data-tipo="realizado">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
                         </tr>
                     @endforeach
                 @else
                     <tr>
-                        <td colspan="8" class="text-center text-muted">No hay mantenimientos realizados</td>
+                        <td colspan="9" class="text-center text-muted">No hay mantenimientos realizados</td>
                     </tr>
                 @endisset
                 </tbody>
@@ -165,6 +196,7 @@
                     <th>Fecha Próximo</th>
                     <th>Incidentes</th>
                     <th>Estado</th>
+                    <th>Acciones</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -190,11 +222,23 @@
                                     <span class="badge bg-secondary">N/A</span>
                                 @endif
                             </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-outline-primary btn-editar-alerta"
+                                            data-id="{{ $alerta['id_alertaMantenimiento'] }}">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button class="btn btn-outline-danger btn-eliminar-alerta"
+                                            data-id="{{ $alerta['id_alertaMantenimiento'] }}">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
                         </tr>
                     @endforeach
                 @else
                     <tr>
-                        <td colspan="7" class="text-center text-muted">No hay alertas de mantenimiento</td>
+                        <td colspan="8" class="text-center text-muted">No hay alertas de mantenimiento</td>
                     </tr>
                 @endisset
                 </tbody>
@@ -559,6 +603,9 @@
         $('#unidadHistorial').on('change', function() {
             tableHistorial.column(0).search(this.value).draw();
         });
+
+        // Inicializar funcionalidad de botones de editar y eliminar
+        inicializarBotonesAcciones();
     });
 
     // Cambiar entre secciones
@@ -579,6 +626,196 @@
             if (tableAlertas) tableAlertas.draw();
             if (tableHistorial) tableHistorial.draw();
         }, 100);
+    }
+
+    // Función para inicializar botones de editar y eliminar
+    function inicializarBotonesAcciones() {
+        // Editar mantenimiento (programación, realizados)
+        $(document).on('click', '.btn-editar', function() {
+            const id = $(this).data('id');
+            const tipo = $(this).data('tipo');
+
+            // Cargar datos del mantenimiento
+            $.ajax({
+                url: `/mantenimiento/${id}`,
+                method: 'GET',
+                success: function(response) {
+                    // Llenar el formulario con los datos según el tipo
+                    if (tipo === 'programacion') {
+                        $('#formProgramacion input[name="fecha_programada"]').val(response.fecha_programada);
+                        $('#formProgramacion input[name="motivo"]').val(response.motivo);
+                        $('#formProgramacion input[name="kmActual"]').val(response.kmActual);
+                        $('#formProgramacion select[name="unidad"]').val(response.id_unidad);
+                        $('#formProgramacion select[name="tipo_mantenimiento"]').val(response.tipo_mantenimiento);
+
+                        // Mostrar modal de edición
+                        $('#modalProgramacion').modal('show');
+
+                        // Cambiar el botón de guardar para que actualice
+                        $('#modalProgramacion .btn-primary').off('click').on('click', function() {
+                            actualizarMantenimiento(id);
+                        });
+                    } else if (tipo === 'realizado') {
+                        $('#formRealizados input[name="fecha_mantenimiento"]').val(response.fecha_programada);
+                        $('#formRealizados input[name="descripcion"]').val(response.motivo);
+                        $('#formRealizados input[name="kmActual"]').val(response.kmActual);
+                        $('#formRealizados select[name="unidad"]').val(response.id_unidad);
+                        $('#formRealizados select[name="tipo_mantenimiento"]').val(response.tipo_mantenimiento);
+
+                        // Mostrar modal de edición
+                        $('#modalRealizados').modal('show');
+
+                        // Cambiar el botón de guardar para que actualice
+                        $('#modalRealizados .btn-primary').off('click').on('click', function() {
+                            actualizarMantenimiento(id);
+                        });
+                    }
+                },
+                error: function() {
+                    alert('Error al cargar los datos del mantenimiento');
+                }
+            });
+        });
+
+        // Eliminar mantenimiento
+        $(document).on('click', '.btn-eliminar', function() {
+            const id = $(this).data('id');
+            const tipo = $(this).data('tipo');
+
+            if (confirm('¿Estás seguro de que deseas eliminar este mantenimiento?')) {
+                $.ajax({
+                    url: `/mantenimiento/${id}`,
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            alert('Mantenimiento eliminado correctamente');
+                            location.reload(); // Recargar la página para ver los cambios
+                        } else {
+                            alert('Error al eliminar el mantenimiento');
+                        }
+                    },
+                    error: function() {
+                        alert('Error al eliminar el mantenimiento');
+                    }
+                });
+            }
+        });
+
+        // Editar alerta
+        $(document).on('click', '.btn-editar-alerta', function() {
+            const id = $(this).data('id');
+
+            // Cargar datos de la alerta
+            $.ajax({
+                url: `/alerta/${id}`,
+                method: 'GET',
+                success: function(response) {
+                    // Llenar el formulario con los datos
+                    $('#formAlertas input[name="fechaUltimoMantenimiento"]').val(response.fechaUltimoMantenimiento);
+                    $('#formAlertas input[name="kmProxMantenimiento"]').val(response.kmProxMantenimiento);
+                    $('#formAlertas input[name="fechaProxMantenimiento"]').val(response.fechaProxMantenimiento);
+                    $('#formAlertas input[name="incidenteReportado"]').val(response.incidenteReportado);
+                    $('#formAlertas select[name="estadoAlerta"]').val(response.estadoAlerta);
+                    $('#formAlertas select[name="unidad"]').val(response.id_unidad);
+
+                    // Mostrar modal de edición
+                    $('#modalAlertas').modal('show');
+
+                    // Cambiar el botón de guardar para que actualice
+                    $('#modalAlertas .btn-primary').off('click').on('click', function() {
+                        actualizarAlerta(id);
+                    });
+                },
+                error: function() {
+                    alert('Error al cargar los datos de la alerta');
+                }
+            });
+        });
+
+        // Eliminar alerta
+        $(document).on('click', '.btn-eliminar-alerta', function() {
+            const id = $(this).data('id');
+
+            if (confirm('¿Estás seguro de que deseas eliminar esta alerta?')) {
+                $.ajax({
+                    url: `/alerta/${id}`,
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            alert('Alerta eliminada correctamente');
+                            location.reload(); // Recargar la página para ver los cambios
+                        } else {
+                            alert('Error al eliminar la alerta');
+                        }
+                    },
+                    error: function() {
+                        alert('Error al eliminar la alerta');
+                    }
+                });
+            }
+        });
+    }
+
+    // Función para actualizar mantenimiento
+    function actualizarMantenimiento(id) {
+        const formData = new FormData(document.getElementById('formProgramacion'));
+
+        $.ajax({
+            url: `/mantenimiento/${id}`,
+            method: 'PUT',
+            data: formData,
+            processData: false,
+            contentType: false,
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(response) {
+                if (response.success) {
+                    alert('Mantenimiento actualizado correctamente');
+                    $('#modalProgramacion').modal('hide');
+                    location.reload();
+                } else {
+                    alert('Error al actualizar el mantenimiento');
+                }
+            },
+            error: function() {
+                alert('Error al actualizar el mantenimiento');
+            }
+        });
+    }
+
+    // Función para actualizar alerta
+    function actualizarAlerta(id) {
+        const formData = new FormData(document.getElementById('formAlertas'));
+
+        $.ajax({
+            url: `/alerta/${id}`,
+            method: 'PUT',
+            data: formData,
+            processData: false,
+            contentType: false,
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(response) {
+                if (response.success) {
+                    alert('Alerta actualizada correctamente');
+                    $('#modalAlertas').modal('hide');
+                    location.reload();
+                } else {
+                    alert('Error al actualizar la alerta');
+                }
+            },
+            error: function() {
+                alert('Error al actualizar la alerta');
+            }
+        });
     }
 
     // Función para procesar programación
