@@ -83,6 +83,36 @@
                     </a>
                 </li>
 
+                <!-- Menú desplegable de MANTENIMIENTO -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="mantenimientoDropdown" role="button"
+                       data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-tools me-1"></i>Mantenimiento
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="mantenimientoDropdown">
+                        <li>
+                            <a class="dropdown-item" href="{{ route('mantenimiento.m-programado') }}">
+                                <i class="bi bi-calendar-check me-2"></i>Mantenimiento Programado
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{{ route('mantenimiento.m-realizado') }}">
+                                <i class="bi bi-check-circle me-2"></i>Mantenimiento Realizado
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{{ route('mantenimiento.m-alertas') }}">
+                                <i class="bi bi-bell me-2"></i>Alertas de Mantenimiento
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{{ route('mantenimiento.m-historial') }}">
+                                <i class="bi bi-clock-history me-2"></i>Historial de Mantenimiento
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
                 <li class="nav-item">
                     <a class="nav-link" href="{{ route('monitoreo') }}">
                         <i class="bi bi-graph-up me-1"></i>Monitoreo
