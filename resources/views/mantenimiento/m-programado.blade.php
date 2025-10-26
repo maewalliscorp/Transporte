@@ -60,13 +60,12 @@
                     <tbody>
                     @isset($mantenimientosProgramados)
                         @foreach($mantenimientosProgramados as $mantenimiento)
-                            <tr>
+                            <tr id="fila-{{ $mantenimiento['id_mantenimiento'] }}">
                                 <td>{{ $mantenimiento['placa'] ?? 'N/A' }} - {{ $mantenimiento['modelo'] ?? 'N/A' }}</td>
-                                <td>{{ $mantenimiento['motivo'] ?? 'N/A' }}</td>
+                                <td>{{ $mantenimiento['tipo_mantenimiento'] ?? 'N/A' }}</td>
                                 <td>{{ $mantenimiento['fecha_programada'] ?? 'N/A' }}</td>
                                 <td>{{ $mantenimiento['motivo'] ?? 'N/A' }}</td>
                                 <td>{{ isset($mantenimiento['kmActual']) ? number_format($mantenimiento['kmActual'], 0) . ' km' : 'N/A' }}</td>
-
                                 <td>
                                     @if(isset($mantenimiento['estado']))
                                         <span class="badge bg-warning">{{ ucfirst($mantenimiento['estado']) }}</span>
@@ -81,7 +80,8 @@
                                             <i class="bi bi-pencil"></i>
                                         </button>
                                         <button class="btn btn-outline-danger btn-eliminar"
-                                                data-id="{{ $mantenimiento['id_mantenimiento'] }}">
+                                                data-id="{{ $mantenimiento['id_mantenimiento'] }}"
+                                                onclick="eliminarProgramado({{ $mantenimiento['id_mantenimiento'] }}, this)">
                                             <i class="bi bi-trash"></i>
                                         </button>
                                     </div>
@@ -90,7 +90,7 @@
                         @endforeach
                     @else
                         <tr>
-                            <td colspan="8" class="text-center text-muted">No hay mantenimientos programados</td>
+                            <td colspan="7" class="text-center text-muted">No hay mantenimientos programados</td>
                         </tr>
                     @endisset
                     </tbody>
@@ -105,7 +105,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">
+                <h5 class="modal-title" id="modalTitulo">
                     <i class="bi bi-clipboard-check me-2"></i>Programar Mantenimiento
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -113,14 +113,17 @@
             <div class="modal-body">
                 <form id="formProgramacion">
                     @csrf
+                    <input type="hidden" id="mantenimientoId" name="mantenimientoId">
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label">Unidad <span class="text-danger">*</span></label>
-                            <select class="form-select" name="unidad" required>
+                            <select class="form-select" id="unidad" name="unidad" required>
                                 <option value="" selected disabled>Selecciona una unidad...</option>
                                 @isset($unidades)
                                     @foreach($unidades as $unidad)
-                                        <option value="{{ $unidad['id_unidad'] }}">
+                                        <option value="{{ $unidad['id_unidad'] }}"
+                                                data-placa="{{ $unidad['placa'] }}"
+                                                data-modelo="{{ $unidad['modelo'] }}">
                                             {{ $unidad['placa'] }} - {{ $unidad['modelo'] }}
                                         </option>
                                     @endforeach
@@ -129,26 +132,26 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Tipo de Mantenimiento <span class="text-danger">*</span></label>
-                            <select class="form-select" name="tipo_mantenimiento" required>
+                            <select class="form-select" id="tipo_mantenimiento" name="tipo_mantenimiento" required>
                                 <option value="preventivo">Preventivo</option>
                                 <option value="correctivo">Correctivo</option>
                             </select>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Fecha Programada <span class="text-danger">*</span></label>
-                            <input type="date" class="form-control" name="fecha_programada" required>
+                            <input type="date" class="form-control" id="fecha_programada" name="fecha_programada" required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Motivo <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" name="motivo" required>
+                            <input type="text" class="form-control" id="motivo" name="motivo" required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Kilometraje Actual <span class="text-danger">*</span></label>
-                            <input type="number" class="form-control" name="kmActual" required>
+                            <input type="number" class="form-control" id="kmActual" name="kmActual" required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Estado de la Unidad <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" name="estado_unidad" required>
+                            <input type="text" class="form-control" id="estado_unidad" name="estado_unidad" required>
                         </div>
                     </div>
                 </form>
@@ -157,7 +160,7 @@
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                     <i class="bi bi-x-circle me-1"></i>Cancelar
                 </button>
-                <button type="button" class="btn btn-primary" onclick="procesarProgramacion()">
+                <button type="button" class="btn btn-primary" id="btnGuardar" onclick="guardarProgramacion()">
                     <i class="bi bi-check-circle me-1"></i>Guardar Programación
                 </button>
             </div>
@@ -175,11 +178,12 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
 
 <script>
-    let tableProgramacion;
+    let modoEdicion = false;
+    let tablaProgramacion;
 
     $(document).ready(function() {
         // Configuración DataTable
-        tableProgramacion = $('#tablaProgramacion').DataTable({
+        tablaProgramacion = $('#tablaProgramacion').DataTable({
             language: {
                 "decimal": "",
                 "emptyTable": "No hay datos disponibles en la tabla",
@@ -204,213 +208,293 @@
             lengthMenu: [5, 10, 25, 50, 100],
             responsive: true,
             autoWidth: false,
-            order: [[2, 'asc']]
+            order: [[2, 'asc']],
+            dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>rt<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>'
         });
 
-        // Inicializar botones de acción
-        inicializarBotonesAcciones();
+        // Mostrar información de la unidad seleccionada
+        document.getElementById('unidad').addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            const placa = selectedOption.getAttribute('data-placa');
+            const modelo = selectedOption.getAttribute('data-modelo');
+
+            if (placa && modelo) {
+                console.log(`Unidad seleccionada: ${placa} - ${modelo}`);
+            }
+        });
+
+        // Establecer fecha mínima como hoy
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('fecha_programada').min = today;
+
+        // Inicializar botones de edición
+        inicializarBotonesEdicion();
     });
 
-    function inicializarBotonesAcciones() {
-        // Editar mantenimiento
+    function inicializarBotonesEdicion() {
+        // Editar mantenimiento programado
         $(document).on('click', '.btn-editar', function() {
             const id = $(this).data('id');
+            editarProgramado(id);
+        });
+    }
 
-            $.ajax({
-                url: `/mantenimiento/programado/${id}`,
-                method: 'GET',
-                success: function(response) {
-                    $('#formProgramacion input[name="fecha_programada"]').val(response.fecha_programada);
-                    $('#formProgramacion input[name="motivo"]').val(response.motivo);
-                    $('#formProgramacion input[name="kmActual"]').val(response.kmActual);
-                    $('#formProgramacion select[name="unidad"]').val(response.id_unidad);
-                    $('#formProgramacion select[name="tipo_mantenimiento"]').val(response.tipo_mantenimiento);
+    function editarProgramado(id) {
+        fetch(`/mantenimiento/programado/${id}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error en la respuesta del servidor');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // Llenar el formulario con los datos
+                    document.getElementById('mantenimientoId').value = data.data.id_mantenimiento;
+                    document.getElementById('unidad').value = data.data.id_unidad;
+                    document.getElementById('tipo_mantenimiento').value = data.data.tipo_mantenimiento;
+                    document.getElementById('fecha_programada').value = data.data.fecha_programada;
+                    document.getElementById('motivo').value = data.data.motivo;
+                    document.getElementById('kmActual').value = data.data.kmActual;
+                    document.getElementById('estado_unidad').value = data.data.estado_unidad;
 
-                    $('#modalProgramacion').modal('show');
-                    $('#modalProgramacion .btn-primary').off('click').on('click', function() {
-                        actualizarMantenimiento(id);
-                    });
-                },
-                error: function() {
+                    // Cambiar el modal a modo edición
+                    document.getElementById('modalTitulo').textContent = 'Editar Mantenimiento Programado';
+                    document.getElementById('btnGuardar').innerHTML = '<i class="bi bi-check-circle me-1"></i> Actualizar';
+                    modoEdicion = true;
+
+                    // Mostrar el modal
+                    const modal = new bootstrap.Modal(document.getElementById('modalProgramacion'));
+                    modal.show();
+                } else {
                     Swal.fire({
-                        position: "center",
-                        icon: "error",
-                        title: "Error al cargar los datos del mantenimiento",
-                        showConfirmButton: false,
-                        timer: 2000
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message || 'Error al cargar los datos del mantenimiento',
+                        confirmButtonColor: '#3085d6'
                     });
                 }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error al cargar los datos del mantenimiento: ' + error.message,
+                    confirmButtonColor: '#3085d6'
+                });
             });
-        });
+    }
 
-        // Eliminar mantenimiento
-        $(document).on('click', '.btn-eliminar', function() {
-            const id = $(this).data('id');
+    function eliminarProgramado(id, event) {
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: "¡No podrás revertir esta acción!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const btnEliminar = event;
+                const originalText = btnEliminar.innerHTML;
+                btnEliminar.innerHTML = '<i class="bi bi-hourglass-split"></i> Eliminando...';
+                btnEliminar.disabled = true;
 
-            Swal.fire({
-                title: '¿Estás seguro?',
-                text: "Esta acción eliminará el mantenimiento programado",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Sí, eliminar',
-                cancelButtonText: 'Cancelar'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        url: `/mantenimiento/programado/${id}`,
-                        method: 'DELETE',
-                        headers: {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                        },
-                        success: function(response) {
-                            if (response.success) {
-                                Swal.fire({
-                                    position: "center",
-                                    icon: "success",
-                                    title: "Mantenimiento eliminado correctamente",
-                                    showConfirmButton: false,
-                                    timer: 1500
-                                }).then(() => {
-                                    location.reload();
-                                });
-                            } else {
-                                Swal.fire({
-                                    position: "center",
-                                    icon: "error",
-                                    title: "Error al eliminar el mantenimiento",
-                                    showConfirmButton: false,
-                                    timer: 2000
-                                });
-                            }
-                        },
-                        error: function() {
+                fetch(`/mantenimiento/programado/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                })
+                    .then(response => {
+                        // Verificar si la respuesta es JSON válido
+                        const contentType = response.headers.get('content-type');
+                        if (contentType && contentType.includes('application/json')) {
+                            return response.json().then(data => ({
+                                data: data,
+                                status: response.status,
+                                ok: response.ok
+                            }));
+                        } else {
+                            // Si no es JSON, devolver texto plano
+                            return response.text().then(text => ({
+                                data: { success: response.ok, message: text },
+                                status: response.status,
+                                ok: response.ok
+                            }));
+                        }
+                    })
+                    .then(({data, status, ok}) => {
+                        console.log('Respuesta del servidor:', data); // Para debug
+
+                        if (ok && data.success) {
                             Swal.fire({
                                 position: "center",
-                                icon: "error",
-                                title: "Error al eliminar el mantenimiento",
+                                icon: "success",
+                                title: data.message || "Mantenimiento eliminado correctamente",
                                 showConfirmButton: false,
-                                timer: 2000
+                                timer: 1500
+                            });
+
+                            // Intentar eliminar la fila de DataTables
+                            try {
+                                const row = tablaProgramacion.row('#fila-' + id);
+                                if (row.length !== 0) {
+                                    row.remove().draw();
+                                } else {
+                                    // Si no encuentra la fila por ID, recargar la página
+                                    console.log('No se encontró la fila, recargando página...');
+                                    setTimeout(() => {
+                                        location.reload();
+                                    }, 1500);
+                                    return;
+                                }
+                            } catch (error) {
+                                console.error('Error al eliminar fila de DataTable:', error);
+                                // En caso de error, recargar la página
+                                setTimeout(() => {
+                                    location.reload();
+                                }, 1500);
+                                return;
+                            }
+
+                            // Verificar si quedan filas
+                            if (tablaProgramacion.rows().count() === 0) {
+                                setTimeout(() => {
+                                    location.reload();
+                                }, 1500);
+                            }
+                        } else {
+                            let errorMessage = 'Error al eliminar el mantenimiento';
+
+                            if (data && data.message) {
+                                errorMessage = data.message;
+                            } else if (data && data.errors) {
+                                errorMessage = Object.values(data.errors).join(', ');
+                            }
+
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: errorMessage,
+                                confirmButtonColor: '#3085d6'
                             });
                         }
+                    })
+                    .catch(error => {
+                        console.error('Error en la petición:', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error de conexión',
+                            text: 'No se pudo conectar con el servidor',
+                            confirmButtonColor: '#3085d6'
+                        });
+                    })
+                    .finally(() => {
+                        btnEliminar.innerHTML = originalText;
+                        btnEliminar.disabled = false;
                     });
-                }
+            }
+        });
+    }
+    function guardarProgramacion() {
+        const mantenimientoId = document.getElementById('mantenimientoId').value;
+        const unidad = document.getElementById('unidad').value;
+        const tipoMantenimiento = document.getElementById('tipo_mantenimiento').value;
+        const fechaProgramada = document.getElementById('fecha_programada').value;
+        const motivo = document.getElementById('motivo').value.trim();
+        const kmActual = document.getElementById('kmActual').value;
+        const estadoUnidad = document.getElementById('estado_unidad').value.trim();
+
+        // Validaciones básicas
+        if (!unidad || !tipoMantenimiento || !fechaProgramada || !motivo || !kmActual || !estadoUnidad) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Campos incompletos',
+                text: 'Por favor complete todos los campos obligatorios',
+                confirmButtonColor: '#3085d6'
             });
-        });
-    }
-
-    function actualizarMantenimiento(id) {
-        const formData = new FormData(document.getElementById('formProgramacion'));
-
-        $.ajax({
-            url: `/mantenimiento/programado/${id}`,
-            method: 'PUT',
-            data: formData,
-            processData: false,
-            contentType: false,
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            success: function(response) {
-                if (response.success) {
-                    Swal.fire({
-                        position: "center",
-                        icon: "success",
-                        title: "Mantenimiento actualizado correctamente",
-                        showConfirmButton: false,
-                        timer: 1500
-                    }).then(() => {
-                        $('#modalProgramacion').modal('hide');
-                        location.reload();
-                    });
-                } else {
-                    Swal.fire({
-                        position: "center",
-                        icon: "error",
-                        title: "Error al actualizar el mantenimiento",
-                        showConfirmButton: false,
-                        timer: 2000
-                    });
-                }
-            },
-            error: function() {
-                Swal.fire({
-                    position: "center",
-                    icon: "error",
-                    title: "Error al actualizar el mantenimiento",
-                    showConfirmButton: false,
-                    timer: 2000
-                });
-            }
-        });
-    }
-
-    function procesarProgramacion() {
-        const formData = new FormData(document.getElementById('formProgramacion'));
-
-        let valid = true;
-        for (let [key, value] of formData.entries()) {
-            if (!value) {
-                Swal.fire({
-                    position: "center",
-                    icon: "warning",
-                    title: "Por favor completa todos los campos obligatorios",
-                    showConfirmButton: false,
-                    timer: 2000
-                });
-                valid = false;
-                break;
-            }
+            return;
         }
 
-        if (!valid) return;
+        if (kmActual < 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Kilometraje inválido',
+                text: 'El kilometraje no puede ser negativo',
+                confirmButtonColor: '#3085d6'
+            });
+            return;
+        }
 
-        $.ajax({
-            url: '/mantenimiento/programado',
-            method: 'POST',
-            data: formData,
-            processData: false,
-            contentType: false,
+        const url = modoEdicion ? `/mantenimiento/programado/${mantenimientoId}` : '/mantenimiento/programado';
+        const method = modoEdicion ? 'PUT' : 'POST';
+
+        fetch(url, {
+            method: method,
             headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Content-Type': 'application/json'
             },
-            success: function(response) {
-                if (response.success) {
+            body: JSON.stringify({
+                unidad: parseInt(unidad),
+                tipo_mantenimiento: tipoMantenimiento,
+                fecha_programada: fechaProgramada,
+                motivo: motivo,
+                kmActual: parseInt(kmActual),
+                estado_unidad: estadoUnidad
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
                     Swal.fire({
                         position: "center",
                         icon: "success",
-                        title: "Mantenimiento programado correctamente",
+                        title: data.message || (modoEdicion ? "Mantenimiento actualizado correctamente" : "Mantenimiento programado correctamente"),
                         showConfirmButton: false,
                         timer: 1500
                     }).then(() => {
-                        $('#modalProgramacion').modal('hide');
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('modalProgramacion'));
+                        modal.hide();
                         location.reload();
                     });
                 } else {
                     Swal.fire({
-                        position: "center",
-                        icon: "error",
-                        title: "Error al programar el mantenimiento",
-                        showConfirmButton: false,
-                        timer: 2000
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message || 'Error al guardar el mantenimiento',
+                        confirmButtonColor: '#3085d6'
                     });
                 }
-            },
-            error: function() {
+            })
+            .catch(error => {
+                console.error('Error:', error);
                 Swal.fire({
-                    position: "center",
-                    icon: "error",
-                    title: "Error al programar el mantenimiento",
-                    showConfirmButton: false,
-                    timer: 2000
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error al guardar el mantenimiento',
+                    confirmButtonColor: '#3085d6'
                 });
-            }
-        });
+            });
     }
 
-    $('#modalProgramacion').on('hidden.bs.modal', function () {
-        $('#formProgramacion')[0].reset();
+    // Limpiar el formulario cuando se cierra el modal
+    document.getElementById('modalProgramacion').addEventListener('hidden.bs.modal', function () {
+        document.getElementById('formProgramacion').reset();
+        document.getElementById('mantenimientoId').value = '';
+        document.getElementById('modalTitulo').textContent = 'Programar Mantenimiento';
+        document.getElementById('btnGuardar').innerHTML = '<i class="bi bi-check-circle me-1"></i> Guardar Programación';
+        modoEdicion = false;
+
+        // Restablecer fecha mínima como hoy
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('fecha_programada').min = today;
     });
 </script>
 
