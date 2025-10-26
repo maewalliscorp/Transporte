@@ -13,6 +13,36 @@
     <!-- DataTables CSS -->
     <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
     <link href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css" rel="stylesheet">
+
+    <!-- SweetAlert2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", Helvetica, Arial, sans-serif;
+        }
+
+        /* Personalización de SweetAlert2 */
+        .swal2-popup {
+            font-family: "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        .swal2-title {
+            font-size: 1.2rem !important;
+        }
+
+        .card-stat {
+            transition: transform 0.3s ease;
+        }
+
+        .card-stat:hover {
+            transform: translateY(-5px);
+        }
+
+        .table-responsive {
+            border-radius: 8px;
+        }
+    </style>
 </head>
 <body>
 
@@ -68,7 +98,7 @@
     <!-- Estadísticas -->
     <div class="row mb-4">
         <div class="col-md-3">
-            <div class="card bg-primary text-white">
+            <div class="card card-stat bg-primary text-white">
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
                         <div>
@@ -81,7 +111,7 @@
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card bg-success text-white">
+            <div class="card card-stat bg-success text-white">
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
                         <div>
@@ -94,7 +124,7 @@
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card bg-warning text-dark">
+            <div class="card card-stat bg-warning text-dark">
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
                         <div>
@@ -107,7 +137,7 @@
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card bg-info text-white">
+            <div class="card card-stat bg-info text-white">
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
                         <div>
@@ -190,6 +220,16 @@
 <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
 <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
 
+<!-- SweetAlert2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+
+<!-- SheetJS para Excel -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+<!-- jsPDF para PDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
 <script>
     let tableHistorial;
 
@@ -237,15 +277,156 @@
         });
     });
 
-    function exportarPDF() {
-        alert('Función de exportación PDF en desarrollo');
-        // Aquí iría la lógica para exportar a PDF
+    // Función para mostrar alertas personalizadas
+    function mostrarAlerta(icono, titulo, mensaje = '') {
+        Swal.fire({
+            position: "center",
+            icon: icono,
+            title: titulo,
+            text: mensaje,
+            showConfirmButton: false,
+            timer: 3000
+        });
     }
 
-    function exportarExcel() {
-        alert('Función de exportación Excel en desarrollo');
-        // Aquí iría la lógica para exportar a Excel
+    // Función para obtener datos filtrados de la tabla
+    function obtenerDatosFiltrados() {
+        const datosFiltrados = [];
+        const columnas = ['Unidad', 'Fecha', 'Tipo', 'Descripción', 'Piezas', 'Kilometraje', 'Costo', 'Observaciones', 'Estado Unidad'];
+
+        // Obtener datos visibles (filtrados)
+        tableHistorial.rows({ search: 'applied' }).every(function() {
+            const rowData = this.data();
+            const datosFila = [];
+
+            // Procesar cada celda de la fila
+            $(rowData).each(function(index, valor) {
+                if (index < columnas.length) {
+                    // Limpiar HTML de badges y otros elementos
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = valor;
+                    datosFila.push(tempDiv.textContent || tempDiv.innerText || '');
+                }
+            });
+
+            datosFiltrados.push(datosFila);
+        });
+
+        return {
+            columnas: columnas,
+            datos: datosFiltrados
+        };
     }
+
+    // Función para exportar a PDF
+    function exportarPDF() {
+        mostrarAlerta('info', 'Generando PDF', 'Por favor espere...');
+
+        try {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const datos = obtenerDatosFiltrados();
+
+            // Título del documento
+            doc.setFontSize(16);
+            doc.text('Historial de Mantenimiento', 14, 15);
+
+            // Información de filtros aplicados
+            doc.setFontSize(10);
+            let filtrosInfo = 'Reporte generado el: ' + new Date().toLocaleDateString();
+
+            const unidadFiltro = $('#unidadHistorial').val();
+            const tipoFiltro = $('#tipoMantenimiento').val();
+            const fechaFiltro = $('#fechaFiltro').val();
+
+            if (unidadFiltro) filtrosInfo += ' | Unidad: ' + $('#unidadHistorial option:selected').text();
+            if (tipoFiltro) filtrosInfo += ' | Tipo: ' + tipoFiltro;
+            if (fechaFiltro) filtrosInfo += ' | Mes: ' + fechaFiltro;
+
+            doc.text(filtrosInfo, 14, 22);
+
+            // Generar tabla
+            doc.autoTable({
+                head: [datos.columnas],
+                body: datos.datos,
+                startY: 30,
+                styles: { fontSize: 8 },
+                headStyles: { fillColor: [41, 128, 185] },
+                alternateRowStyles: { fillColor: [245, 245, 245] }
+            });
+
+            // Guardar PDF
+            const fecha = new Date().toISOString().slice(0, 10);
+            doc.save(`historial_mantenimiento_${fecha}.pdf`);
+
+            mostrarAlerta('success', 'PDF Exportado', 'El archivo se ha descargado correctamente');
+
+        } catch (error) {
+            console.error('Error al generar PDF:', error);
+            mostrarAlerta('error', 'Error', 'No se pudo generar el PDF');
+        }
+    }
+
+    // Función para exportar a Excel
+    function exportarExcel() {
+        mostrarAlerta('info', 'Generando Excel', 'Por favor espere...');
+
+        try {
+            const datos = obtenerDatosFiltrados();
+
+            // Crear libro de trabajo
+            const wb = XLSX.utils.book_new();
+
+            // Preparar datos para Excel
+            const datosExcel = [datos.columnas, ...datos.datos];
+
+            // Crear hoja de trabajo
+            const ws = XLSX.utils.aoa_to_sheet(datosExcel);
+
+            // Ajustar anchos de columnas
+            const colWidths = [];
+            datos.columnas.forEach((col, index) => {
+                let maxLength = col.length;
+                datos.datos.forEach(row => {
+                    if (row[index] && row[index].length > maxLength) {
+                        maxLength = row[index].length;
+                    }
+                });
+                colWidths.push({ wch: Math.min(maxLength + 2, 50) });
+            });
+            ws['!cols'] = colWidths;
+
+            // Agregar hoja al libro
+            XLSX.utils.book_append_sheet(wb, ws, 'Historial Mantenimiento');
+
+            // Información de filtros
+            const filtrosInfo = [
+                ['Reporte de Historial de Mantenimiento'],
+                ['Generado el:', new Date().toLocaleDateString()],
+                ['Unidad filtrada:', unidadFiltro ? $('#unidadHistorial option:selected').text() : 'Todas'],
+                ['Tipo de mantenimiento:', tipoFiltro || 'Todos'],
+                ['Mes:', fechaFiltro || 'Todos']
+            ];
+
+            const wsInfo = XLSX.utils.aoa_to_sheet(filtrosInfo);
+            XLSX.utils.book_append_sheet(wb, wsInfo, 'Información');
+
+            // Guardar archivo
+            const fecha = new Date().toISOString().slice(0, 10);
+            XLSX.writeFile(wb, `historial_mantenimiento_${fecha}.xlsx`);
+
+            mostrarAlerta('success', 'Excel Exportado', 'El archivo se ha descargado correctamente');
+
+        } catch (error) {
+            console.error('Error al generar Excel:', error);
+            mostrarAlerta('error', 'Error', 'No se pudo generar el archivo Excel');
+        }
+    }
+
+    // Variables para filtros (usadas en ambas funciones de exportación)
+    const unidadFiltro = $('#unidadHistorial').val();
+    const tipoFiltro = $('#tipoMantenimiento').val();
+    const fechaFiltro = $('#fechaFiltro').val();
 </script>
 
 </body>
