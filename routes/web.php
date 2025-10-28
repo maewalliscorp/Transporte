@@ -5,14 +5,16 @@
     use Illuminate\Support\Facades\Auth;
     use App\Http\Controllers\InicioController;
     use App\Http\Controllers\IncidentesController;
-    use App\Http\Controllers\MantenimientoController;
     use App\Http\Controllers\FinanzasController;
-
     use App\Http\Controllers\UnidadController;
     use App\Http\Controllers\OperadorController;
     use App\Http\Controllers\RutaController;
     use App\Http\Controllers\HorarioController;
     use App\Http\Controllers\TincidenteController;
+    use App\Http\Controllers\MalertasController;
+    use App\Http\Controllers\MhistorialController;
+    use App\Http\Controllers\MprogramadoController;
+    use App\Http\Controllers\MrealizadoController;
 
 
     // Redirigir / al login
@@ -56,13 +58,35 @@
     })->name('mantenimiento');
 
     Route::get('/mantenimiento', [MantenimientoController::class, 'index'])->name('mantenimiento');
-    Route::get('/mantenimiento/{id}', [MantenimientoController::class, 'obtenerMantenimiento']);
-    Route::put('/mantenimiento/{id}', [MantenimientoController::class, 'actualizarMantenimiento']);
-    Route::delete('/mantenimiento/{id}', [MantenimientoController::class, 'eliminarMantenimiento']);
-    //Rutas para alertas de mantenimiento :)
-    Route::get('/alerta/{id}', [MantenimientoController::class, 'obtenerAlerta']);
-    Route::put('/alerta/{id}', [MantenimientoController::class, 'actualizarAlerta']);
-    Route::delete('/alerta/{id}', [MantenimientoController::class, 'eliminarAlerta']);
+
+
+    // Rutas de Mantenimiento
+    Route::prefix('mantenimiento')->group(function () {
+        // Programado
+        Route::get('/m-programado', [MprogramadoController::class, 'index'])->name('mantenimiento.m-programado');
+        Route::post('/programado', [MprogramadoController::class, 'store']);
+        Route::get('/programado/{id}', [MprogramadoController::class, 'show']);
+        Route::put('/programado/{id}', [MprogramadoController::class, 'update']);
+        Route::delete('/programado/{id}', [MprogramadoController::class, 'destroy']);
+
+        // Realizado
+        Route::get('/m-realizado', [MrealizadoController::class, 'index'])->name('mantenimiento.m-realizado');
+        Route::post('/realizado', [MrealizadoController::class, 'store']);
+        Route::get('/realizado/{id}', [MrealizadoController::class, 'show']);
+        Route::put('/realizado/{id}', [MrealizadoController::class, 'update']);
+        Route::delete('/realizado/{id}', [MrealizadoController::class, 'destroy']);
+
+        // Alertas
+        Route::get('/m-alertas', [MalertasController::class, 'index'])->name('mantenimiento.m-alertas');
+        Route::post('/alerta', [MalertasController::class, 'store']);
+        Route::get('/alerta/{id}', [MalertasController::class, 'show']);
+        Route::put('/alerta/{id}', [MalertasController::class, 'update']);
+        Route::delete('/alerta/{id}', [MalertasController::class, 'destroy']);
+
+        // Historial
+        Route::get('/m-historial', [MhistorialController::class, 'index'])->name('mantenimiento.m-historial');
+    });
+
 
     //Página de pasajero :)
     Route::get('/pasajerof', function (){
