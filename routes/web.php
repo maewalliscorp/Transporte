@@ -15,6 +15,10 @@
     use App\Http\Controllers\MhistorialController;
     use App\Http\Controllers\MprogramadoController;
     use App\Http\Controllers\MrealizadoController;
+    use App\Http\Controllers\PhistorialController;
+    use App\Http\Controllers\PquejasugerenciaController;
+    use App\Http\Controllers\PregistroController;
+
 
 
     // Redirigir / al login
@@ -92,6 +96,22 @@
     Route::get('/pasajerof', function (){
         return view('auth.pasajerof');
     })->name('pasajerof');
+
+    // ------- RUTAS PARA PASAJERO -------
+    // Rutas para el módulo de Pasajero
+    Route::prefix('pasajero')->group(function () {
+        // Registro de Pasajeros
+        Route::get('/p-registro', [PregistroController::class, 'index'])->name('pasajero.p-registro');
+        Route::post('/registro', [PregistroController::class, 'store'])->name('pasajero.registro.store');
+
+        // Historial de Viajes
+        Route::get('/p-historial', [PhistorialController::class, 'index'])->name('pasajero.p-historial');
+        Route::get('/historial/data', [PhistorialController::class, 'getHistorial'])->name('pasajero.historial.data');
+
+        // Quejas y Sugerencias
+        Route::get('/p-quejas', [PquejasugerenciaController::class, 'index'])->name('pasajero.p-queja-sugerencia');
+        Route::post('/quejas', [PquejasugerenciaController::class, 'store'])->name('pasajero.quejas.store');
+    });
 
     // Ruta para guardar la asignación
     Route::post('/asignar', [InicioController::class, 'asignar'])->name('asignar');
