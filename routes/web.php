@@ -98,7 +98,6 @@
     })->name('pasajerof');
 
     // ------- RUTAS PARA PASAJERO -------
-    // Rutas para el módulo de Pasajero
     Route::prefix('pasajero')->group(function () {
         // Registro de Pasajeros
         Route::get('/p-registro', [PregistroController::class, 'index'])->name('pasajero.p-registro');

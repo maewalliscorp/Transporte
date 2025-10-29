@@ -77,12 +77,6 @@
                     </a>
                 </li>
 
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('mantenimiento') }}">
-                        <i class="bi bi-tools me-1"></i>Mantenimiento
-                    </a>
-                </li>
-
                 <!-- Menú desplegable de MANTENIMIENTO -->
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="mantenimientoDropdown" role="button"
@@ -119,12 +113,30 @@
                     </a>
                 </li>
 
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('pasajerof') }}">
+                <!-- Menú desplegable de PASAJERO -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="pasajeroDropdown" role="button"
+                       data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="bi bi-people me-1"></i>Pasajero
                     </a>
+                    <ul class="dropdown-menu" aria-labelledby="pasajeroDropdown">
+                        <li>
+                            <a class="dropdown-item" href="{{ route('pasajero.p-registro') }}">
+                                <i class="bi bi-person-plus me-2"></i>Registro de Pasajeros
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{{ route('pasajero.p-historial') }}">
+                                <i class="bi bi-clock-history me-2"></i>Historial de Viajes
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{{ route('pasajero.p-queja-sugerencia') }}">
+                                <i class="bi bi-chat-left-text me-2"></i>Quejas y Sugerencias
+                            </a>
+                        </li>
+                    </ul>
                 </li>
-
             </ul>
         </div>
     </div>
