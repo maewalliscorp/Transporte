@@ -17,32 +17,6 @@
     <!-- SweetAlert2 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
 
-    <style>
-        body {
-            font-family: "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", Helvetica, Arial, sans-serif;
-        }
-
-        /* Personalización de SweetAlert2 */
-        .swal2-popup {
-            font-family: "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        }
-
-        .swal2-title {
-            font-size: 1.2rem !important;
-        }
-
-        .card-stat {
-            transition: transform 0.3s ease;
-        }
-
-        .card-stat:hover {
-            transform: translateY(-5px);
-        }
-
-        .table-responsive {
-            border-radius: 8px;
-        }
-    </style>
 </head>
 <body>
 
