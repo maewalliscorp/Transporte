@@ -152,7 +152,7 @@
                     <label for="correoQueja" class="form-label">Correo Electrónico</label>
                     <input type="email" id="correoQueja" class="form-control" required />
                 </div>
-                <div class="md-3>
+                <div class="md-3">
                     <label for="textoQueja" class="form-label">Queja y Sugerencia</label>
                     <textarea id="textoQueja" rows="4" class="form-control" required></textarea>
                 </div>
