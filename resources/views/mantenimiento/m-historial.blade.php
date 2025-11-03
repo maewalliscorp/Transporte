@@ -17,6 +17,9 @@
     <!-- SweetAlert2 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
 
+    <!-- Estilos personalizados -->
+    <link rel="stylesheet" href="{{ asset('build/assets/estilos.css') }}">
+
 </head>
 <body>
 
@@ -130,7 +133,7 @@
         <div class="card-body">
             <div class="table-responsive">
                 <table class="table table-striped table-hover display nowrap" id="tablaHistorial" style="width:100%">
-                    <thead class="table-dark">
+                    <thead class="table-primary">
                     <tr>
                         <th>Unidad</th>
                         <th>Fecha</th>

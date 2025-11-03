@@ -4,12 +4,15 @@
         <meta charset="UTF-8">
         <title>Gestión de Operadores</title>
 
-
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
         <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
         <link href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css" rel="stylesheet">
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+        <!-- Estilos personalizados -->
+        <link rel="stylesheet" href="{{ asset('build/assets/estilos.css') }}">
+
     </head>
     <body>
     @include('layouts.menuPrincipal')
@@ -26,7 +29,7 @@
             <div class="card-body">
                 <div class="table-responsive">
                     <table class="table table-striped table-hover display nowrap" id="tablaOperadores" style="width:100%">
-                        <thead class="table-dark">
+                        <thead class="table-primary">
                         <tr>
                             <th>ID</th>
                             <th>Usuario</th>

@@ -16,14 +16,9 @@
     <!-- SweetAlert2 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
 
-    <style>
-        body {
-            font-family: "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", Helvetica, Arial, sans-serif;
-        }
-        .table-actions {
-            white-space: nowrap;
-        }
-    </style>
+    <!-- Estilos personalizados -->
+    <link rel="stylesheet" href="{{ asset('build/assets/estilos.css') }}">
+
 </head>
 <body>
 @include('layouts.menuPrincipal')
@@ -41,7 +36,7 @@
         <div class="card-body">
             <div class="table-responsive">
                 <table class="table table-striped table-hover display nowrap" id="tablaIncidentes" style="width:100%">
-                    <thead class="table-dark">
+                    <thead class="table-primary">
                     <tr>
                         <th>ID</th>
                         <th>Asignación</th>

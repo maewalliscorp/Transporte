@@ -9,6 +9,150 @@
     <!-- SweetAlert2 CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 
+    <style>
+        body {
+            font-family: "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #E3F2FD 0%, #F3E5F5 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .container-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+            border: 1px solid #E1F5FE;
+            margin: 0 auto;
+            max-width: 1200px;
+        }
+        .header-section {
+            background: linear-gradient(135deg, #4FC3F7 0%, #7E57C2 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(79, 195, 247, 0.3);
+        }
+        .header-section h4 {
+            margin: 0;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            font-size: 1.8rem;
+        }
+        .header-section p {
+            margin: 0.5rem 0 0 0;
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+        .form-section {
+            padding: 2.5rem;
+        }
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid #E1F5FE;
+            transition: all 0.3s ease;
+            background: white;
+            padding: 12px 16px;
+            font-size: 1rem;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: #4FC3F7;
+            box-shadow: 0 0 0 0.3rem rgba(79, 195, 247, 0.2);
+            background: white;
+        }
+        .form-label {
+            font-weight: 600;
+            color: #37474F;
+            margin-bottom: 0.8rem;
+            font-size: 1rem;
+        }
+        /* Estilos para los botones de tipo */
+        .type-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .type-buttons .btn {
+            border-radius: 10px;
+            padding: 12px 24px;
+            font-weight: 600;
+            border: 2px solid;
+            transition: all 0.3s ease;
+            min-width: 140px;
+        }
+        .type-buttons .btn-outline-danger {
+            border-color: #dc3545;
+            color: #dc3545;
+        }
+        .type-buttons .btn-outline-danger:hover,
+        .type-buttons .btn-check:checked + .btn-outline-danger {
+            background: #dc3545;
+            border-color: #dc3545;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+        }
+        .type-buttons .btn-outline-success {
+            border-color: #198754;
+            color: #198754;
+        }
+        .type-buttons .btn-outline-success:hover,
+        .type-buttons .btn-check:checked + .btn-outline-success {
+            background: #198754;
+            border-color: #198754;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(25, 135, 84, 0.3);
+        }
+        .type-buttons .btn-outline-primary {
+            border-color: #4FC3F7;
+            color: #4FC3F7;
+        }
+        .type-buttons .btn-outline-primary:hover,
+        .type-buttons .btn-check:checked + .btn-outline-primary {
+            background: #4FC3F7;
+            border-color: #4FC3F7;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(79, 195, 247, 0.3);
+        }
+        /* Botón de enviar */
+        .btn-primary {
+            background: linear-gradient(135deg, #4FC3F7 0%, #7E57C2 100%);
+            border: none;
+            border-radius: 12px;
+            padding: 15px 40px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            color: white;
+            box-shadow: 0 4px 15px rgba(79, 195, 247, 0.3);
+        }
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(79, 195, 247, 0.4);
+            background: linear-gradient(135deg, #29B6F6 0%, #6A45B2 100%);
+        }
+        /* Contador de caracteres */
+        .form-text {
+            text-align: right;
+            margin-top: 0.5rem;
+            color: #6c757d;
+            font-weight: 500;
+        }
+        .text-danger {
+            color: #dc3545 !important;
+            font-weight: 600;
+        }
+        /* Espaciado entre filas */
+        .row.g-3 {
+            margin-bottom: 1rem;
+        }
+        /* Asegurar que los textareas t buen tamaño */
+        textarea.form-control {
+            resize: vertical;
+            min-height: 140px;
+        }
+    </style>
+
 </head>
 <body>
 

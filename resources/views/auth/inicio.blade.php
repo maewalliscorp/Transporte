@@ -15,37 +15,115 @@
     <link href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css" rel="stylesheet">
 
     <style>
-        .filter-section {
-            margin-top: 20px;
-            margin-bottom: 20px;
-            padding: 15px;
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            border-left: 4px solid #0d6efd;
+        body {
+            font-family: "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #E3F2FD 0%, #F3E5F5 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
         }
-        .dataTables_wrapper .dataTables_length,
-        .dataTables_wrapper .dataTables_filter {
-            margin-bottom: 1rem;
+        .container-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+            border: 1px solid #E1F5FE;
+        }
+        .header-section {
+            background: linear-gradient(135deg, #4FC3F7 0%, #7E57C2 100%);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(79, 195, 247, 0.3);
+        }
+        .header-section h4 {
+            margin: 0;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .content-section {
+            padding: 2rem;
+        }
+        .filter-section {
+            background: #F8F9FA;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            border: 1px solid #E3F2FD;
+        }
+        .form-control, .form-select {
+            border-radius: 8px;
+            border: 2px solid #E1F5FE;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: #4FC3F7;
+            box-shadow: 0 0 0 0.2rem rgba(79, 195, 247, 0.25);
+        }
+        .btn-outline-secondary {
+            border: 2px solid #4FC3F7;
+            color: #4FC3F7;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-outline-secondary:hover {
+            background: #4FC3F7;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(79, 195, 247, 0.3);
+        }
+        /* Estilos para la tabla oscura */
+        .table-dark {
+            background: linear-gradient(135deg, #2C3E50 0%, #34495E 100%);
+            border-radius: 10px 10px 0 0;
+            overflow: hidden;
+        }
+        .table-dark th {
+            background: rgba(0, 0, 0, 0.2);
+            border: none;
+            padding: 1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+        .table-hover tbody tr:hover {
+            background: rgba(79, 195, 247, 0.1);
+            transform: scale(1.01);
+            transition: all 0.2s ease;
+        }
+        .table-hover tbody tr td {
+            padding: 1rem;
+            border-color: #E3F2FD;
+            vertical-align: middle;
+        }
+        /* Badges mejorados */
+        .badge.bg-success {
+            background: linear-gradient(135deg, #66BB6A 0%, #4CAF50 100%) !important;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        .badge.bg-warning {
+            background: linear-gradient(135deg, #FFB74D 0%, #FF9800 100%) !important;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            color: white !important;
         }
         .table-responsive {
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
-        .resumen-card {
-            border-left: 4px solid #0d6efd;
-            background-color: #f8f9fa;
-        }
-        .section-title {
-            color: #2c3e50;
-            border-bottom: 2px solid #3498db;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-        }
-        .badge-custom {
-            font-size: 0.75em;
+        .form-label {
+            font-weight: 600;
+            color: #37474F;
+            margin-bottom: 0.5rem;
         }
     </style>
+
 </head>
 <body>
 
@@ -108,7 +186,7 @@
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-striped table-hover display nowrap" id="tablaDisponiblesData" style="width:100%">
-                        <thead class="table-dark">
+                        <thead class="table-primary">
                         <tr>
                             <th>Tipo</th>
                             <th>Descripción</th>
@@ -182,7 +260,7 @@
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-striped table-hover display nowrap" id="tablaAsignadosData" style="width:100%">
-                        <thead class="table-dark">
+                        <thead class="table-primary">
                         <tr>
                             <th>Id Asignación</th>
                             <th>Unidad de Transporte</th>

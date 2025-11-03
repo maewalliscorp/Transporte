@@ -9,6 +9,9 @@
     <!-- SweetAlert2 CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 
+    <!-- Estilos personalizados -->
+    <link rel="stylesheet" href="{{ asset('build/assets/estilos.css') }}">
+
 </head>
 <body>
 

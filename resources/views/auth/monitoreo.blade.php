@@ -10,34 +10,233 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 
     <style>
-        .filter-section {
-            margin-top: 20px;
-            margin-bottom: 20px;
+        body {
+            font-family: "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #E3F2FD 0%, #F3E5F5 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
         }
+
+        .container-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+            border: 1px solid #E1F5FE;
+            margin: 0 auto;
+            max-width: 1400px;
+        }
+
+        .header-section {
+            background: linear-gradient(135deg, #4FC3F7 0%, #7E57C2 100%);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(79, 195, 247, 0.3);
+        }
+
+        .header-section h4 {
+            margin: 0;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .content-section {
+            padding: 2rem;
+        }
+
+        .filter-section {
+            background: #F8F9FA;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            border: 1px solid #E3F2FD;
+        }
+
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid #E1F5FE;
+            transition: all 0.3s ease;
+            background: white;
+            padding: 10px 15px;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #4FC3F7;
+            box-shadow: 0 0 0 0.3rem rgba(79, 195, 247, 0.2);
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #37474F;
+            margin-bottom: 0.8rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4FC3F7 0%, #7E57C2 100%);
+            border: none;
+            border-radius: 10px;
+            padding: 12px 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            color: white;
+            box-shadow: 0 4px 15px rgba(79, 195, 247, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(79, 195, 247, 0.4);
+            background: linear-gradient(135deg, #29B6F6 0%, #6A45B2 100%);
+        }
+
+        .btn-outline-secondary {
+            border: 2px solid #4FC3F7;
+            color: #4FC3F7;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 0 5px;
+        }
+
+        .btn-outline-secondary:hover {
+            background: #4FC3F7;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(79, 195, 247, 0.3);
+        }
+
+        .btn-outline-info {
+            border: 2px solid #7E57C2;
+            color: #7E57C2;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-info:hover {
+            background: #7E57C2;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(126, 87, 194, 0.3);
+        }
+
+        /* Estilos para el mapa */
         #map {
             height: 500px;
             width: 100%;
-            border-radius: 8px;
-            border: 2px solid #dee2e6;
+            border-radius: 12px;
+            border: 2px solid #E1F5FE;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
+
+        /* Estilos para las tarjetas de información */
+        .card {
+            border: 1px solid #E1F5FE;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #4FC3F7 0%, #7E57C2 100%);
+            color: white;
+            border: none;
+            font-weight: 600;
+            padding: 1rem 1.25rem;
+        }
+
+        /* Estados de tiempo */
         .estado-tiempo {
             color: white;
-            background-color: green;
-            padding: 5px 10px;
-            border-radius: 5px;
+            background: linear-gradient(135deg, #66BB6A 0%, #4CAF50 100%);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.85rem;
         }
+
         .estado-retardo {
             color: white;
-            background-color: red;
-            padding: 5px 10px;
-            border-radius: 5px;
+            background: linear-gradient(135deg, #FF7043 0%, #F4511E 100%);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.85rem;
         }
+
+        /* Tabla estilizada */
+        .table {
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .table-dark {
+            background: linear-gradient(135deg, #2C3E50 0%, #34495E 100%);
+        }
+
+        .table-dark th {
+            background: rgba(0, 0, 0, 0.2);
+            border: none;
+            padding: 1rem;
+            font-weight: 600;
+        }
+
+        .table-hover tbody tr:hover {
+            background: rgba(79, 195, 247, 0.1);
+            transition: all 0.2s ease;
+        }
+
+        /* Radio buttons personalizados */
+        .form-check-input:checked {
+            background-color: #4FC3F7;
+            border-color: #4FC3F7;
+        }
+
+        .form-check-label {
+            font-weight: 500;
+            color: #37474F;
+        }
+
+        /* Ventana de información del mapa */
         .info-window {
-            padding: 10px;
-            min-width: 200px;
+            padding: 15px;
+            min-width: 250px;
         }
+
+        .info-window h6 {
+            color: #4FC3F7;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .info-window p {
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        /* Controles del mapa */
         #controls {
             margin-bottom: 15px;
+            padding: 15px;
+            background: #F8F9FA;
+            border-radius: 10px;
+            border: 1px solid #E3F2FD;
+        }
+
+        .filter-section {
+            margin-top: 20px;
+            margin-bottom: 20px;
+            padding: 1.5rem;
+            background: #F8F9FA;
+            border-radius: 10px;
+            border: 1px solid #E3F2FD;
         }
     </style>
 </head>
@@ -46,104 +245,117 @@
 <!-- AQUI MI MENÚ (NAVBAR) -->
 @include('layouts.menuPrincipal')
 
-<div class="container">
-    <!-- Filtro de monitoreo -->
-    <div class="filter-section">
-        <label class="form-label me-3">Tipo de Monitoreo:</label>
-        <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="tipoMonitoreo" id="monitoreoGps" value="gps" checked>
-            <label class="form-check-label" for="monitoreoGps">Monitoreo GPS</label>
-        </div>
-        <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="tipoMonitoreo" id="monitoreoPuntualidad" value="puntualidad">
-            <label class="form-check-label" for="monitoreoPuntualidad">Monitoreo de Puntualidad</label>
-        </div>
-    </div>
-
-    <!-- Sección Monitoreo GPS -->
-    <div id="seccionGPS">
-        <!-- Filtro: Unidad de transporte SOLO para GPS -->
-        <div class="row mb-4 align-items-end" id="filtroUnidad">
-            <div class="col-md-4">
-                <label for="unidadSelect" class="form-label">Unidad de Transporte</label>
-                <select class="form-select" id="unidadSelect">
-                    <option value="" selected disabled>Selecciona una unidad</option>
-                    <!-- Las opciones se cargarán dinámicamente -->
-                </select>
-            </div>
-            <div class="col-md-3">
-                <label for="fechaSelect" class="form-label">Fecha</label>
-                <input type="date" class="form-control" id="fechaSelect" value="{{ date('Y-m-d') }}">
-            </div>
-            <div class="col-md-2">
-                <button class="btn btn-primary w-100" onclick="cargarUnidadEnMapa()">
-                    <i class="bi bi-geo-alt"></i> Ver en Mapa
-                </button>
-            </div>
+<div class="container mt-4">
+    <div class="container-card">
+        <div class="header-section">
+            <h4 class="mb-0">Sistema de Monitoreo de Unidades</h4>
+            <p class="mb-0 mt-2">Seguimiento en tiempo real y control de puntualidad</p>
         </div>
 
-        <!-- Controles del mapa -->
-        <div id="controls" class="mb-3">
-            <button class="btn btn-outline-secondary btn-sm" onclick="mostrarTodasUnidades()">
-                <i class="bi bi-geo"></i> Mostrar todas las unidades
-            </button>
-            <button class="btn btn-outline-secondary btn-sm" onclick="limpiarMapa()">
-                <i class="bi bi-trash"></i> Limpiar mapa
-            </button>
-            <button class="btn btn-outline-info btn-sm" onclick="centrarMapaCDMX()">
-                <i class="bi bi-geo-alt"></i> Centrar en CDMX
-            </button>
-        </div>
+        <div class="content-section">
+            <!-- Filtro de monitoreo -->
+            <div class="filter-section">
+                <label class="form-label me-3 fw-bold">Tipo de Monitoreo:</label>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="tipoMonitoreo" id="monitoreoGps" value="gps" checked>
+                    <label class="form-check-label" for="monitoreoGps">Monitoreo GPS</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="tipoMonitoreo" id="monitoreoPuntualidad" value="puntualidad">
+                    <label class="form-check-label" for="monitoreoPuntualidad">Monitoreo de Puntualidad</label>
+                </div>
+            </div>
 
-        <h5>Recorrido en tiempo real (GPS)</h5>
-        <div id="map">
-            <!-- Aquí se cargará Google Maps -->
-        </div>
-        <div class="mt-3">
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="card">
-                        <div class="card-header">
-                            <h6 class="mb-0">Información de la Unidad Seleccionada</h6>
+            <!-- Sección Monitoreo GPS -->
+            <div id="seccionGPS">
+                <!-- Filtro: Unidad de transporte SOLO para GPS -->
+                <div class="row mb-4 align-items-end" id="filtroUnidad">
+                    <div class="col-md-4">
+                        <label for="unidadSelect" class="form-label">Unidad de Transporte</label>
+                        <select class="form-select" id="unidadSelect">
+                            <option value="" selected disabled>Selecciona una unidad</option>
+                            <!-- Las opciones se cargarán dinámicamente -->
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="fechaSelect" class="form-label">Fecha</label>
+                        <input type="date" class="form-control" id="fechaSelect" value="{{ date('Y-m-d') }}">
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-primary w-100" onclick="cargarUnidadEnMapa()">
+                            <i class="bi bi-geo-alt"></i> Ver en Mapa
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Controles del mapa -->
+                <div id="controls" class="mb-3">
+                    <button class="btn btn-outline-secondary btn-sm" onclick="mostrarTodasUnidades()">
+                        <i class="bi bi-geo"></i> Mostrar todas las unidades
+                    </button>
+                    <button class="btn btn-outline-secondary btn-sm" onclick="limpiarMapa()">
+                        <i class="bi bi-trash"></i> Limpiar mapa
+                    </button>
+                    <button class="btn btn-outline-info btn-sm" onclick="centrarMapaCDMX()">
+                        <i class="bi bi-geo-alt"></i> Centrar en CDMX
+                    </button>
+                </div>
+
+                <h5 class="mb-3" style="color: #4FC3F7; font-weight: 600;">
+                    <i class="bi bi-geo-alt-fill"></i> Recorrido en tiempo real (GPS)
+                </h5>
+                <div id="map">
+                    <!-- Aquí se cargará Google Maps -->
+                </div>
+                <div class="mt-3">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6 class="mb-0"><i class="bi bi-info-circle"></i> Información de la Unidad Seleccionada</h6>
+                                </div>
+                                <div class="card-body" id="infoUnidad">
+                                    Selecciona una unidad para ver su información
+                                </div>
+                            </div>
                         </div>
-                        <div class="card-body" id="infoUnidad">
-                            Selecciona una unidad para ver su información
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6 class="mb-0"><i class="bi bi-graph-up"></i> Estadísticas</h6>
+                                </div>
+                                <div class="card-body" id="estadisticas">
+                                    Unidades en mapa: <span id="contadorUnidades" class="fw-bold" style="color: #4FC3F7;">0</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6">
-                    <div class="card">
-                        <div class="card-header">
-                            <h6 class="mb-0">Estadísticas</h6>
-                        </div>
-                        <div class="card-body" id="estadisticas">
-                            Unidades en mapa: <span id="contadorUnidades">0</span>
-                        </div>
-                    </div>
+            </div>
+
+            <!-- Sección Monitoreo Puntualidad -->
+            <div id="seccionPuntualidad" style="display: none;">
+                <h5 class="mb-3" style="color: #7E57C2; font-weight: 600;">
+                    <i class="bi bi-clock-fill"></i> Monitoreo de Puntualidad
+                </h5>
+                <div class="table-responsive">
+                    <table class="table table-hover mt-3">
+                        <thead class="table-dark">
+                        <tr>
+                            <th>Unidad de Transporte</th>
+                            <th>Operador</th>
+                            <th>Ruta</th>
+                            <th>Horario</th>
+                            <th>Estado</th>
+                            <th>Tiempo Retardo</th>
+                        </tr>
+                        </thead>
+                        <tbody id="tablaPuntualidad">
+                        <!-- Los datos se cargarán dinámicamente -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <!-- Sección Monitoreo Puntualidad -->
-    <div id="seccionPuntualidad" style="display: none;">
-        <h5>Monitoreo de Puntualidad</h5>
-        <div class="table-responsive">
-            <table class="table table-bordered mt-3">
-                <thead class="table-dark">
-                <tr>
-                    <th>Unidad de Transporte</th>
-                    <th>Operador</th>
-                    <th>Ruta</th>
-                    <th>Horario</th>
-                    <th>Estado</th>
-                    <th>Tiempo Retardo</th>
-                </tr>
-                </thead>
-                <tbody id="tablaPuntualidad">
-                <!-- Los datos se cargarán dinámicamente -->
-                </tbody>
-            </table>
         </div>
     </div>
 </div>
@@ -154,6 +366,7 @@
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyApCh2ySGjVCuRiLan4-KhxTCqqkKt8GP8&callback=initMap" async defer></script>
 
 <script>
+    // Tu código JavaScript original permanece igual aquí...
     // Variables globales
     let map;
     let markers = [];
@@ -483,7 +696,7 @@
         } else {
             seccionGPS.style.display = 'none';
             seccionPuntualidad.style.display = 'block';
-            filtroUnidad.style.display = 'none'; // Ocultar filtros en puntualidad
+            filtroUnidad.style.display = 'none';
         }
     }
 
