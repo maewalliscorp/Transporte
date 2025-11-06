@@ -21,6 +21,16 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'idConcesionariaFK',
+    ];
+
+    /**
+     * The attributes that should have default values.
+     *
+     * @var array
+     */
+    protected $attributes = [
+        'idConcesionariaFK' => 0,
     ];
 
     /**
@@ -42,7 +52,24 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Set the password attribute (hashes automatically)
+     */
+    public function setPasswordAttribute($value)
+    {
+        // Solo hashear si el valor no está vacío y no está ya hasheado
+        if (!empty($value)) {
+            // Verificar si ya está hasheado (bcrypt siempre empieza con $2y$, $2a$ o $2b$ seguido de números)
+            if (preg_match('/^\$2[ayb]\$\d{2}\$.{53}$/', $value)) {
+                // Ya está hasheado, guardarlo tal cual
+                $this->attributes['password'] = $value;
+            } else {
+                // No está hasheado, hashearlo
+                $this->attributes['password'] = \Illuminate\Support\Facades\Hash::make($value);
+            }
+        }
     }
 }

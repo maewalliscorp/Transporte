@@ -6,6 +6,30 @@
     <title>Menú Principal</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        /* Estilos para el menú de usuario */
+        #userDropdown {
+            color: #4FC3F7 !important;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        #userDropdown:hover {
+            color: #7E57C2 !important;
+            transform: scale(1.05);
+        }
+        .dropdown-menu {
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border: 1px solid #E1F5FE;
+        }
+        .dropdown-item:hover {
+            background: linear-gradient(135deg, #4FC3F7 0%, #7E57C2 100%);
+            color: white;
+        }
+        .dropdown-item-text {
+            padding: 0.75rem 1rem;
+        }
+    </style>
 </head>
 <body>
 
@@ -137,6 +161,41 @@
                         </li>
                     </ul>
                 </li>
+
+                <!-- Menú desplegable de USUARIO -->
+                @auth
+                    <li class="nav-item dropdown ms-3">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-person-circle me-2" style="font-size: 1.5rem;"></i>
+                            <span class="d-none d-md-inline">{{ Auth::user()->name }}</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                            <li>
+                                <div class="dropdown-item-text">
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-person-circle me-2" style="font-size: 1.5rem;"></i>
+                                        <div>
+                                            <strong>{{ Auth::user()->name }}</strong>
+                                            <br>
+                                            <small class="text-muted">{{ Auth::user()->email }}</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="{{ route('logout') }}"
+                                   onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                    <i class="bi bi-box-arrow-right me-2"></i>Cerrar Sesión
+                                </a>
+                                <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                                    @csrf
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                @endauth
             </ul>
         </div>
     </div>
