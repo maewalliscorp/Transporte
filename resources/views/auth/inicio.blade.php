@@ -597,7 +597,7 @@
         } catch (error) {
             console.error('Error inicializando DataTables:', error);
             Swal.fire({
-                position: "top-end",
+                position: "center",
                 icon: "error",
                 title: 'Error inicializando las tablas: ' + error.message,
                 showConfirmButton: false,
@@ -622,7 +622,7 @@
         const icon = tipo === 'success' ? 'success' : 'error';
 
         Swal.fire({
-            position: "top-end",
+            position: "center",
             icon: icon,
             title: mensaje,
             showConfirmButton: false,
@@ -692,7 +692,7 @@
         // Validar que todos los campos estén llenos
         if (!unidad || !operador || !ruta || !fecha || !hora) {
             Swal.fire({
-                position: "top-end",
+                position: "center",
                 icon: "error",
                 title: "Por favor completa todos los campos obligatorios.",
                 showConfirmButton: false,
@@ -792,7 +792,7 @@
                     });
                 } else {
                     Swal.fire({
-                        position: "top-end",
+                        position: "center",
                         icon: "error",
                         title: data.message,
                         showConfirmButton: false,
@@ -803,7 +803,7 @@
             .catch(error => {
                 console.error('Error completo:', error);
                 Swal.fire({
-                    position: "top-end",
+                    position: "center",
                     icon: "error",
                     title: 'Error al realizar la asignación: ' + error.message,
                     showConfirmButton: false,
