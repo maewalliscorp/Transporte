@@ -9,6 +9,14 @@ use Illuminate\Support\Facades\DB;
 
 class InicioController extends Controller
 {
+    /**
+     * Create a new controller instance.
+     */
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     public function index()
     {
         $inicioModel = new InicioModel();

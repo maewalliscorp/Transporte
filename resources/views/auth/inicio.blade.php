@@ -14,6 +14,9 @@
     <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
     <link href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css" rel="stylesheet">
 
+    <!-- SweetAlert2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+
     <style>
         body {
             font-family: "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -132,9 +135,6 @@
 
 <div class="container mt-4">
 
-    <!-- Alertas -->
-    <div id="alertContainer"></div>
-
     <!-- Header -->
     <div class="row mb-4">
         <div class="col-12">
@@ -180,7 +180,6 @@
             <div class="card-header bg-success text-white">
                 <h5 class="mb-0">
                     <i class="bi bi-check-circle me-2"></i>RECURSOS DISPONIBLES
-                    <span class="badge bg-light text-dark ms-2">{{ count($disponibles ?? []) }}</span>
                 </h5>
             </div>
             <div class="card-body p-0">
@@ -188,48 +187,105 @@
                     <table class="table table-striped table-hover display nowrap" id="tablaDisponiblesData" style="width:100%">
                         <thead class="table-primary">
                         <tr>
-                            <th>Tipo</th>
-                            <th>Descripción</th>
-                            <th>Información</th>
-                            <th>Estado</th>
+                            <th><i class="bi bi-bus-front me-1"></i>Unidades de Transporte</th>
+                            <th><i class="bi bi-person-badge me-1"></i>Operadores</th>
+                            <th><i class="bi bi-geo-alt me-1"></i>Rutas</th>
+                            <th><i class="bi bi-clock me-1"></i>Horarios</th>
                         </tr>
                         </thead>
                         <tbody>
-                        @if(isset($disponibles) && count($disponibles) > 0)
-                            @foreach($disponibles as $d)
+                        @php
+                            $unidades = $disponibles['unidades'] ?? [];
+                            $operadores = $disponibles['operadores'] ?? [];
+                            $rutas = $disponibles['rutas'] ?? [];
+                            $horarios = $disponibles['horarios'] ?? [];
+                            $maxRows = max(count($unidades), count($operadores), count($rutas), count($horarios));
+                        @endphp
+
+                        @if($maxRows > 0)
+                            @for($i = 0; $i < $maxRows; $i++)
                                 <tr>
+                                    <!-- Columna 1: Unidades de Transporte -->
                                     <td>
-                                        @if($d['tipo'] == 'Unidad de Transporte')
-                                            <span class="badge bg-primary">
-                                            <i class="bi bi-bus-front me-1"></i>{{ $d['tipo'] }}
-                                        </span>
-                                        @elseif($d['tipo'] == 'Operador')
-                                            <span class="badge bg-info">
-                                            <i class="bi bi-person-badge me-1"></i>{{ $d['tipo'] }}
-                                        </span>
-                                        @elseif($d['tipo'] == 'Ruta')
-                                            <span class="badge bg-warning text-dark">
-                                            <i class="bi bi-geo-alt me-1"></i>{{ $d['tipo'] }}
-                                        </span>
+                                        @if(isset($unidades[$i]))
+                                            <div class="d-flex align-items-center">
+                                                <i class="bi bi-bus-front text-primary me-2"></i>
+                                                <div>
+                                                    <strong class="text-primary">{{ $unidades[$i]['placa'] ?? 'N/A' }}</strong>
+                                                    <br>
+                                                    <small class="text-muted">{{ $unidades[$i]['modelo'] ?? '' }}</small>
+                                                    <br>
+                                                    <span class="badge bg-info">Cap: {{ $unidades[$i]['capacidad'] ?? 'N/A' }} personas</span>
+                                                </div>
+                                            </div>
                                         @else
-                                            <span class="badge bg-secondary">
-                                            <i class="bi bi-clock me-1"></i>{{ $d['tipo'] }}
-                                        </span>
+                                            <span class="text-muted">-</span>
                                         @endif
                                     </td>
+
+                                    <!-- Columna 2: Operadores -->
                                     <td>
-                                        <strong>{{ $d['descripcion'] ?? 'N/A' }}</strong>
+                                        @if(isset($operadores[$i]))
+                                            <div class="d-flex align-items-center">
+                                                <i class="bi bi-person-badge text-info me-2"></i>
+                                                <div>
+                                                    <strong class="text-info">{{ $operadores[$i]['licencia'] ?? 'N/A' }}</strong>
+                                                    @if(isset($operadores[$i]['telefono']))
+                                                        <br>
+                                                        <small class="text-muted"><i class="bi bi-telephone me-1"></i>{{ $operadores[$i]['telefono'] }}</small>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        @else
+                                            <span class="text-muted">-</span>
+                                        @endif
                                     </td>
+
+                                    <!-- Columna 3: Rutas -->
                                     <td>
-                                        {{ $d['informacion'] ?? 'N/A' }}
+                                        @if(isset($rutas[$i]))
+                                            <div class="d-flex align-items-center">
+                                                <i class="bi bi-geo-alt text-warning me-2"></i>
+                                                <div>
+                                                    <strong>{{ $rutas[$i]['origen'] ?? 'N/A' }}</strong>
+                                                    <i class="bi bi-arrow-right mx-1 text-muted"></i>
+                                                    <strong>{{ $rutas[$i]['destino'] ?? 'N/A' }}</strong>
+                                                    @if(isset($rutas[$i]['nombre']))
+                                                        <br>
+                                                        <small class="text-muted">{{ $rutas[$i]['nombre'] }}</small>
+                                                    @endif
+                                                    @if(isset($rutas[$i]['duracion_estimada']))
+                                                        <br>
+                                                        <span class="badge bg-secondary">{{ $rutas[$i]['duracion_estimada'] }}</span>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        @else
+                                            <span class="text-muted">-</span>
+                                        @endif
                                     </td>
+
+                                    <!-- Columna 4: Horarios -->
                                     <td>
-                                    <span class="badge bg-success">
-                                        <i class="bi bi-check-circle me-1"></i>{{ $d['estado'] }}
+                                        @if(isset($horarios[$i]))
+                                            <div class="d-flex align-items-center">
+                                                <i class="bi bi-clock text-secondary me-2"></i>
+                                                <div>
+                                                    <span class="badge bg-primary">
+                                                        <i class="bi bi-play-circle me-1"></i>{{ $horarios[$i]['horaSalida'] ?? 'N/A' }}
+                                                    </span>
+                                                    <i class="bi bi-arrow-right mx-2 text-muted"></i>
+                                                    <span class="badge bg-success">
+                                                        <i class="bi bi-stop-circle me-1"></i>{{ $horarios[$i]['horaLlegada'] ?? 'N/A' }}
                                     </span>
+                                                </div>
+                                            </div>
+                                        @else
+                                            <span class="text-muted">-</span>
+                                        @endif
                                     </td>
                                 </tr>
-                            @endforeach
+                            @endfor
                         @else
                             <tr>
                                 <td colspan="4" class="text-center py-4">
@@ -481,6 +537,8 @@
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
 <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+<!-- SweetAlert2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
     // Variables globales para las DataTables
@@ -538,7 +596,13 @@
 
         } catch (error) {
             console.error('Error inicializando DataTables:', error);
-            mostrarAlerta('Error inicializando las tablas: ' + error.message, 'danger');
+            Swal.fire({
+                position: "top-end",
+                icon: "error",
+                title: 'Error inicializando las tablas: ' + error.message,
+                showConfirmButton: false,
+                timer: 1500
+            });
         }
 
         // Establecer fecha y hora actual por defecto
@@ -553,25 +617,17 @@
         actualizarVista();
     });
 
-    // Función para mostrar alertas
+    // Función para mostrar alertas con SweetAlert2
     function mostrarAlerta(mensaje, tipo = 'success') {
-        const alertContainer = document.getElementById('alertContainer');
-        const alertClass = tipo === 'success' ? 'alert-success' : 'alert-danger';
+        const icon = tipo === 'success' ? 'success' : 'error';
 
-        alertContainer.innerHTML = `
-            <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
-                <i class="bi ${tipo === 'success' ? 'bi-check-circle' : 'bi-exclamation-triangle'} me-2"></i>
-                ${mensaje}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        `;
-
-        setTimeout(() => {
-            const alert = alertContainer.querySelector('.alert');
-            if (alert) {
-                bootstrap.Alert.getOrCreateInstance(alert).close();
-            }
-        }, 5000);
+        Swal.fire({
+            position: "top-end",
+            icon: icon,
+            title: mensaje,
+            showConfirmButton: false,
+            timer: 1500
+        });
     }
 
     // Cambiar entre tablas de 'disponibles' y 'asignados'
@@ -635,7 +691,13 @@
 
         // Validar que todos los campos estén llenos
         if (!unidad || !operador || !ruta || !fecha || !hora) {
-            mostrarAlerta('Por favor completa todos los campos obligatorios.', 'danger');
+            Swal.fire({
+                position: "top-end",
+                icon: "error",
+                title: "Por favor completa todos los campos obligatorios.",
+                showConfirmButton: false,
+                timer: 1500
+            });
             return;
         }
 
@@ -644,12 +706,36 @@
         const operadorText = $('#operadorModal option:selected').text();
         const rutaText = $('#rutaModal option:selected').text();
 
-        // Mostrar confirmación
-        const confirmacion = confirm(`¿Confirmar asignación?\n\nUnidad: ${unidadText}\nOperador: ${operadorText}\nRuta: ${rutaText}\nFecha: ${fecha}\nHora: ${hora}`);
+        // Mostrar confirmación con SweetAlert2
+        Swal.fire({
+            title: '¿Confirmar asignación?',
+            html: `
+                <div class="text-start">
+                    <p><strong>Unidad:</strong> ${unidadText}</p>
+                    <p><strong>Operador:</strong> ${operadorText}</p>
+                    <p><strong>Ruta:</strong> ${rutaText}</p>
+                    <p><strong>Fecha:</strong> ${fecha}</p>
+                    <p><strong>Hora:</strong> ${hora}</p>
+                </div>
+            `,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#4FC3F7',
+            cancelButtonColor: '#dc3545',
+            confirmButtonText: 'Sí, confirmar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (!result.isConfirmed) {
+                return;
+            }
 
-        if (!confirmacion) {
-            return;
-        }
+            // Continuar con la asignación
+            realizarAsignacion(unidad, operador, ruta, fecha, hora);
+        });
+    }
+
+    // Función para realizar la asignación
+    function realizarAsignacion(unidad, operador, ruta, fecha, hora) {
 
         // Crear objeto con los datos
         const datosAsignacion = {
@@ -691,21 +777,38 @@
             .then(data => {
                 console.log('Datos recibidos:', data);
                 if (data.success) {
-                    mostrarAlerta(data.message, 'success');
-                    // Cerrar el modal
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('modalAsignar'));
-                    modal.hide();
-                    // Recargar la página para ver los cambios
-                    setTimeout(() => {
+                    Swal.fire({
+                        position: "center",
+                        icon: "success",
+                        title: data.message,
+                        showConfirmButton: false,
+                        timer: 1500
+                    }).then(() => {
+                        // Cerrar el modal
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('modalAsignar'));
+                        modal.hide();
+                        // Recargar la página para ver los cambios
                         window.location.reload();
-                    }, 1500);
+                    });
                 } else {
-                    mostrarAlerta(data.message, 'danger');
+                    Swal.fire({
+                        position: "top-end",
+                        icon: "error",
+                        title: data.message,
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
                 }
             })
             .catch(error => {
                 console.error('Error completo:', error);
-                mostrarAlerta('Error al realizar la asignación: ' + error.message, 'danger');
+                Swal.fire({
+                    position: "top-end",
+                    icon: "error",
+                    title: 'Error al realizar la asignación: ' + error.message,
+                    showConfirmButton: false,
+                    timer: 1500
+                });
             })
             .finally(() => {
                 // Restaurar botón
