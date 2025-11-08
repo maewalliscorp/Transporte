@@ -47,10 +47,12 @@
                     <thead class="table-primary">
                     <tr>
                         <th>Unidad</th>
-                        <th>Tipo</th>
                         <th>Fecha Programada</th>
+                        <th>Tipo </th>
                         <th>Motivo</th>
+                        <th>Piezas</th>
                         <th>Kilometraje</th>
+                        <th>Costo</th>
                         <th>Estado</th>
                         <th>Acciones</th>
                     </tr>
@@ -60,13 +62,45 @@
                         @foreach($mantenimientosProgramados as $mantenimiento)
                             <tr id="fila-{{ $mantenimiento['id_mantenimiento'] }}">
                                 <td>{{ $mantenimiento['placa'] ?? 'N/A' }} - {{ $mantenimiento['modelo'] ?? 'N/A' }}</td>
-                                <td>{{ $mantenimiento['tipo_mantenimiento'] ?? 'N/A' }}</td>
                                 <td>{{ $mantenimiento['fecha_programada'] ?? 'N/A' }}</td>
+                                <td>
+                                    @if(isset($mantenimiento['tipo_mantenimiento']))
+                                        @if($mantenimiento['tipo_mantenimiento'] == 'Preventivo')
+                                            <span class="badge bg-success">Preventivo</span>
+                                        @else
+                                            <span class="badge bg-warning">Correctivo</span>
+                                        @endif
+                                    @else
+                                        <span class="badge bg-secondary">N/A</span>
+                                    @endif
+                                </td>
                                 <td>{{ $mantenimiento['motivo'] ?? 'N/A' }}</td>
+                                <td>
+                                    @if(isset($mantenimiento['pieza']) && !empty($mantenimiento['pieza']))
+                                        {{ $mantenimiento['pieza'] }}
+                                    @else
+                                        <span class="text-muted">Sin piezas</span>
+                                    @endif
+                                </td>
                                 <td>{{ isset($mantenimiento['kmActual']) ? number_format($mantenimiento['kmActual'], 0) . ' km' : 'N/A' }}</td>
                                 <td>
+                                    @if(isset($mantenimiento['costo']) && $mantenimiento['costo'] > 0)
+                                        ${{ number_format($mantenimiento['costo'], 2) }}
+                                    @else
+                                        <span class="text-muted">$0.00</span>
+                                    @endif
+                                </td>
+                                <td>
                                     @if(isset($mantenimiento['estado']))
-                                        <span class="badge bg-warning">{{ ucfirst($mantenimiento['estado']) }}</span>
+                                        @if($mantenimiento['estado'] == 'pendiente')
+                                            <span class="badge bg-info">Pendiente</span>
+                                        @elseif($mantenimiento['estado'] == 'completado')
+                                            <span class="badge bg-success">Completado</span>
+                                        @elseif($mantenimiento['estado'] == 'urgente')
+                                            <span class="badge bg-danger">Urgente</span>
+                                        @else
+                                            <span class="badge bg-secondary">{{ ucfirst($mantenimiento['estado']) }}</span>
+                                        @endif
                                     @else
                                         <span class="badge bg-secondary">N/A</span>
                                     @endif
@@ -88,7 +122,7 @@
                         @endforeach
                     @else
                         <tr>
-                            <td colspan="7" class="text-center text-muted">No hay mantenimientos programados</td>
+                            <td colspan="9" class="text-center text-muted">No hay mantenimientos programados</td>
                         </tr>
                     @endisset
                     </tbody>
@@ -131,8 +165,8 @@
                         <div class="col-md-6">
                             <label class="form-label">Tipo de Mantenimiento <span class="text-danger">*</span></label>
                             <select class="form-select" id="tipo_mantenimiento" name="tipo_mantenimiento" required>
-                                <option value="preventivo">Preventivo</option>
-                                <option value="correctivo">Correctivo</option>
+                                <option value="Preventivo">Preventivo</option>
+                                <option value="Correctivo">Correctivo</option>
                             </select>
                         </div>
                         <div class="col-md-6">
@@ -144,12 +178,24 @@
                             <input type="text" class="form-control" id="motivo" name="motivo" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Kilometraje Actual <span class="text-danger">*</span></label>
-                            <input type="number" class="form-control" id="kmActual" name="kmActual" required>
+                            <label class="form-label">Piezas/Repuestos</label>
+                            <input type="text" class="form-control" id="pieza" name="pieza" placeholder="Opcional">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Estado de la Unidad <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="estado_unidad" name="estado_unidad" required>
+                            <label class="form-label">Costo Estimado</label>
+                            <input type="number" class="form-control" id="costo" name="costo" step="0.01" min="0" placeholder="0.00">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Kilometraje Actual <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="kmActual" name="kmActual" required min="0">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Estado <span class="text-danger">*</span></label>
+                            <select class="form-select" id="estado" name="estado" required>
+                                <option value="pendiente">Pendiente</option>
+                                <option value="completado">Completado</option>
+                                <option value="urgente">Urgente</option>
+                            </select>
                         </div>
                     </div>
                 </form>
@@ -206,7 +252,7 @@
             lengthMenu: [5, 10, 25, 50, 100],
             responsive: true,
             autoWidth: false,
-            order: [[2, 'asc']],
+            order: [[1, 'asc']],
             dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>rt<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>'
         });
 
@@ -253,8 +299,10 @@
                     document.getElementById('tipo_mantenimiento').value = data.data.tipo_mantenimiento;
                     document.getElementById('fecha_programada').value = data.data.fecha_programada;
                     document.getElementById('motivo').value = data.data.motivo;
+                    document.getElementById('pieza').value = data.data.pieza || '';
+                    document.getElementById('costo').value = data.data.costo || '';
                     document.getElementById('kmActual').value = data.data.kmActual;
-                    document.getElementById('estado_unidad').value = data.data.estado_unidad;
+                    document.getElementById('estado').value = data.data.estado;
 
                     // Cambiar el modal a modo edición
                     document.getElementById('modalTitulo').textContent = 'Editar Mantenimiento Programado';
@@ -310,7 +358,6 @@
                     }
                 })
                     .then(response => {
-                        // Verificar si la respuesta es JSON válido
                         const contentType = response.headers.get('content-type');
                         if (contentType && contentType.includes('application/json')) {
                             return response.json().then(data => ({
@@ -319,7 +366,6 @@
                                 ok: response.ok
                             }));
                         } else {
-                            // Si no es JSON, devolver texto plano
                             return response.text().then(text => ({
                                 data: { success: response.ok, message: text },
                                 status: response.status,
@@ -328,7 +374,7 @@
                         }
                     })
                     .then(({data, status, ok}) => {
-                        console.log('Respuesta del servidor:', data); // Para debug
+                        console.log('Respuesta del servidor:', data);
 
                         if (ok && data.success) {
                             Swal.fire({
@@ -339,13 +385,11 @@
                                 timer: 1500
                             });
 
-                            // Intentar eliminar la fila de DataTables
                             try {
                                 const row = tablaProgramacion.row('#fila-' + id);
                                 if (row.length !== 0) {
                                     row.remove().draw();
                                 } else {
-                                    // Si no encuentra la fila por ID, recargar la página
                                     console.log('No se encontró la fila, recargando página...');
                                     setTimeout(() => {
                                         location.reload();
@@ -354,14 +398,12 @@
                                 }
                             } catch (error) {
                                 console.error('Error al eliminar fila de DataTable:', error);
-                                // En caso de error, recargar la página
                                 setTimeout(() => {
                                     location.reload();
                                 }, 1500);
                                 return;
                             }
 
-                            // Verificar si quedan filas
                             if (tablaProgramacion.rows().count() === 0) {
                                 setTimeout(() => {
                                     location.reload();
@@ -400,17 +442,20 @@
             }
         });
     }
+
     function guardarProgramacion() {
         const mantenimientoId = document.getElementById('mantenimientoId').value;
         const unidad = document.getElementById('unidad').value;
         const tipoMantenimiento = document.getElementById('tipo_mantenimiento').value;
         const fechaProgramada = document.getElementById('fecha_programada').value;
         const motivo = document.getElementById('motivo').value.trim();
+        const pieza = document.getElementById('pieza').value.trim();
+        const costo = document.getElementById('costo').value;
         const kmActual = document.getElementById('kmActual').value;
-        const estadoUnidad = document.getElementById('estado_unidad').value.trim();
+        const estado = document.getElementById('estado').value;
 
         // Validaciones básicas
-        if (!unidad || !tipoMantenimiento || !fechaProgramada || !motivo || !kmActual || !estadoUnidad) {
+        if (!unidad || !tipoMantenimiento || !fechaProgramada || !motivo || !kmActual || !estado) {
             Swal.fire({
                 icon: 'warning',
                 title: 'Campos incompletos',
@@ -430,8 +475,31 @@
             return;
         }
 
+        if (costo && costo < 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Costo inválido',
+                text: 'El costo no puede ser negativo',
+                confirmButtonColor: '#3085d6'
+            });
+            return;
+        }
+
         const url = modoEdicion ? `/mantenimiento/programado/${mantenimientoId}` : '/mantenimiento/programado';
         const method = modoEdicion ? 'PUT' : 'POST';
+
+        const datos = {
+            unidad: parseInt(unidad),
+            tipo_mantenimiento: tipoMantenimiento,
+            fecha_programada: fechaProgramada,
+            motivo: motivo,
+            kmActual: parseInt(kmActual),
+            estado: estado
+        };
+
+        // Agregar campos opcionales si tienen valor
+        if (pieza) datos.pieza = pieza;
+        if (costo) datos.costo = parseFloat(costo);
 
         fetch(url, {
             method: method,
@@ -439,14 +507,7 @@
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                unidad: parseInt(unidad),
-                tipo_mantenimiento: tipoMantenimiento,
-                fecha_programada: fechaProgramada,
-                motivo: motivo,
-                kmActual: parseInt(kmActual),
-                estado_unidad: estadoUnidad
-            })
+            body: JSON.stringify(datos)
         })
             .then(response => response.json())
             .then(data => {

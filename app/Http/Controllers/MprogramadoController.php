@@ -25,13 +25,29 @@ class MprogramadoController extends Controller
 
     public function store(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'unidad' => 'required|integer|exists:unidad,id_unidad',
+            'tipo_mantenimiento' => 'required|in:Preventivo,Correctivo',
+            'fecha_programada' => 'required|date',
+            'motivo' => 'required|string|max:255',
+            'kmActual' => 'required|integer|min:0',
+            'estado' => 'required|in:pendiente,completado,urgente',
+            'piezas' => 'nullable|string|max:500',
+            'costo' => 'nullable|numeric|min:0'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Errores de validación',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
         $mprogramadoModel = new MprogramadoModel();
         $resultado = $mprogramadoModel->crearMantenimientoProgramado($request->all());
 
-        return response()->json([
-            'success' => $resultado,
-            'message' => $resultado ? 'Mantenimiento programado correctamente' : 'Error al programar mantenimiento'
-        ]);
+        return response()->json($resultado);
     }
 
     public function show($id)
@@ -44,13 +60,29 @@ class MprogramadoController extends Controller
 
     public function update(Request $request, $id)
     {
+        $validator = Validator::make($request->all(), [
+            'unidad' => 'required|integer|exists:unidad,id_unidad',
+            'tipo_mantenimiento' => 'required|in:Preventivo,Correctivo',
+            'fecha_programada' => 'required|date',
+            'motivo' => 'required|string|max:255',
+            'kmActual' => 'required|integer|min:0',
+            'estado' => 'required|in:pendiente,completado,urgente',
+            'piezas' => 'nullable|string|max:500',
+            'costo' => 'nullable|numeric|min:0'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Errores de validación',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
         $mprogramadoModel = new MprogramadoModel();
         $resultado = $mprogramadoModel->actualizarMantenimiento($id, $request->all());
 
-        return response()->json([
-            'success' => $resultado,
-            'message' => $resultado ? 'Mantenimiento actualizado correctamente' : 'Error al actualizar'
-        ]);
+        return response()->json($resultado);
     }
 
     public function destroy($id)
@@ -58,9 +90,6 @@ class MprogramadoController extends Controller
         $mprogramadoModel = new MprogramadoModel();
         $resultado = $mprogramadoModel->eliminarMantenimiento($id);
 
-        return response()->json([
-            'success' => $resultado,
-            'message' => $resultado ? 'Mantenimiento eliminado correctamente' : 'Error al eliminar'
-        ]);
+        return response()->json($resultado);
     }
 }
