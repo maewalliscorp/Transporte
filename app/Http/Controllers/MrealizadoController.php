@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\MrealizadoModel;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class MrealizadoController extends Controller
 {
@@ -14,24 +15,11 @@ class MrealizadoController extends Controller
 
         $mantenimientosRealizados = $mrealizadoModel->obtenerMantenimientosRealizados();
         $unidades = $mrealizadoModel->obtenerUnidades();
-        $operadores = $mrealizadoModel->obtenerOperadores();
 
         return view('mantenimiento.m-realizado', compact(
             'mantenimientosRealizados',
-            'unidades',
-            'operadores'
+            'unidades'
         ));
-    }
-
-    public function store(Request $request)
-    {
-        $mrealizadoModel = new MrealizadoModel();
-        $resultado = $mrealizadoModel->crearMantenimientoRealizado($request->all());
-
-        return response()->json([
-            'success' => $resultado,
-            'message' => $resultado ? 'Mantenimiento registrado correctamente' : 'Error al registrar mantenimiento'
-        ]);
     }
 
     public function show($id)
@@ -44,13 +32,29 @@ class MrealizadoController extends Controller
 
     public function update(Request $request, $id)
     {
+        $validator = Validator::make($request->all(), [
+            'unidad' => 'required|integer|exists:unidad,id_unidad',
+            'tipo_mantenimiento' => 'required|in:Preventivo,Correctivo',
+            'fecha_programada' => 'required|date',
+            'motivo' => 'required|string|max:255',
+            'kmActual' => 'required|integer|min:0',
+            'estado' => 'required|in:completado',
+            'piezas' => 'nullable|string|max:500',
+            'costo' => 'nullable|numeric|min:0'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Errores de validación',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
         $mrealizadoModel = new MrealizadoModel();
         $resultado = $mrealizadoModel->actualizarMantenimiento($id, $request->all());
 
-        return response()->json([
-            'success' => $resultado,
-            'message' => $resultado ? 'Mantenimiento actualizado correctamente' : 'Error al actualizar'
-        ]);
+        return response()->json($resultado);
     }
 
     public function destroy($id)
@@ -58,9 +62,6 @@ class MrealizadoController extends Controller
         $mrealizadoModel = new MrealizadoModel();
         $resultado = $mrealizadoModel->eliminarMantenimiento($id);
 
-        return response()->json([
-            'success' => $resultado,
-            'message' => $resultado ? 'Mantenimiento eliminado correctamente' : 'Error al eliminar'
-        ]);
+        return response()->json($resultado);
     }
 }

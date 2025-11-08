@@ -17,17 +17,18 @@ class MrealizadoModel extends Model
         $sql = "
             SELECT
                 m.id_mantenimiento,
-                m.fecha_programada as fecha,
-                m.motivo as descripcion,
+                m.fecha_programada,
+                m.motivo,
+                m.tipo_mantenimiento,
+                m.costo,
+                m.pieza,
                 m.kmActual,
                 m.estado,
                 u.placa,
-                u.modelo,
-                o.licencia
+                u.modelo
             FROM mantenimiento m
             LEFT JOIN unidad u ON m.id_unidad = u.id_unidad
-            LEFT JOIN asignacion a ON u.id_unidad = a.id_unidad
-            LEFT JOIN operador o ON a.id_operador = o.id_operator
+            WHERE m.estado = 'completado'
             ORDER BY m.fecha_programada DESC
         ";
 
@@ -42,59 +43,107 @@ class MrealizadoModel extends Model
         return array_map(fn($row) => (array)$row, $result);
     }
 
-    public function obtenerOperadores(): array
-    {
-        $sql = "SELECT id_operator, licencia FROM operador ORDER BY licencia";
-        $result = DB::select($sql);
-        return array_map(fn($row) => (array)$row, $result);
-    }
-
     public function obtenerMantenimientoPorId($id)
     {
-        return DB::table('mantenimiento')
+        $mantenimiento = DB::table('mantenimiento')
             ->where('id_mantenimiento', $id)
             ->first();
-    }
 
-    public function crearMantenimientoRealizado($data)
-    {
-        try {
-            return DB::table('mantenimiento')->insert([
-                'fecha_programada' => $data['fecha_mantenimiento'],
-                'motivo' => $data['descripcion'],
-                'kmActual' => $data['kmActual'],
-                'id_unidad' => $data['unidad'],
-                'fecha_creacion' => now()
-            ]);
-        } catch (\Exception $e) {
-            return false;
+        if ($mantenimiento) {
+            return [
+                'success' => true,
+                'data' => (array)$mantenimiento  // Convertir a array
+            ];
         }
+
+        return [
+            'success' => false,
+            'message' => 'Mantenimiento no encontrado'
+        ];
     }
 
     public function actualizarMantenimiento($id, $data)
     {
         try {
-            return DB::table('mantenimiento')
+            $updateData = [
+                'fecha_programada' => $data['fecha_programada'],
+                'motivo' => $data['motivo'],
+                'tipo_mantenimiento' => $data['tipo_mantenimiento'],
+                'kmActual' => $data['kmActual'],
+                'id_unidad' => $data['unidad'],
+                'estado' => $data['estado']
+            ];
+
+            // Agregar campos opcionales si existen
+            if (isset($data['pieza'])) {  // Cambiado de 'piezas' a 'pieza'
+                $updateData['pieza'] = $data['pieza'];
+            }
+
+            if (isset($data['costo'])) {
+                $updateData['costo'] = $data['costo'];
+            }
+
+            $result = DB::table('mantenimiento')
                 ->where('id_mantenimiento', $id)
-                ->update([
-                    'fecha_programada' => $data['fecha_mantenimiento'],
-                    'motivo' => $data['descripcion'],
-                    'kmActual' => $data['kmActual'],
-                    'id_unidad' => $data['unidad']
-                ]);
+                ->update($updateData);
+
+            return $result ? [
+                'success' => true,
+                'message' => 'Mantenimiento actualizado correctamente'
+            ] : [
+                'success' => false,
+                'message' => 'Error al actualizar el mantenimiento'
+            ];
+
         } catch (\Exception $e) {
-            return false;
+            return [
+                'success' => false,
+                'message' => 'Error en la base de datos: ' . $e->getMessage()
+            ];
         }
     }
 
     public function eliminarMantenimiento($id)
     {
         try {
-            return DB::table('mantenimiento')
+            // Verificar si existen alertas asociadas
+            $alertasExisten = DB::table('alertamantenimiento')
+                ->where('id_mantenimiento', $id)
+                ->exists();
+
+            if ($alertasExisten) {
+                return [
+                    'success' => false,
+                    'message' => 'No se puede eliminar el mantenimiento porque cuenta con alertas asociadas'
+                ];
+            }
+
+            // Si no hay alertas asociadas, proceder con la eliminación
+            $result = DB::table('mantenimiento')
                 ->where('id_mantenimiento', $id)
                 ->delete();
+
+            return $result ? [
+                'success' => true,
+                'message' => 'Mantenimiento eliminado correctamente'
+            ] : [
+                'success' => false,
+                'message' => 'Error al eliminar el mantenimiento'
+            ];
+
         } catch (\Exception $e) {
-            return false;
+            // Capturar el error de restricción de clave foránea
+            if (str_contains($e->getMessage(), 'foreign key constraint')) {
+                return [
+                    'success' => false,
+                    'message' => 'No se puede eliminar el mantenimiento porque cuenta con registros relacionados en otras tablas'
+                ];
+            }
+
+            return [
+                'success' => false,
+                'message' => 'Error en la base de datos: ' . $e->getMessage()
+            ];
         }
     }
 }
