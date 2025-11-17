@@ -42,8 +42,8 @@
     <!-- Filtros -->
     <div class="card shadow-sm mb-4">
         <div class="card-body">
-            <div class="row g-3">
-                <div class="col-md-4">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-3">
                     <label class="form-label">Seleccionar Unidad</label>
                     <select class="form-select" id="unidadHistorial">
                         <option value="">Todas las unidades</option>
@@ -56,17 +56,22 @@
                         @endisset
                     </select>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <label class="form-label">Tipo de Mantenimiento</label>
                     <select class="form-select" id="tipoMantenimiento">
                         <option value="">Todos los tipos</option>
-                        <option value="preventivo">Preventivo</option>
-                        <option value="correctivo">Correctivo</option>
+                        <option value="Preventivo">Preventivo</option>
+                        <option value="Correctivo">Correctivo</option>
                     </select>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <label class="form-label">Rango de Fechas</label>
                     <input type="month" class="form-control" id="fechaFiltro">
+                </div>
+                <div class="col-md-3">
+                    <button class="btn btn-outline-secondary w-100" onclick="limpiarFiltros()">
+                        <i class="bi bi-arrow-clockwise"></i> Limpiar Filtros
+                    </button>
                 </div>
             </div>
         </div>
@@ -138,11 +143,10 @@
                         <th>Unidad</th>
                         <th>Fecha</th>
                         <th>Tipo</th>
-                        <th>Descripción</th>
+                        <th>Motivo</th>
                         <th>Piezas</th>
                         <th>Kilometraje</th>
                         <th>Costo</th>
-                        <th>Observaciones</th>
                         <th>Estado Unidad</th>
                     </tr>
                     </thead>
@@ -154,7 +158,7 @@
                                 <td>{{ $mantenimiento['fecha'] ?? 'N/A' }}</td>
                                 <td>
                                     @if(isset($mantenimiento['tipo_mantenimiento']))
-                                        @if($mantenimiento['tipo_mantenimiento'] == 'preventivo')
+                                        @if($mantenimiento['tipo_mantenimiento'] == 'Preventivo')
                                             <span class="badge bg-success">Preventivo</span>
                                         @else
                                             <span class="badge bg-warning">Correctivo</span>
@@ -163,14 +167,33 @@
                                         <span class="badge bg-secondary">N/A</span>
                                     @endif
                                 </td>
-                                <td>{{ $mantenimiento['descripcion'] ?? 'N/A' }}</td>
-                                <td>N/A</td>
+                                <td>{{ $mantenimiento['motivo'] ?? 'N/A' }}</td>
+                                <td>
+                                    @if(isset($mantenimiento['piezas']) && !empty($mantenimiento['piezas']))
+                                        {{ $mantenimiento['piezas'] }}
+                                    @else
+                                        <span class="text-muted">Sin piezas</span>
+                                    @endif
+                                </td>
                                 <td>{{ isset($mantenimiento['kmActual']) ? number_format($mantenimiento['kmActual'], 0) . ' km' : 'N/A' }}</td>
-                                <td>N/A</td>
-                                <td>{{ $mantenimiento['descripcion'] ?? 'N/A' }}</td>
+                                <td>
+                                    @if(isset($mantenimiento['costo']) && $mantenimiento['costo'] > 0)
+                                        ${{ number_format($mantenimiento['costo'], 2) }}
+                                    @else
+                                        <span class="text-muted">$0.00</span>
+                                    @endif
+                                </td>
                                 <td>
                                     @if(isset($mantenimiento['estado']))
-                                        <span class="badge bg-success">{{ ucfirst($mantenimiento['estado']) }}</span>
+                                        @if($mantenimiento['estado'] == 'pendiente')
+                                            <span class="badge bg-info">Pendiente</span>
+                                        @elseif($mantenimiento['estado'] == 'completado')
+                                            <span class="badge bg-success">Completado</span>
+                                        @elseif($mantenimiento['estado'] == 'urgente')
+                                            <span class="badge bg-danger">Urgente</span>
+                                        @else
+                                            <span class="badge bg-secondary">{{ ucfirst($mantenimiento['estado']) }}</span>
+                                        @endif
                                     @else
                                         <span class="badge bg-secondary">N/A</span>
                                     @endif
@@ -237,22 +260,44 @@
             responsive: true,
             autoWidth: false,
             order: [[1, 'desc']],
-            dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>rt<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>'
+            dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>rt<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+            stateSave: false // IMPORTANTE: Evita que DataTables guarde el estado de filtros
         });
 
         // Configurar filtros
         $('#unidadHistorial').on('change', function() {
-            tableHistorial.column(0).search(this.value).draw();
+            const valor = $(this).val();
+            tableHistorial.column(0).search(valor, true, false).draw();
         });
 
         $('#tipoMantenimiento').on('change', function() {
-            tableHistorial.column(2).search(this.value).draw();
+            const valor = $(this).val();
+            if (valor === '') {
+                tableHistorial.column(2).search('').draw();
+            } else {
+                tableHistorial.column(2).search('^' + valor + '$', true, false).draw();
+            }
         });
 
         $('#fechaFiltro').on('change', function() {
-            tableHistorial.column(1).search(this.value).draw();
+            const valor = $(this).val();
+            tableHistorial.column(1).search(valor).draw();
         });
+
+        // Limpiar filtros al cargar
+        limpiarFiltros();
     });
+
+    // Función para limpiar todos los filtros
+    function limpiarFiltros() {
+        $('#unidadHistorial').val('');
+        $('#tipoMantenimiento').val('');
+        $('#fechaFiltro').val('');
+
+        if (tableHistorial) {
+            tableHistorial.columns().search('').draw();
+        }
+    }
 
     // Función para mostrar alertas personalizadas
     function mostrarAlerta(icono, titulo, mensaje = '') {
@@ -269,7 +314,7 @@
     // Función para obtener datos filtrados de la tabla
     function obtenerDatosFiltrados() {
         const datosFiltrados = [];
-        const columnas = ['Unidad', 'Fecha', 'Tipo', 'Descripción', 'Piezas', 'Kilometraje', 'Costo', 'Observaciones', 'Estado Unidad'];
+        const columnas = ['Unidad', 'Fecha', 'Tipo', 'Motivo', 'Piezas', 'Kilometraje', 'Costo', 'Estado Unidad'];
 
         // Obtener datos visibles (filtrados)
         tableHistorial.rows({ search: 'applied' }).every(function() {
@@ -377,6 +422,10 @@
             XLSX.utils.book_append_sheet(wb, ws, 'Historial Mantenimiento');
 
             // Información de filtros
+            const unidadFiltro = $('#unidadHistorial').val();
+            const tipoFiltro = $('#tipoMantenimiento').val();
+            const fechaFiltro = $('#fechaFiltro').val();
+
             const filtrosInfo = [
                 ['Reporte de Historial de Mantenimiento'],
                 ['Generado el:', new Date().toLocaleDateString()],
@@ -399,11 +448,6 @@
             mostrarAlerta('error', 'Error', 'No se pudo generar el archivo Excel');
         }
     }
-
-    // Variables para filtros (usadas en ambas funciones de exportación)
-    const unidadFiltro = $('#unidadHistorial').val();
-    const tipoFiltro = $('#tipoMantenimiento').val();
-    const fechaFiltro = $('#fechaFiltro').val();
 </script>
 
 </body>

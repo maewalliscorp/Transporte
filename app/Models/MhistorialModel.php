@@ -18,14 +18,17 @@ class MhistorialModel extends Model
             SELECT
                 m.id_mantenimiento,
                 m.fecha_programada as fecha,
-                m.motivo as descripcion,
+                m.motivo,
+                m.tipo_mantenimiento,
+                m.costo,
+                m.pieza as piezas,
                 m.kmActual,
                 m.estado,
                 u.placa,
                 u.modelo
             FROM mantenimiento m
             LEFT JOIN unidad u ON m.id_unidad = u.id_unidad
-            ORDER BY m.fecha_programada DESC
+            ORDER BY m.fecha_programada ASC
         ";
 
         $result = DB::select($sql);
@@ -46,13 +49,13 @@ class MhistorialModel extends Model
 
     public function contarMantenimientosPorTipo($tipo): int
     {
-        // Por ahora retornamos 0 hasta que implementes el campo tipo_mantenimiento
-        return 0;
+        return DB::table('mantenimiento')
+            ->where('tipo_mantenimiento', $tipo)
+            ->count();
     }
 
     public function obtenerCostoTotal()
     {
-        // Por ahora retornamos 0 hasta que implementes el campo costo
-        return 0;
+        return DB::table('mantenimiento')->sum('costo');
     }
 }
