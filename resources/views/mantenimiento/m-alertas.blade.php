@@ -54,8 +54,8 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
                         <div>
-                            <h4 class="mb-0">{{ $alertasProximas ?? 0 }}</h4>
-                            <p class="mb-0">Próximas</p>
+                            <h4 class="mb-0">{{ $alertasActivas ?? 0 }}</h4>
+                            <p class="mb-0">Activas</p>
                         </div>
                         <i class="bi bi-clock display-6"></i>
                     </div>
@@ -100,10 +100,10 @@
                         <th>Unidad</th>
                         <th>Kilómetro Actual</th>
                         <th>Fecha Último</th>
-                        <th>Km Próximo</th>
+                        <th>Km Próximo Mant</th>
                         <th>Fecha Próximo</th>
                         <th>Incidentes</th>
-                        <th>Estado</th>
+                        <th>Estado de Alerta</th>
                         <th>Acciones</th>
                     </tr>
                     </thead>
@@ -113,16 +113,16 @@
                             <tr id="fila-alerta-{{ $alerta['id_alertaMantenimiento'] }}">
                                 <td>{{ $alerta['placa'] ?? 'N/A' }} - {{ $alerta['modelo'] ?? 'N/A' }}</td>
                                 <td>{{ isset($alerta['kmActual']) ? number_format($alerta['kmActual'], 0) . ' km' : 'N/A' }}</td>
-                                <td>{{ $alerta['fechaUltimoMantenimiento'] ?? 'N/A' }}</td>
+                                <td>{{ $alerta['fechaUltimoMantenimiento'] ? \Carbon\Carbon::parse($alerta['fechaUltimoMantenimiento'])->format('d/m/Y') : 'N/A' }}</td>
                                 <td>{{ isset($alerta['kmProxMantenimiento']) ? number_format($alerta['kmProxMantenimiento'], 0) . ' km' : 'N/A' }}</td>
-                                <td>{{ $alerta['fechaProxMantenimiento'] ?? 'N/A' }}</td>
+                                <td>{{ $alerta['fechaProxMantenimiento'] ? \Carbon\Carbon::parse($alerta['fechaProxMantenimiento'])->format('d/m/Y') : 'N/A' }}</td>
                                 <td>{{ $alerta['incidenteReportado'] ?? 'Ninguno' }}</td>
                                 <td>
                                     @if(isset($alerta['estadoAlerta']))
                                         @if($alerta['estadoAlerta'] == 'urgente')
                                             <span class="badge bg-danger">Urgente</span>
-                                        @elseif($alerta['estadoAlerta'] == 'proximo')
-                                            <span class="badge bg-warning">Próximo</span>
+                                        @elseif($alerta['estadoAlerta'] == 'activa')
+                                            <span class="badge bg-warning">Activa</span>
                                         @else
                                             <span class="badge bg-info">Pendiente</span>
                                         @endif
@@ -179,7 +179,7 @@
                                 <option value="" selected disabled>Selecciona una unidad...</option>
                                 @isset($unidades)
                                     @foreach($unidades as $unidad)
-                                        <option value="{{ $unidad['id_unidad'] }}">
+                                        <option value="{{ $unidad['id_unidad'] }}" data-kmactual="{{ $unidad['kmActual'] ?? 0 }}">
                                             {{ $unidad['placa'] }} - {{ $unidad['modelo'] }}
                                         </option>
                                     @endforeach
@@ -188,7 +188,8 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Kilómetro Actual <span class="text-danger">*</span></label>
-                            <input type="number" class="form-control" id="km_actual" name="km_actual" required>
+                            <input type="number" class="form-control" id="km_actual" name="km_actual" min="0" readonly required>
+                            <div class="form-text">Este valor se carga automáticamente según la unidad seleccionada</div>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Fecha del Último Mantenimiento <span class="text-danger">*</span></label>
@@ -196,7 +197,7 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Km para Próximo Mantenimiento <span class="text-danger">*</span></label>
-                            <input type="number" class="form-control" id="kmProxMantenimiento" name="kmProxMantenimiento" required>
+                            <input type="number" class="form-control" id="kmProxMantenimiento" name="kmProxMantenimiento" min="0" required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Fecha del Próximo Mantenimiento <span class="text-danger">*</span></label>
@@ -204,14 +205,14 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Incidentes Reportados</label>
-                            <input type="text" class="form-control" id="incidenteReportado" name="incidenteReportado">
+                            <input type="text" class="form-control" id="incidenteReportado" name="incidenteReportado" placeholder="Describa incidentes si los hay">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Estado de Alerta <span class="text-danger">*</span></label>
                             <select class="form-select" id="estadoAlerta" name="estadoAlerta" required>
-                                <option style="color:red;" value="urgente">Revisión Urgente</option>
-                                <option style="color:orange;" value="proximo">Próximo</option>
-                                <option style="color:yellow;" value="pendiente">Pendiente</option>
+                                <option value="urgente" style="color:red;">Revisión Urgente</option>
+                                <option value="activa" style="color:orange;">Activa</option>
+                                <option value="pendiente" style="color:green;">Pendiente</option>
                             </select>
                         </div>
                     </div>
@@ -269,11 +270,27 @@
             responsive: true,
             autoWidth: false,
             order: [[6, 'asc'], [4, 'asc']],
-            dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>rt<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>'
+            dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>rt<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+            columnDefs: [
+                { orderable: false, targets: [7] } // Deshabilitar ordenamiento en columna Acciones
+            ]
+        });
+
+        // Evento para cargar kmActual cuando se selecciona una unidad
+        $('#unidad').change(function() {
+            const selectedOption = $(this).find('option:selected');
+            const kmActual = selectedOption.data('kmactual');
+            $('#km_actual').val(kmActual || 0);
         });
     });
 
     function editarAlerta(id) {
+        // Mostrar loading
+        const btnEditar = event.target.closest('button');
+        const originalContent = btnEditar.innerHTML;
+        btnEditar.innerHTML = '<i class="bi bi-hourglass-split"></i>';
+        btnEditar.disabled = true;
+
         fetch(`/mantenimiento/alerta/${id}`)
             .then(response => {
                 if (!response.ok) {
@@ -286,7 +303,7 @@
                     // Llenar el formulario con los datos
                     document.getElementById('alertaId').value = data.data.id_alertaMantenimiento;
                     document.getElementById('unidad').value = data.data.id_unidad;
-                    document.getElementById('km_actual').value = data.data.km_actual;
+                    document.getElementById('km_actual').value = data.data.kmActual; // Cambiado de km_actual a kmActual
                     document.getElementById('fechaUltimoMantenimiento').value = data.data.fechaUltimoMantenimiento;
                     document.getElementById('kmProxMantenimiento').value = data.data.kmProxMantenimiento;
                     document.getElementById('fechaProxMantenimiento').value = data.data.fechaProxMantenimiento;
@@ -294,9 +311,12 @@
                     document.getElementById('estadoAlerta').value = data.data.estadoAlerta;
 
                     // Cambiar el modal a modo edición
-                    document.getElementById('modalTituloAlerta').textContent = 'Editar Alerta de Mantenimiento';
+                    document.getElementById('modalTituloAlerta').innerHTML = '<i class="bi bi-pencil-square me-2"></i>Editar Alerta de Mantenimiento';
                     document.getElementById('btnGuardarAlerta').innerHTML = '<i class="bi bi-check-circle me-1"></i> Actualizar';
                     modoEdicionAlerta = true;
+
+                    // Hacer el campo km_actual de solo lectura en edición
+                    document.getElementById('km_actual').readOnly = true;
 
                     // Mostrar el modal
                     const modal = new bootstrap.Modal(document.getElementById('modalAlertas'));
@@ -318,10 +338,15 @@
                     text: 'Error al cargar los datos de la alerta: ' + error.message,
                     confirmButtonColor: '#3085d6'
                 });
+            })
+            .finally(() => {
+                // Restaurar botón
+                btnEditar.innerHTML = originalContent;
+                btnEditar.disabled = false;
             });
     }
 
-    function eliminarAlerta(id, event) {
+    function eliminarAlerta(id, element) {
         Swal.fire({
             title: '¿Estás seguro?',
             text: "¡No podrás revertir esta acción!",
@@ -333,7 +358,7 @@
             cancelButtonText: 'Cancelar'
         }).then((result) => {
             if (result.isConfirmed) {
-                const btnEliminar = event;
+                const btnEliminar = element;
                 const originalText = btnEliminar.innerHTML;
                 btnEliminar.innerHTML = '<i class="bi bi-hourglass-split"></i> Eliminando...';
                 btnEliminar.disabled = true;
@@ -368,12 +393,10 @@
                             // Eliminar la fila de DataTables
                             tablaAlertas.row('#fila-alerta-' + id).remove().draw();
 
-                            // Verificar si quedan filas
-                            if (tablaAlertas.rows().count() === 0) {
-                                setTimeout(() => {
-                                    location.reload();
-                                }, 1500);
-                            }
+                            // Actualizar contadores si es necesario
+                            setTimeout(() => {
+                                location.reload();
+                            }, 1500);
                         } else {
                             Swal.fire({
                                 icon: 'error',
@@ -403,7 +426,6 @@
     function guardarAlerta() {
         const alertaId = document.getElementById('alertaId').value;
         const unidad = document.getElementById('unidad').value;
-        const kmActual = document.getElementById('km_actual').value;
         const fechaUltimoMantenimiento = document.getElementById('fechaUltimoMantenimiento').value;
         const kmProxMantenimiento = document.getElementById('kmProxMantenimiento').value;
         const fechaProxMantenimiento = document.getElementById('fechaProxMantenimiento').value;
@@ -411,7 +433,7 @@
         const estadoAlerta = document.getElementById('estadoAlerta').value;
 
         // Validaciones básicas
-        if (!unidad || !kmActual || !fechaUltimoMantenimiento || !kmProxMantenimiento || !fechaProxMantenimiento || !estadoAlerta) {
+        if (!unidad || !fechaUltimoMantenimiento || !kmProxMantenimiento || !fechaProxMantenimiento || !estadoAlerta) {
             Swal.fire({
                 icon: 'warning',
                 title: 'Campos incompletos',
@@ -421,32 +443,50 @@
             return;
         }
 
-        if (kmActual < 0 || kmProxMantenimiento < 0) {
+        if (kmProxMantenimiento < 0) {
             Swal.fire({
                 icon: 'warning',
                 title: 'Valores inválidos',
-                text: 'Los valores de kilometraje no pueden ser negativos',
+                text: 'El valor de kilometraje próximo no puede ser negativo',
                 confirmButtonColor: '#3085d6'
             });
             return;
         }
 
+        // Validar que fecha próximo sea mayor o igual a fecha último
+        if (new Date(fechaProxMantenimiento) < new Date(fechaUltimoMantenimiento)) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Fechas inconsistentes',
+                text: 'La fecha del próximo mantenimiento debe ser posterior a la fecha del último mantenimiento',
+                confirmButtonColor: '#3085d6'
+            });
+            return;
+        }
+
+        // Mostrar loading en el botón
+        const btnGuardar = document.getElementById('btnGuardarAlerta');
+        const originalText = btnGuardar.innerHTML;
+        btnGuardar.innerHTML = '<i class="bi bi-hourglass-split me-1"></i> Guardando...';
+        btnGuardar.disabled = true;
+
         const url = modoEdicionAlerta ? `/mantenimiento/alerta/${alertaId}` : '/mantenimiento/alerta';
         const method = modoEdicionAlerta ? 'PUT' : 'POST';
 
+        // IMPORTANTE: No enviar km_actual al backend
         fetch(url, {
             method: method,
             headers: {
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
             },
             body: JSON.stringify({
                 unidad: parseInt(unidad),
-                km_actual: parseInt(kmActual),
                 fechaUltimoMantenimiento: fechaUltimoMantenimiento,
                 kmProxMantenimiento: parseInt(kmProxMantenimiento),
                 fechaProxMantenimiento: fechaProxMantenimiento,
-                incidenteReportado: incidenteReportado,
+                incidenteReportado: incidenteReportado || null,
                 estadoAlerta: estadoAlerta
             })
         })
@@ -478,9 +518,13 @@
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: 'Error al guardar la alerta',
+                    text: 'Error al guardar la alerta: ' + error.message,
                     confirmButtonColor: '#3085d6'
                 });
+            })
+            .finally(() => {
+                btnGuardar.innerHTML = originalText;
+                btnGuardar.disabled = false;
             });
     }
 
@@ -488,9 +532,29 @@
     document.getElementById('modalAlertas').addEventListener('hidden.bs.modal', function () {
         document.getElementById('formAlertas').reset();
         document.getElementById('alertaId').value = '';
-        document.getElementById('modalTituloAlerta').textContent = 'Crear Alerta de Mantenimiento';
+        document.getElementById('modalTituloAlerta').innerHTML = '<i class="bi bi-clipboard-check me-2"></i>Crear Alerta de Mantenimiento';
         document.getElementById('btnGuardarAlerta').innerHTML = '<i class="bi bi-check-circle me-1"></i> Guardar Alerta';
+        document.getElementById('km_actual').readOnly = false; // Hacer editable en creación
         modoEdicionAlerta = false;
+    });
+
+    // Validación en tiempo real para fechas
+    document.getElementById('fechaUltimoMantenimiento').addEventListener('change', function() {
+        const fechaProx = document.getElementById('fechaProxMantenimiento');
+        if (this.value && fechaProx.value && new Date(fechaProx.value) < new Date(this.value)) {
+            fechaProx.setCustomValidity('La fecha próxima debe ser posterior a la fecha último');
+        } else {
+            fechaProx.setCustomValidity('');
+        }
+    });
+
+    document.getElementById('fechaProxMantenimiento').addEventListener('change', function() {
+        const fechaUltimo = document.getElementById('fechaUltimoMantenimiento');
+        if (this.value && fechaUltimo.value && new Date(this.value) < new Date(fechaUltimo.value)) {
+            this.setCustomValidity('La fecha próxima debe ser posterior a la fecha último');
+        } else {
+            this.setCustomValidity('');
+        }
     });
 </script>
 
