@@ -51,7 +51,7 @@ class FinanzasModel extends Model
         $db = $this->getConnection();
 
         $sql = "
-            SELECT t.id_tarifa, r.nombre AS ruta, t.tarifaBaseRuta, t.tipoPasajero,
+            SELECT t.id_tarifa, t.id_ruta, r.nombre AS ruta, t.tarifaBaseRuta, t.tipoPasajero,
                    t.descuentoPasajero, t.tarifaFinal, t.notas
             FROM tarifa t
             LEFT JOIN ruta r ON t.id_ruta = r.id_ruta
@@ -77,5 +77,88 @@ class FinanzasModel extends Model
 
         $result = $db->select($sql);
         return array_map(fn($r) => (array)$r, $result);
+    }
+
+    // Métodos CRUD para movimientos bancarios (ingresos y egresos)
+    public function crearMovimiento(array $datos)
+    {
+        return $this->getConnection()
+            ->table('movimientobancario')
+            ->insert($datos);
+    }
+
+    public function actualizarMovimiento($id, array $datos)
+    {
+        return $this->getConnection()
+            ->table('movimientobancario')
+            ->where('id_movimiento', $id)
+            ->update($datos);
+    }
+
+    public function eliminarMovimiento($id)
+    {
+        return $this->getConnection()
+            ->table('movimientobancario')
+            ->where('id_movimiento', $id)
+            ->delete();
+    }
+
+    public function obtenerMovimientoPorId($id)
+    {
+        $db = $this->getConnection();
+        $result = $db->table('movimientobancario')
+            ->where('id_movimiento', $id)
+            ->first();
+        return $result ? (array)$result : null;
+    }
+
+    // Métodos CRUD para tarifas
+    public function crearTarifa(array $datos)
+    {
+        return $this->getConnection()
+            ->table('tarifa')
+            ->insert($datos);
+    }
+
+    public function actualizarTarifa($id, array $datos)
+    {
+        return $this->getConnection()
+            ->table('tarifa')
+            ->where('id_tarifa', $id)
+            ->update($datos);
+    }
+
+    public function eliminarTarifa($id)
+    {
+        return $this->getConnection()
+            ->table('tarifa')
+            ->where('id_tarifa', $id)
+            ->delete();
+    }
+
+    public function obtenerTarifaPorId($id)
+    {
+        $db = $this->getConnection();
+        $result = $db->table('tarifa')
+            ->where('id_tarifa', $id)
+            ->first();
+        return $result ? (array)$result : null;
+    }
+
+    // Método para crear conciliación
+    public function crearConciliacion(array $datos)
+    {
+        return $this->getConnection()
+            ->table('comprobanteBancario')
+            ->insert($datos);
+    }
+
+    // Método para obtener rutas (para el select de tarifas)
+    public function obtenerRutas()
+    {
+        $db = $this->getConnection();
+        $sql = "SELECT id_ruta, nombre, origen, destino FROM ruta ORDER BY nombre";
+        $result = $db->select($sql);
+        return array_map(fn($row) => (array)$row, $result);
     }
 }
