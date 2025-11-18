@@ -54,6 +54,24 @@
     //Página de contabilidad :)
     Route::get('/finanzas', [FinanzasController::class, 'index'])->name('finanzas');
 
+    // Rutas para Finanzas - Ingresos
+    Route::post('/finanzas/ingresos', [FinanzasController::class, 'storeIngreso'])->name('finanzas.ingresos.store');
+    Route::put('/finanzas/ingresos/{id}', [FinanzasController::class, 'updateIngreso'])->name('finanzas.ingresos.update');
+    Route::delete('/finanzas/ingresos/{id}', [FinanzasController::class, 'destroyIngreso'])->name('finanzas.ingresos.destroy');
+
+    // Rutas para Finanzas - Egresos
+    Route::post('/finanzas/egresos', [FinanzasController::class, 'storeEgreso'])->name('finanzas.egresos.store');
+    Route::put('/finanzas/egresos/{id}', [FinanzasController::class, 'updateEgreso'])->name('finanzas.egresos.update');
+    Route::delete('/finanzas/egresos/{id}', [FinanzasController::class, 'destroyEgreso'])->name('finanzas.egresos.destroy');
+
+    // Rutas para Finanzas - Tarifas
+    Route::post('/finanzas/tarifas', [FinanzasController::class, 'storeTarifa'])->name('finanzas.tarifas.store');
+    Route::put('/finanzas/tarifas/{id}', [FinanzasController::class, 'updateTarifa'])->name('finanzas.tarifas.update');
+    Route::delete('/finanzas/tarifas/{id}', [FinanzasController::class, 'destroyTarifa'])->name('finanzas.tarifas.destroy');
+
+    // Rutas para Finanzas - Conciliaciones
+    Route::post('/finanzas/conciliaciones', [FinanzasController::class, 'storeConciliacion'])->name('finanzas.conciliaciones.store');
+
 
     // ------- RUTAS PARA  MANTENIMIENTO -------
     //Página de mantenimiento :)
@@ -62,7 +80,6 @@
     })->name('mantenimiento');
 
     Route::get('/mantenimiento', [MantenimientoController::class, 'index'])->name('mantenimiento');
-
 
     // Rutas de Mantenimiento
     Route::prefix('mantenimiento')->group(function () {
