@@ -29,7 +29,6 @@ class FinanzasController extends Controller
         ));
     }
 
-    // Métodos para Ingresos
     public function storeIngreso(Request $request)
     {
         try {
@@ -45,10 +44,21 @@ class FinanzasController extends Controller
                 ], 422);
             }
 
-            $finanzas = new FinanzasModel();
+            $userId = Auth::id();
 
-            // Obtener el ID del contador del usuario actual (si existe)
-            $contadorId = $this->obtenerContadorId(Auth::id());
+            // Validar si este usuario ES contador según la base de datos
+            $contadorId = DB::table('contador')
+                ->where('id', $userId)
+                ->value('id_contador');
+
+            if (!$contadorId) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No tiene permiso para registrar ingresos. Solo un usuario con rol contador puede hacerlo.'
+                ], 403);
+            }
+
+            $finanzas = new FinanzasModel();
 
             $datos = [
                 'tipoMovimiento' => 'ingreso',
@@ -127,7 +137,6 @@ class FinanzasController extends Controller
         }
     }
 
-    // Métodos para Egresos
     public function storeEgreso(Request $request)
     {
         try {
@@ -143,9 +152,21 @@ class FinanzasController extends Controller
                 ], 422);
             }
 
-            $finanzas = new FinanzasModel();
+            $userId = Auth::id();
 
-            $contadorId = $this->obtenerContadorId(Auth::id());
+            // Validar si este usuario ES contador según la base de datos
+            $contadorId = DB::table('contador')
+                ->where('id', $userId)
+                ->value('id_contador');
+
+            if (!$contadorId) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No tiene permiso para registrar egresos. Solo un contador puede hacerlo.'
+                ], 403);
+            }
+
+            $finanzas = new FinanzasModel();
 
             $datos = [
                 'tipoMovimiento' => 'egreso',
