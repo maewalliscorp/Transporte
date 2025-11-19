@@ -172,6 +172,7 @@
                 <form id="formAlertas">
                     @csrf
                     <input type="hidden" id="alertaId" name="alertaId">
+                    <input type="hidden" id="id_mantenimiento" name="id_mantenimiento">
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label">Unidad <span class="text-danger">*</span></label>
@@ -179,9 +180,13 @@
                                 <option value="" selected disabled>Selecciona una unidad...</option>
                                 @isset($unidades)
                                     @foreach($unidades as $unidad)
-                                        <option value="{{ $unidad['id_unidad'] }}" data-kmactual="{{ $unidad['kmActual'] ?? 0 }}">
-                                            {{ $unidad['placa'] }} - {{ $unidad['modelo'] }}
-                                        </option>
+                                        @if(isset($unidad['id_mantenimiento']) && !empty($unidad['id_mantenimiento']))
+                                            <option value="{{ $unidad['id_unidad'] }}"
+                                                    data-kmactual="{{ $unidad['kmActual'] ?? 0 }}"
+                                                    data-idmantenimiento="{{ $unidad['id_mantenimiento'] }}">
+                                                {{ $unidad['placa'] }} - {{ $unidad['modelo'] }}
+                                            </option>
+                                        @endif
                                     @endforeach
                                 @endisset
                             </select>
@@ -279,8 +284,41 @@
         // Evento para cargar kmActual cuando se selecciona una unidad
         $('#unidad').change(function() {
             const selectedOption = $(this).find('option:selected');
-            const kmActual = selectedOption.data('kmactual');
+            // Usar attr() para obtener el valor directamente del atributo data
+            const kmActual = selectedOption.attr('data-kmactual') || selectedOption.data('kmactual');
+            const idMantenimiento = selectedOption.attr('data-idmantenimiento') || selectedOption.data('idmantenimiento');
+
+            // Solo validar si NO estamos en modo edición (para creación es obligatorio)
+            if (!modoEdicionAlerta) {
+                // Validar que se haya capturado el id_mantenimiento solo en creación
+                if (!idMantenimiento || idMantenimiento === '' || idMantenimiento === '0') {
+                    console.error('No se encontró id_mantenimiento para la unidad seleccionada');
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Error',
+                        text: 'No se pudo obtener el registro de mantenimiento para esta unidad. Por favor seleccione otra unidad.',
+                        confirmButtonColor: '#3085d6'
+                    });
+                    // Resetear el select
+                    $(this).val('');
+                    return;
+                }
+            } else {
+                // En modo edición, si se cambió la unidad, actualizar el id_mantenimiento
+                // Si no se cambió, mantener el existente
+                if (idMantenimiento && idMantenimiento !== '' && idMantenimiento !== '0') {
+                    $('#id_mantenimiento').val(idMantenimiento);
+                    console.log('Unidad cambiada en edición. Nuevo ID Mantenimiento:', idMantenimiento);
+                }
+            }
+
             $('#km_actual').val(kmActual || 0);
+            // Actualizar el id_mantenimiento solo si hay un valor válido
+            if (idMantenimiento && idMantenimiento !== '' && idMantenimiento !== '0') {
+                $('#id_mantenimiento').val(idMantenimiento);
+                console.log('ID Mantenimiento actualizado:', idMantenimiento);
+            }
+            console.log('Km Actual capturado:', kmActual);
         });
     });
 
@@ -303,7 +341,9 @@
                     // Llenar el formulario con los datos
                     document.getElementById('alertaId').value = data.data.id_alertaMantenimiento;
                     document.getElementById('unidad').value = data.data.id_unidad;
-                    document.getElementById('km_actual').value = data.data.kmActual; // Cambiado de km_actual a kmActual
+                    document.getElementById('km_actual').value = data.data.kmActual || 0;
+                    // Establecer el id_mantenimiento existente en el campo oculto
+                    document.getElementById('id_mantenimiento').value = data.data.id_mantenimiento || '';
                     document.getElementById('fechaUltimoMantenimiento').value = data.data.fechaUltimoMantenimiento;
                     document.getElementById('kmProxMantenimiento').value = data.data.kmProxMantenimiento;
                     document.getElementById('fechaProxMantenimiento').value = data.data.fechaProxMantenimiento;
@@ -317,6 +357,11 @@
 
                     // Hacer el campo km_actual de solo lectura en edición
                     document.getElementById('km_actual').readOnly = true;
+
+                    console.log('Datos cargados para edición:', {
+                        id_mantenimiento: data.data.id_mantenimiento,
+                        id_unidad: data.data.id_unidad
+                    });
 
                     // Mostrar el modal
                     const modal = new bootstrap.Modal(document.getElementById('modalAlertas'));
@@ -425,19 +470,58 @@
 
     function guardarAlerta() {
         const alertaId = document.getElementById('alertaId').value;
-        const unidad = document.getElementById('unidad').value;
+        const idMantenimiento = document.getElementById('id_mantenimiento').value;
         const fechaUltimoMantenimiento = document.getElementById('fechaUltimoMantenimiento').value;
         const kmProxMantenimiento = document.getElementById('kmProxMantenimiento').value;
         const fechaProxMantenimiento = document.getElementById('fechaProxMantenimiento').value;
         const incidenteReportado = document.getElementById('incidenteReportado').value.trim();
         const estadoAlerta = document.getElementById('estadoAlerta').value;
 
-        // Validaciones básicas
-        if (!unidad || !fechaUltimoMantenimiento || !kmProxMantenimiento || !fechaProxMantenimiento || !estadoAlerta) {
+        // Validaciones básicas - diferentes para creación y edición
+        if (modoEdicionAlerta) {
+            // En edición, el id_mantenimiento debe existir (puede ser el original o uno nuevo si se cambió la unidad)
+            if (!idMantenimiento || idMantenimiento === '' || !fechaUltimoMantenimiento || !kmProxMantenimiento || !fechaProxMantenimiento || !estadoAlerta) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Campos incompletos',
+                    text: 'Por favor complete todos los campos obligatorios.',
+                    confirmButtonColor: '#3085d6'
+                });
+                console.error('Datos faltantes en edición:', {
+                    idMantenimiento: idMantenimiento,
+                    fechaUltimoMantenimiento: fechaUltimoMantenimiento,
+                    kmProxMantenimiento: kmProxMantenimiento,
+                    fechaProxMantenimiento: fechaProxMantenimiento,
+                    estadoAlerta: estadoAlerta
+                });
+                return;
+            }
+        } else {
+            // En creación, validar que se haya seleccionado una unidad
+            if (!idMantenimiento || idMantenimiento === '' || !fechaUltimoMantenimiento || !kmProxMantenimiento || !fechaProxMantenimiento || !estadoAlerta) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Campos incompletos',
+                    text: 'Por favor complete todos los campos obligatorios. Asegúrese de seleccionar una unidad.',
+                    confirmButtonColor: '#3085d6'
+                });
+                console.error('Datos faltantes en creación:', {
+                    idMantenimiento: idMantenimiento,
+                    fechaUltimoMantenimiento: fechaUltimoMantenimiento,
+                    kmProxMantenimiento: kmProxMantenimiento,
+                    fechaProxMantenimiento: fechaProxMantenimiento,
+                    estadoAlerta: estadoAlerta
+                });
+                return;
+            }
+        }
+
+        // Validar que id_mantenimiento sea un número válido
+        if (isNaN(parseInt(idMantenimiento)) || parseInt(idMantenimiento) <= 0) {
             Swal.fire({
-                icon: 'warning',
-                title: 'Campos incompletos',
-                text: 'Por favor complete todos los campos obligatorios',
+                icon: 'error',
+                title: 'Error',
+                text: 'El ID de mantenimiento no es válido. Por favor seleccione una unidad nuevamente.',
                 confirmButtonColor: '#3085d6'
             });
             return;
@@ -473,7 +557,35 @@
         const url = modoEdicionAlerta ? `/mantenimiento/alerta/${alertaId}` : '/mantenimiento/alerta';
         const method = modoEdicionAlerta ? 'PUT' : 'POST';
 
-        // IMPORTANTE: No enviar km_actual al backend
+        // Preparar los datos según el modo
+        let requestData;
+
+        if (modoEdicionAlerta) {
+            // En edición, enviar id_mantenimiento directamente (puede ser el original o uno nuevo si se cambió la unidad)
+            const idMantenimientoInt = parseInt(idMantenimiento);
+            requestData = {
+                id_mantenimiento: idMantenimientoInt,
+                fechaUltimoMantenimiento: fechaUltimoMantenimiento,
+                kmProxMantenimiento: parseInt(kmProxMantenimiento),
+                fechaProxMantenimiento: fechaProxMantenimiento,
+                incidenteReportado: incidenteReportado || null,
+                estadoAlerta: estadoAlerta
+            };
+            console.log('Datos a enviar (edición):', requestData);
+        } else {
+            // En creación, enviar id_mantenimiento directamente
+            const idMantenimientoInt = parseInt(idMantenimiento);
+            requestData = {
+                id_mantenimiento: idMantenimientoInt,
+                fechaUltimoMantenimiento: fechaUltimoMantenimiento,
+                kmProxMantenimiento: parseInt(kmProxMantenimiento),
+                fechaProxMantenimiento: fechaProxMantenimiento,
+                incidenteReportado: incidenteReportado || null,
+                estadoAlerta: estadoAlerta
+            };
+            console.log('Datos a enviar (creación):', requestData);
+        }
+
         fetch(url, {
             method: method,
             headers: {
@@ -481,16 +593,19 @@
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
             },
-            body: JSON.stringify({
-                unidad: parseInt(unidad),
-                fechaUltimoMantenimiento: fechaUltimoMantenimiento,
-                kmProxMantenimiento: parseInt(kmProxMantenimiento),
-                fechaProxMantenimiento: fechaProxMantenimiento,
-                incidenteReportado: incidenteReportado || null,
-                estadoAlerta: estadoAlerta
-            })
+            body: JSON.stringify(requestData)
         })
-            .then(response => response.json())
+            .then(response => {
+                // Verificar si la respuesta es JSON
+                const contentType = response.headers.get("content-type");
+                if (contentType && contentType.includes("application/json")) {
+                    return response.json();
+                } else {
+                    return response.text().then(text => {
+                        throw new Error('Respuesta no válida del servidor: ' + text);
+                    });
+                }
+            })
             .then(data => {
                 if (data.success) {
                     Swal.fire({
@@ -532,6 +647,7 @@
     document.getElementById('modalAlertas').addEventListener('hidden.bs.modal', function () {
         document.getElementById('formAlertas').reset();
         document.getElementById('alertaId').value = '';
+        document.getElementById('id_mantenimiento').value = '';
         document.getElementById('modalTituloAlerta').innerHTML = '<i class="bi bi-clipboard-check me-2"></i>Crear Alerta de Mantenimiento';
         document.getElementById('btnGuardarAlerta').innerHTML = '<i class="bi bi-check-circle me-1"></i> Guardar Alerta';
         document.getElementById('km_actual').readOnly = false; // Hacer editable en creación

@@ -42,10 +42,11 @@ class MalertasModel extends Model
                 u.id_unidad,
                 u.placa,
                 u.modelo,
+                m.id_mantenimiento,
                 COALESCE(m.kmActual, 0) as kmActual
-            FROM unidad u
-            LEFT JOIN mantenimiento m ON u.id_unidad = m.id_unidad
-            ORDER BY u.placa
+            FROM mantenimiento m
+            INNER JOIN unidad u ON m.id_unidad = u.id_unidad
+            ORDER BY u.placa, m.id_mantenimiento DESC
         ";
 
         $result = DB::select($sql);
@@ -64,6 +65,7 @@ class MalertasModel extends Model
         $sql = "
             SELECT
                 a.id_alertaMantenimiento,
+                a.id_mantenimiento,
                 a.fechaUltimoMantenimiento,
                 a.kmProxMantenimiento,
                 a.fechaProxMantenimiento,
@@ -86,26 +88,14 @@ class MalertasModel extends Model
         try {
             \Log::info('Datos recibidos en crearAlerta:', $data);
 
-            // Primero necesitamos obtener el id_mantenimiento basado en la unidad
-            $mantenimiento = DB::table('mantenimiento')
-                ->where('id_unidad', $data['unidad'])
-                ->first();
-
-            if (!$mantenimiento) {
-                \Log::error('No se encontró registro de mantenimiento para la unidad: ' . $data['unidad']);
-                return false;
-            }
-
-            \Log::info('ID Mantenimiento encontrado: ' . $mantenimiento->id_mantenimiento);
-
+            // Insertar directamente con el id_mantenimiento recibido
             $resultado = DB::table('alertamantenimiento')->insert([
-                'id_mantenimiento' => $mantenimiento->id_mantenimiento,
+                'id_mantenimiento' => $data['id_mantenimiento'],
                 'fechaUltimoMantenimiento' => $data['fechaUltimoMantenimiento'],
                 'kmProxMantenimiento' => $data['kmProxMantenimiento'],
                 'fechaProxMantenimiento' => $data['fechaProxMantenimiento'],
                 'incidenteReportado' => $data['incidenteReportado'] ?? null,
-                'estadoAlerta' => $data['estadoAlerta'],
-                'fecha_creacion' => now()
+                'estadoAlerta' => $data['estadoAlerta']
             ]);
 
             \Log::info('Resultado de la inserción: ' . ($resultado ? 'true' : 'false'));
@@ -124,22 +114,11 @@ class MalertasModel extends Model
         try {
             \Log::info('Datos recibidos en actualizarAlerta:', $data);
 
-            // Obtener el id_mantenimiento basado en la unidad
-            $mantenimiento = DB::table('mantenimiento')
-                ->where('id_unidad', $data['unidad'])
-                ->first();
-
-            if (!$mantenimiento) {
-                \Log::error('No se encontró registro de mantenimiento para la unidad: ' . $data['unidad']);
-                return false;
-            }
-
-            \Log::info('ID Mantenimiento encontrado: ' . $mantenimiento->id_mantenimiento);
-
+            // Usar directamente el id_mantenimiento recibido
             $resultado = DB::table('alertamantenimiento')
                 ->where('id_alertaMantenimiento', $id)
                 ->update([
-                    'id_mantenimiento' => $mantenimiento->id_mantenimiento,
+                    'id_mantenimiento' => $data['id_mantenimiento'],
                     'fechaUltimoMantenimiento' => $data['fechaUltimoMantenimiento'],
                     'kmProxMantenimiento' => $data['kmProxMantenimiento'],
                     'fechaProxMantenimiento' => $data['fechaProxMantenimiento'],

@@ -38,7 +38,7 @@ class MalertasController extends Controller
             \Log::info('Datos recibidos en store:', $request->all());
 
             $validated = $request->validate([
-                'unidad' => 'required|integer|exists:unidad,id_unidad',
+                'id_mantenimiento' => 'required|integer|exists:mantenimiento,id_mantenimiento',
                 'fechaUltimoMantenimiento' => 'required|date',
                 'kmProxMantenimiento' => 'required|integer|min:0',
                 'fechaProxMantenimiento' => 'required|date',
@@ -46,13 +46,28 @@ class MalertasController extends Controller
             ]);
 
             $malertasModel = new MalertasModel();
-            $resultado = $malertasModel->crearAlerta($request->all());
+            $resultado = $malertasModel->crearAlerta($validated);
 
+            if ($resultado) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Alerta creada correctamente'
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al crear la alerta. Verifique los logs para más detalles.'
+                ], 500);
+            }
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::error('Error de validación en store:', $e->errors());
             return response()->json([
-                'success' => $resultado,
-                'message' => $resultado ? 'Alerta creada correctamente' : 'Error al crear alerta'
-            ]);
-
+                'success' => false,
+                'message' => 'Error de validación: ' . implode(', ', array_map(function($errors) {
+                        return implode(', ', $errors);
+                    }, $e->errors()))
+            ], 422);
         } catch (\Exception $e) {
             \Log::error('Error en store: ' . $e->getMessage());
             \Log::error('Trace: ' . $e->getTraceAsString());
@@ -96,7 +111,7 @@ class MalertasController extends Controller
             \Log::info('Datos recibidos en update:', $request->all());
 
             $validated = $request->validate([
-                'unidad' => 'required|integer|exists:unidad,id_unidad',
+                'id_mantenimiento' => 'required|integer|exists:mantenimiento,id_mantenimiento',
                 'fechaUltimoMantenimiento' => 'required|date',
                 'kmProxMantenimiento' => 'required|integer|min:0',
                 'fechaProxMantenimiento' => 'required|date',
@@ -104,19 +119,34 @@ class MalertasController extends Controller
             ]);
 
             $malertasModel = new MalertasModel();
-            $resultado = $malertasModel->actualizarAlerta($id, $request->all());
+            $resultado = $malertasModel->actualizarAlerta($id, $validated);
 
+            if ($resultado) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Alerta actualizada correctamente'
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al actualizar la alerta. Verifique los logs para más detalles.'
+                ], 500);
+            }
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::error('Error de validación en update:', $e->errors());
             return response()->json([
-                'success' => $resultado,
-                'message' => $resultado ? 'Alerta actualizada correctamente' : 'Error al actualizar'
-            ]);
-
+                'success' => false,
+                'message' => 'Error de validación: ' . implode(', ', array_map(function($errors) {
+                        return implode(', ', $errors);
+                    }, $e->errors()))
+            ], 422);
         } catch (\Exception $e) {
             \Log::error('Error en update: ' . $e->getMessage());
             \Log::error('Trace: ' . $e->getTraceAsString());
             return response()->json([
                 'success' => false,
-                'message' => 'Error al procesar la solicitud'
+                'message' => 'Error al procesar la solicitud: ' . $e->getMessage()
             ], 500);
         }
     }
