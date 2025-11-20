@@ -143,4 +143,26 @@ class InicioModel extends Model
         $result = $db->select($sql);
         return array_map(fn($row) => (array)$row, $result);
     }
+
+
+    public function crearAsignacion(array $datos): bool
+    {
+        try {
+            $db = $this->getConnection();
+
+            $resultado = $db->table('asignacion')->insert([
+                'id_unidad' => $datos['id_unidad'],
+                'id_operador' => $datos['id_operador'],
+                'id_ruta' => $datos['id_ruta'],
+                'fecha' => $datos['fecha'],
+                'hora' => $datos['hora']
+            ]);
+
+            return (bool)$resultado;
+
+        } catch (\Exception $e) {
+            \Log::error('Error al crear asignación: ' . $e->getMessage());
+            return false;
+        }
+    }
 }

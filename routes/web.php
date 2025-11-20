@@ -19,8 +19,6 @@
     use App\Http\Controllers\PquejasugerenciaController;
     use App\Http\Controllers\PregistroController;
 
-
-
     // Redirigir / al login
     Route::get('/', function () {
         return redirect()->route('login');
@@ -31,6 +29,7 @@
 
     // Página después de iniciar sesión
     Route::get('/inicio', [App\Http\Controllers\InicioController::class, 'index'])->name('inicio');
+    Route::post('/asignar', [App\Http\Controllers\InicioController::class, 'asignar'])->name('asignar');
 
     // Página principal después de login
     Route::get('/inicio', [InicioController::class, 'index'])->name('inicio');
@@ -107,7 +106,6 @@
         // Historial
         Route::get('/m-historial', [MhistorialController::class, 'index'])->name('mantenimiento.m-historial');
     });
-
 
     //Página de pasajero :)
     Route::get('/pasajerof', function (){
