@@ -64,7 +64,7 @@ class IncidentesController extends Controller
             ], 500);
         }
     }
-    /*
+
         public function solucionar(Request $request)
         {
             try {
@@ -98,5 +98,5 @@ class IncidentesController extends Controller
                 ], 500);
             }
         }
-        */
+
 }
