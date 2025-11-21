@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Gestión de Incidentes</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <!-- Bootstrap CSS & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -122,6 +123,69 @@
             color: #37474F;
             margin-bottom: 0.5rem;
         }
+        .table-actions {
+            white-space: nowrap;
+        }
+        .table-actions .btn {
+            margin: 0 2px;
+        }
+        /* Estilos para botones outline */
+        .btn-outline-warning {
+            border-color: #ffc107;
+            color: #ffc107;
+        }
+        .btn-outline-warning:hover {
+            background-color: #ffc107;
+            color: #000;
+        }
+        .btn-outline-danger {
+            border-color: #dc3545;
+            color: #dc3545;
+        }
+        .btn-outline-danger:hover {
+            background-color: #dc3545;
+            color: #fff;
+        }
+        .btn-outline-success {
+            border-color: #198754;
+            color: #198754;
+        }
+        .btn-outline-success:hover {
+            background-color: #198754;
+            color: #fff;
+        }
+        .btn-outline-info {
+            border-color: #0dcaf0;
+            color: #0dcaf0;
+        }
+        .btn-outline-info:hover {
+            background-color: #0dcaf0;
+            color: #000;
+        }
+
+        /* Estilos específicos para DataTables responsive en Solución de Incidentes */
+        .dtr-details {
+            width: 100%;
+        }
+        .dtr-details li {
+            border-bottom: 1px solid #eee;
+            padding: 8px 0;
+            display: flex;
+            justify-content: space-between;
+        }
+        .dtr-title {
+            font-weight: 600;
+            min-width: 120px;
+        }
+        .dtr-data {
+            text-align: right;
+        }
+        .dtr-data .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            justify-content: flex-end;
+        }
     </style>
 
 </head>
@@ -130,14 +194,19 @@
 @include('layouts.menuPrincipal')
 
 <div class="container mt-4">
-    <h4 class="mb-3">Gestión de Incidentes</h4>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="bi bi-exclamation-triangle me-2"></i>Gestión de Incidentes</h1>
+        <button class="btn btn-primary" id="btnRegistrarIncidente" data-bs-toggle="modal" data-bs-target="#modalAgregarIncidente">
+            <i class="bi bi-plus-circle"></i> Registrar Incidente
+        </button>
+    </div>
 
     <!-- Filtro para seleccionar tipo -->
     <div class="mb-4">
         <label class="form-label me-3">Selecciona tipo de vista:</label>
         <div class="form-check form-check-inline">
             <input class="form-check-input" type="radio" name="tipoVista" id="vistaRegistro" value="registro" checked>
-            <label class="form-check-label" for="vistaRegistro">Incidentes</label>
+            <label class="form-check-label" for="vistaRegistro">Todos los Incidentes</label>
         </div>
         <div class="form-check form-check-inline">
             <input class="form-check-input" type="radio" name="tipoVista" id="vistaSolucion" value="solucion">
@@ -147,53 +216,70 @@
 
     <!-- REGISTRO DE INCIDENTES -->
     <div id="seccionRegistro">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5>Registro de Incidentes</h5>
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalIncidente">
-                <i class="bi bi-plus-circle"></i> Registrar Incidente
-            </button>
-        </div>
-
         <!-- Tabla registro con DataTable -->
-        <div class="table-responsive">
-            <table class="table table-striped table-hover display nowrap" id="tablaIncidentes" style="width:100%">
-                <thead class="table-primary">
-                <tr>
-                    <th>Unidad</th>
-                    <th>Operador</th>
-                    <th>Ruta</th>
-                    <th>Fecha</th>
-                    <th>Hora</th>
-                    <th>Descripción</th>
-                    <th>Estado</th>
-                </tr>
-                </thead>
-                <tbody>
-                @isset($incidentes)
-                    @foreach($incidentes as $incidente)
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover display nowrap" id="tablaIncidentes" style="width:100%">
+                        <thead class="table-primary">
                         <tr>
-                            <td>{{ $incidente['placa'] ?? 'N/A' }}</td>
-                            <td>{{ $incidente['licencia'] ?? 'N/A' }}</td>
-                            <td>{{ $incidente['origen'] ?? 'N/A' }} - {{ $incidente['destino'] ?? 'N/A' }}</td>
-                            <td>{{ $incidente['fecha'] }}</td>
-                            <td>{{ $incidente['hora'] }}</td>
-                            <td>{{ $incidente['descripcion'] }}</td>
-                            <td>
-                                @if($incidente['estado'] == 'Pendiente')
-                                    <span class="badge badge-pendiente">{{ $incidente['estado'] }}</span>
-                                @else
-                                    <span class="badge badge-resuelto">{{ $incidente['estado'] }}</span>
-                                @endif
-                            </td>
+                            <th>ID</th>
+                            <th>Unidad</th>
+                            <th>Operador</th>
+                            <th>Ruta</th>
+                            <th>Fecha</th>
+                            <th>Hora</th>
+                            <th>Descripción</th>
+                            <th>Estado</th>
+                            <th class="table-actions">Acciones</th>
                         </tr>
-                    @endforeach
-                @else
-                    <tr>
-                        <td colspan="7" class="text-center text-muted">No hay incidentes registrados</td>
-                    </tr>
-                @endisset
-                </tbody>
-            </table>
+                        </thead>
+                        <tbody>
+                        @isset($incidentes)
+                            @foreach($incidentes as $incidente)
+                                <tr id="fila-{{ $incidente['id_incidente'] }}">
+                                    <td>{{ $incidente['id_incidente'] }}</td>
+                                    <td>{{ $incidente['placa'] ?? 'N/A' }}</td>
+                                    <td>{{ $incidente['licencia'] ?? 'N/A' }}</td>
+                                    <td>{{ $incidente['origen'] ?? 'N/A' }} - {{ $incidente['destino'] ?? 'N/A' }}</td>
+                                    <td>{{ $incidente['fecha'] }}</td>
+                                    <td>{{ $incidente['hora'] }}</td>
+                                    <td>{{ Str::limit($incidente['descripcion'], 50) }}</td>
+                                    <td>
+                                        @if($incidente['estado'] == 'pendiente')
+                                            <span class="badge bg-warning">Pendiente</span>
+                                        @else
+                                            <span class="badge bg-success">Resuelto</span>
+                                        @endif
+                                    </td>
+                                    <td class="table-actions">
+                                        <button class="btn btn-outline-warning btn-sm" onclick="editarIncidente({{ $incidente['id_incidente'] }})">
+                                            <i class="bi bi-pencil"></i> Editar
+                                        </button>
+                                        <button class="btn btn-outline-danger btn-sm" onclick="eliminarIncidente({{ $incidente['id_incidente'] }}, event)">
+                                            <i class="bi bi-trash"></i> Eliminar
+                                        </button>
+                                        @if($incidente['estado'] == 'pendiente')
+                                            <button class="btn btn-outline-success btn-sm" onclick="asignarSolucion({{ $incidente['id_incidente'] }})">
+                                                <i class="bi bi-check-circle"></i> Solucionar
+                                            </button>
+                                        @else
+                                            <button class="btn btn-outline-info btn-sm" onclick="verSolucion({{ $incidente['id_incidente'] }})">
+                                                <i class="bi bi-eye"></i> Ver Solución
+                                            </button>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @endforeach
+                        @else
+                            <tr>
+                                <td colspan="9" class="text-center text-muted">No hay incidentes registrados</td>
+                            </tr>
+                        @endisset
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -206,100 +292,132 @@
             </button>
         </div>
 
-        <!-- Tabla solución con DataTable -->
-        <div class="table-responsive">
-            <table class="table table-striped table-hover display nowrap" id="tablaSolucion" style="width:100%">
-                <thead class="table-primary">
-                <tr>
-                    <th>Unidad</th>
-                    <th>Operador</th>
-                    <th>Ruta</th>
-                    <th>Fecha</th>
-                    <th>Hora</th>
-                    <th>Descripción</th>
-                    <th>Solución</th>
-                    <th>Estado</th>
-                </tr>
-                </thead>
-                <tbody>
-                @isset($incidentesPendientes)
-                    @foreach($incidentesPendientes as $incidente)
+        <!-- Tabla solución con DataTable RESPONSIVE -->
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover display nowrap" id="tablaSolucion" style="width:100%">
+                        <thead class="table-primary">
                         <tr>
-                            <td>{{ $incidente['placa'] ?? 'N/A' }}</td>
-                            <td>{{ $incidente['licencia'] ?? 'N/A' }}</td>
-                            <td>{{ $incidente['origen'] ?? 'N/A' }} - {{ $incidente['destino'] ?? 'N/A' }}</td>
-                            <td>{{ $incidente['fecha'] }}</td>
-                            <td>{{ $incidente['hora'] }}</td>
-                            <td>{{ $incidente['descripcion'] }}</td>
-                            <td>{{ $incidente['solucion'] ?? 'Sin solución' }}</td>
-                            <td>
-                                <span class="badge badge-pendiente">Pendiente</span>
-                            </td>
+                            <th>ID</th>
+                            <th>Unidad</th>
+                            <th>Operador</th>
+                            <th>Ruta</th>
+                            <th>Fecha</th>
+                            <th>Hora</th>
+                            <th>Descripción</th>
+                            <th>Solución</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
                         </tr>
-                    @endforeach
-                @else
-                    <tr>
-                        <td colspan="8" class="text-center text-muted">No hay incidentes pendientes</td>
-                    </tr>
-                @endisset
-                </tbody>
-            </table>
+                        </thead>
+                        <tbody>
+                        @isset($incidentesPendientes)
+                            @foreach($incidentesPendientes as $incidente)
+                                <tr id="fila-sol-{{ $incidente['id_incidente'] }}">
+                                    <td>{{ $incidente['id_incidente'] }}</td>
+                                    <td>{{ $incidente['placa'] ?? 'N/A' }}</td>
+                                    <td>{{ $incidente['licencia'] ?? 'N/A' }}</td>
+                                    <td>{{ $incidente['origen'] ?? 'N/A' }} - {{ $incidente['destino'] ?? 'N/A' }}</td>
+                                    <td>{{ $incidente['fecha'] }}</td>
+                                    <td>{{ $incidente['hora'] }}</td>
+                                    <td>{{ Str::limit($incidente['descripcion'], 50) }}</td>
+                                    <td>{{ $incidente['solucion'] ? Str::limit($incidente['solucion'], 50) : 'Sin solución' }}</td>
+                                    <td>
+                                        <span class="badge bg-warning">Pendiente</span>
+                                    </td>
+                                    <td class="table-actions">
+                                        <button class="btn btn-outline-success btn-sm" onclick="asignarSolucion({{ $incidente['id_incidente'] }})">
+                                            <i class="bi bi-check-circle"></i> Solucionar
+                                        </button>
+                                        <button class="btn btn-outline-warning btn-sm" onclick="editarSolucion({{ $incidente['id_incidente'] }})">
+                                            <i class="bi bi-pencil"></i> Editar Sol.
+                                        </button>
+                                        <button class="btn btn-outline-danger btn-sm" onclick="eliminarIncidente({{ $incidente['id_incidente'] }}, event)">
+                                            <i class="bi bi-trash"></i> Eliminar
+                                        </button>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        @else
+                            <tr>
+                                <td colspan="10" class="text-center text-muted">No hay incidentes pendientes</td>
+                            </tr>
+                        @endisset
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
-<!-- MODAL PARA REGISTRAR INCIDENTE -->
-<div class="modal fade" id="modalIncidente" tabindex="-1">
+<!-- MODAL PARA AGREGAR/EDITAR INCIDENTE -->
+<div class="modal fade" id="modalAgregarIncidente" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="bi bi-exclamation-triangle me-2"></i>Registrar Incidente</h5>
+                <h5 class="modal-title" id="modalTitulo">Registrar Incidente</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
-                <form id="formIncidente">
-                    @csrf
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Asignación</label>
-                            <select class="form-select" name="id_asignacion" required>
-                                <option value="" selected disabled>Selecciona una asignación...</option>
-                                @isset($asignaciones)
-                                    @foreach($asignaciones as $asignacion)
-                                        <option value="{{ $asignacion['id_asignacion'] }}">
-                                            {{ $asignacion['placa'] }} - {{ $asignacion['licencia'] }} ({{ $asignacion['origen'] }} - {{ $asignacion['destino'] }})
-                                        </option>
-                                    @endforeach
-                                @endisset
-                            </select>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Fecha del Incidente</label>
-                            <input type="date" class="form-control" name="fecha" required>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Hora del Incidente</label>
-                            <input type="time" class="form-control" name="hora" required>
-                        </div>
-                        <!-- CAMPO DE ESTADO AGREGADO - SOLO 2 OPCIONES -->
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Estado del Incidente</label>
-                            <select class="form-select" name="estado" required>
-                                <option value="Pendiente" selected>Pendiente</option>
-                                <option value="Resuelto">Resuelto</option>
-                            </select>
-                        </div>
-                        <div class="col-12 mb-3">
-                            <label class="form-label">Descripción del Incidente</label>
-                            <textarea class="form-control" name="descripcion" rows="4" placeholder="Describe detalladamente el incidente..." required></textarea>
+            <form id="formIncidente">
+                @csrf
+                <input type="hidden" id="incidenteId" name="id_incidente">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Asignación *</label>
+                        <select class="form-select" id="id_asignacion" name="id_asignacion" required>
+                            <option value="" selected disabled>Selecciona una asignación...</option>
+                            @isset($asignaciones)
+                                @foreach($asignaciones as $asignacion)
+                                    <option value="{{ $asignacion['id_asignacion'] }}"
+                                            data-placa="{{ $asignacion['placa'] ?? '' }}"
+                                            data-licencia="{{ $asignacion['licencia'] ?? '' }}"
+                                            data-ruta="{{ ($asignacion['origen'] ?? '') . ' - ' . ($asignacion['destino'] ?? '') }}">
+                                        {{ $asignacion['placa'] ?? 'N/A' }} - {{ $asignacion['licencia'] ?? 'N/A' }}
+                                        ({{ $asignacion['origen'] ?? 'N/A' }} - {{ $asignacion['destino'] ?? 'N/A' }})
+                                    </option>
+                                @endforeach
+                            @endisset
+                        </select>
+                        <div class="form-text">
+                            Información de la asignación:
+                            <span id="infoAsignacion" class="text-muted">Ninguna seleccionada</span>
                         </div>
                     </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" id="btnGuardarIncidente">Guardar Incidente</button>
-            </div>
+                    <div class="mb-3">
+                        <label class="form-label">Descripción del Incidente *</label>
+                        <textarea class="form-control" id="descripcion" name="descripcion" required
+                                  rows="4" maxlength="500" placeholder="Describe detalladamente el incidente ocurrido..."></textarea>
+                        <div class="form-text">
+                            <span id="contadorCaracteres">0</span>/500 caracteres
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Fecha *</label>
+                            <input type="date" class="form-control" id="fecha" name="fecha" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Hora *</label>
+                            <input type="time" class="form-control" id="hora" name="hora" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Estado *</label>
+                            <select class="form-select" id="estado" name="estado" required>
+                                <option value="pendiente">Pendiente</option>
+                                <option value="resuelto">Resuelto</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="guardarIncidente()" id="btnGuardar">
+                        <i class="bi bi-check-circle"></i> Guardar
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -318,20 +436,58 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Incidente</label>
-                            <select class="form-select" name="id_incidente" required>
+                            <select class="form-select" name="id_incidente" id="selectIncidente" required>
                                 <option value="" selected disabled>Selecciona un incidente...</option>
                                 @isset($incidentesPendientes)
                                     @foreach($incidentesPendientes as $incidente)
-                                        <option value="{{ $incidente['id_incidente'] }}">
+                                        <option value="{{ $incidente['id_incidente'] }}"
+                                                data-descripcion="{{ $incidente['descripcion'] }}"
+                                                data-fecha="{{ $incidente['fecha'] }}"
+                                                data-hora="{{ $incidente['hora'] }}"
+                                                data-placa="{{ $incidente['placa'] ?? 'N/A' }}"
+                                                data-licencia="{{ $incidente['licencia'] ?? 'N/A' }}"
+                                                data-ruta="{{ $incidente['origen'] ?? 'N/A' }} - {{ $incidente['destino'] ?? 'N/A' }}">
                                             {{ $incidente['placa'] }} - {{ $incidente['fecha'] }} {{ $incidente['hora'] }}
                                         </option>
                                     @endforeach
                                 @endisset
                             </select>
                         </div>
+                        <!-- Información del incidente seleccionado -->
+                        <div class="col-12 mb-3" id="infoIncidente" style="display: none;">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6 class="card-title">Información del Incidente Seleccionado:</h6>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <strong>Unidad:</strong> <span id="infoPlaca">-</span>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <strong>Operador:</strong> <span id="infoLicencia">-</span>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <strong>Ruta:</strong> <span id="infoRuta">-</span>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <strong>Fecha:</strong> <span id="infoFecha">-</span>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <strong>Hora:</strong> <span id="infoHora">-</span>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <strong>Descripción:</strong>
+                                        <p id="infoDescripcion" class="mb-0">-</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <div class="col-12 mb-3">
                             <label class="form-label">Solución del Incidente</label>
-                            <textarea class="form-control" name="solucion" rows="4" placeholder="Describe la solución aplicada..." required></textarea>
+                            <textarea class="form-control" name="solucion" id="solucion" rows="4" placeholder="Describe la solución aplicada..." required maxlength="500"></textarea>
+                            <div class="form-text">
+                                <span id="contadorSolucion">0</span>/500 caracteres
+                            </div>
                         </div>
                     </div>
                 </form>
@@ -339,6 +495,33 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                 <button type="button" class="btn btn-success" id="btnGuardarSolucion">Guardar Solución</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL PARA VER SOLUCIÓN -->
+<div class="modal fade" id="modalVerSolucion" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-eye me-2"></i>Ver Solución</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-12 mb-3">
+                        <label class="form-label">Descripción del Incidente</label>
+                        <textarea class="form-control" id="verDescripcionIncidente" rows="3" readonly></textarea>
+                    </div>
+                    <div class="col-12 mb-3">
+                        <label class="form-label">Solución Aplicada</label>
+                        <textarea class="form-control" id="verSolucion" rows="4" readonly></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>
     </div>
@@ -354,12 +537,12 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
 
 <script>
-    // Variables globales para las DataTables
-    let tableIncidentes, tableSolucion;
+    let modoEdicion = false;
+    let tablaIncidentes, tablaSolucion;
 
     $(document).ready(function() {
-        // Configuración común para DataTables
-        const configComun = {
+        // Configuración para DataTables de TODOS LOS INCIDENTES (EXACTAMENTE COMO ESTABA)
+        const configIncidentes = {
             language: {
                 "decimal": "",
                 "emptyTable": "No hay datos disponibles en la tabla",
@@ -388,37 +571,131 @@
             lengthMenu: [5, 10, 25, 50, 100],
             responsive: true,
             autoWidth: false,
-            order: [[3, 'desc']], // Ordenar por fecha descendente por defecto
+            order: [[0, 'desc']],
             dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>rt<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>'
         };
 
-        // Inicializar DataTables
-        tableIncidentes = $('#tablaIncidentes').DataTable(configComun);
-        tableSolucion = $('#tablaSolucion').DataTable(configComun);
+        // Configuración para DataTables de SOLUCIÓN DE INCIDENTES (CON RESPONSIVE OPTIMIZADO)
+        const configSolucion = {
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay datos disponibles en la tabla",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                "infoEmpty": "Mostrando 0 a 0 de 0 entradas",
+                "infoFiltered": "(filtrado de _MAX_ entradas totales)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ entradas por página",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "No se encontraron registros coincidentes",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Último",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                },
+                "aria": {
+                    "sortAscending": ": activar para ordenar columna ascendente",
+                    "sortDescending": ": activar para ordenar columna descendente"
+                }
+            },
+            pageLength: 10,
+            lengthMenu: [5, 10, 25, 50, 100],
+            responsive: {
+                details: {
+                    display: $.fn.dataTable.Responsive.display.modal({
+                        header: function (row) {
+                            var data = row.data();
+                            return 'Detalles del Incidente ID: ' + data[0];
+                        }
+                    }),
+                    renderer: $.fn.dataTable.Responsive.renderer.listHiddenNodes()
+                }
+            },
+            autoWidth: false,
+            order: [[0, 'desc']],
+            dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>rt<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+            columnDefs: [
+                {
+                    responsivePriority: 1,
+                    targets: 0 // ID
+                },
+                {
+                    responsivePriority: 2,
+                    targets: -1 // Acciones
+                },
+                {
+                    responsivePriority: 3,
+                    targets: 1 // Unidad
+                },
+                {
+                    responsivePriority: 4,
+                    targets: 6 // Descripción
+                },
+                {
+                    responsivePriority: 5,
+                    targets: 7 // Solución
+                }
+            ]
+        };
 
-        // Establecer fecha y hora actual por defecto en modales
+        // Inicializar DataTables
+        tablaIncidentes = $('#tablaIncidentes').DataTable(configIncidentes);
+        tablaSolucion = $('#tablaSolucion').DataTable(configSolucion);
+
+        // Mostrar información de la asignación seleccionada
+        document.getElementById('id_asignacion').addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            const placa = selectedOption.getAttribute('data-placa');
+            const licencia = selectedOption.getAttribute('data-licencia');
+            const ruta = selectedOption.getAttribute('data-ruta');
+
+            if (placa && licencia) {
+                document.getElementById('infoAsignacion').textContent = `${placa} - ${licencia} (${ruta})`;
+            } else {
+                document.getElementById('infoAsignacion').textContent = 'Ninguna seleccionada';
+            }
+        });
+
+        // Mostrar información del incidente seleccionado en el modal de solución
+        document.getElementById('selectIncidente').addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            if (selectedOption.value) {
+                document.getElementById('infoPlaca').textContent = selectedOption.getAttribute('data-placa');
+                document.getElementById('infoLicencia').textContent = selectedOption.getAttribute('data-licencia');
+                document.getElementById('infoRuta').textContent = selectedOption.getAttribute('data-ruta');
+                document.getElementById('infoFecha').textContent = selectedOption.getAttribute('data-fecha');
+                document.getElementById('infoHora').textContent = selectedOption.getAttribute('data-hora');
+                document.getElementById('infoDescripcion').textContent = selectedOption.getAttribute('data-descripcion');
+                document.getElementById('infoIncidente').style.display = 'block';
+            } else {
+                document.getElementById('infoIncidente').style.display = 'none';
+            }
+        });
+
+        // Contador de caracteres para la descripción
+        document.getElementById('descripcion').addEventListener('input', function() {
+            document.getElementById('contadorCaracteres').textContent = this.value.length;
+        });
+
+        // Contador de caracteres para la solución
+        document.getElementById('solucion').addEventListener('input', function() {
+            document.getElementById('contadorSolucion').textContent = this.value.length;
+        });
+
+        // Establecer fecha y hora actual por defecto
         const now = new Date();
         const fechaActual = now.toISOString().split('T')[0];
-
-        // Formatear hora actual (HH:MM)
         const horas = now.getHours().toString().padStart(2, '0');
         const minutos = now.getMinutes().toString().padStart(2, '0');
         const horaActual = `${horas}:${minutos}`;
 
-        $('input[type="date"]').each(function() {
-            if (!$(this).val()) {
-                $(this).val(fechaActual);
-            }
-        });
-
-        $('input[type="time"]').each(function() {
-            if (!$(this).val()) {
-                $(this).val(horaActual);
-            }
-        });
+        document.getElementById('fecha').value = fechaActual;
+        document.getElementById('hora').value = horaActual;
 
         // Event listeners para los botones
-        $('#btnGuardarIncidente').on('click', guardarIncidente);
         $('#btnGuardarSolucion').on('click', guardarSolucion);
     });
 
@@ -428,129 +705,464 @@
     });
 
     function actualizarVista() {
-        $('#seccionRegistro').toggle($('#vistaRegistro').is(':checked'));
-        $('#seccionSolucion').toggle($('#vistaSolucion').is(':checked'));
+        const esVistaSolucion = $('#vistaSolucion').is(':checked');
+        $('#seccionRegistro').toggle(!esVistaSolucion);
+        $('#seccionSolucion').toggle(esVistaSolucion);
+
+        // Mostrar/ocultar botón de registrar incidente
+        $('#btnRegistrarIncidente').toggle(!esVistaSolucion);
 
         // Redibujar las tablas cuando se muestren
         setTimeout(() => {
-            if (tableIncidentes) tableIncidentes.draw();
-            if (tableSolucion) tableSolucion.draw();
+            if (tablaIncidentes) tablaIncidentes.draw();
+            if (tablaSolucion) tablaSolucion.draw();
         }, 100);
     }
 
-    // Función para guardar incidente
-    async function guardarIncidente() {
-        const formData = new FormData(document.getElementById('formIncidente'));
+    function asignarSolucion(id) {
+        // Obtener datos del incidente
+        fetch(`/incidentes/${id}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Seleccionar el incidente en el dropdown
+                    document.getElementById('selectIncidente').value = data.data.id_incidente;
 
-        try {
-            const response = await fetch('{{ route("incidentes.store") }}', {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json'
-                },
-                body: formData
-            });
+                    // Disparar el evento change para mostrar la información
+                    const event = new Event('change');
+                    document.getElementById('selectIncidente').dispatchEvent(event);
 
-            const data = await response.json();
+                    document.getElementById('solucion').value = data.data.solucion || '';
+                    document.getElementById('contadorSolucion').textContent = (data.data.solucion || '').length;
 
-            if (response.ok) {
-                // Mostrar alerta de éxito
+                    const modal = new bootstrap.Modal(document.getElementById('modalSolucion'));
+                    modal.show();
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message || 'Error al cargar los datos del incidente',
+                        confirmButtonColor: '#3085d6'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
                 Swal.fire({
-                    position: "center",
-                    icon: "success",
-                    title: "Incidente guardado correctamente",
-                    showConfirmButton: false,
-                    timer: 1500
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error al cargar los datos del incidente',
+                    confirmButtonColor: '#3085d6'
                 });
-
-                // Cerrar modal y limpiar formulario
-                const modal = bootstrap.Modal.getInstance(document.getElementById('modalIncidente'));
-                modal.hide();
-                document.getElementById('formIncidente').reset();
-
-                // Recargar la página después de un tiempo para ver los cambios
-                setTimeout(() => {
-                    window.location.reload();
-                }, 1600);
-            } else {
-                throw new Error(data.message || 'Error al guardar el incidente');
-            }
-        } catch (error) {
-            Swal.fire({
-                position: "center",
-                icon: "error",
-                title: "Error",
-                text: error.message,
-                showConfirmButton: true
             });
-        }
     }
 
-    // Función para guardar solución - TEMPORALMENTE DESHABILITADA
+    function editarSolucion(id) {
+        // Obtener datos del incidente
+        fetch(`/incidentes/${id}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Seleccionar el incidente en el dropdown
+                    document.getElementById('selectIncidente').value = data.data.id_incidente;
+
+                    // Disparar el evento change para mostrar la información
+                    const event = new Event('change');
+                    document.getElementById('selectIncidente').dispatchEvent(event);
+
+                    document.getElementById('solucion').value = data.data.solucion || '';
+                    document.getElementById('contadorSolucion').textContent = (data.data.solucion || '').length;
+
+                    const modal = new bootstrap.Modal(document.getElementById('modalSolucion'));
+                    modal.show();
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message || 'Error al cargar los datos del incidente',
+                        confirmButtonColor: '#3085d6'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error al cargar los datos del incidente',
+                    confirmButtonColor: '#3085d6'
+                });
+            });
+    }
+
     function guardarSolucion() {
-        Swal.fire({
-            position: "center",
-            icon: "info",
-            title: "Función en desarrollo",
-            text: "La función de guardar solución estará disponible pronto",
-            showConfirmButton: true
-        });
-    }
+        const incidenteId = document.getElementById('selectIncidente').value;
+        const solucion = document.getElementById('solucion').value.trim();
 
-    // Función para guardar solución
-    async function guardarSolucion() {
-        const formData = new FormData(document.getElementById('formSolucion'));
-
-        try {
-            const response = await fetch('{{ route("incidentes.solucionar") }}', {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json'
-                },
-                body: formData
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
-                // Mostrar alerta de éxito
-                Swal.fire({
-                    position: "center",
-                    icon: "success",
-                    title: "Solución guardada correctamente",
-                    showConfirmButton: false,
-                    timer: 1500
-                });
-
-                // Cerrar modal y limpiar formulario
-                const modal = bootstrap.Modal.getInstance(document.getElementById('modalSolucion'));
-                modal.hide();
-                document.getElementById('formSolucion').reset();
-
-                // Recargar la página después de un tiempo para ver los cambios
-                setTimeout(() => {
-                    window.location.reload();
-                }, 1600);
-            } else {
-                throw new Error(data.message || 'Error al guardar la solución');
-            }
-        } catch (error) {
+        if (!incidenteId) {
             Swal.fire({
-                position: "center",
-                icon: "error",
-                title: "Error",
-                text: error.message,
-                showConfirmButton: true
+                icon: 'warning',
+                title: 'Incidente requerido',
+                text: 'Por favor selecciona un incidente',
+                confirmButtonColor: '#3085d6'
             });
+            return;
         }
+
+        if (!solucion) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Solución requerida',
+                text: 'Por favor describe la solución aplicada',
+                confirmButtonColor: '#3085d6'
+            });
+            return;
+        }
+
+        if (solucion.length > 500) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Solución muy larga',
+                text: 'La solución no puede exceder los 500 caracteres',
+                confirmButtonColor: '#3085d6'
+            });
+            return;
+        }
+
+        const url = `/incidentes/${incidenteId}/solucionar`;
+        const method = 'POST';
+
+        fetch(url, {
+            method: method,
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                solucion: solucion
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        position: "center",
+                        icon: "success",
+                        title: data.message,
+                        showConfirmButton: false,
+                        timer: 1500
+                    }).then(() => {
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('modalSolucion'));
+                        modal.hide();
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message,
+                        confirmButtonColor: '#3085d6'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error al guardar la solución',
+                    confirmButtonColor: '#3085d6'
+                });
+            });
     }
+
+    // Limpiar el formulario de solución cuando se cierra el modal
+    document.getElementById('modalSolucion').addEventListener('hidden.bs.modal', function () {
+        document.getElementById('formSolucion').reset();
+        document.getElementById('contadorSolucion').textContent = '0';
+        document.getElementById('infoIncidente').style.display = 'none';
+    });
 
     // Inicializar vista al cargar
     $(window).on('load', function() {
         actualizarVista();
     });
+
+    function editarIncidente(id) {
+        fetch(`/incidentes/${id}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error en la respuesta del servidor');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // Llenar el formulario con los datos
+                    document.getElementById('incidenteId').value = data.data.id_incidente;
+                    document.getElementById('id_asignacion').value = data.data.id_asignacion;
+                    document.getElementById('descripcion').value = data.data.descripcion;
+                    document.getElementById('fecha').value = data.data.fecha;
+                    document.getElementById('hora').value = data.data.hora;
+                    document.getElementById('estado').value = data.data.estado;
+
+                    // Actualizar información de la asignación
+                    const selectedOption = document.querySelector(`#id_asignacion option[value="${data.data.id_asignacion}"]`);
+                    if (selectedOption) {
+                        const placa = selectedOption.getAttribute('data-placa');
+                        const licencia = selectedOption.getAttribute('data-licencia');
+                        const ruta = selectedOption.getAttribute('data-ruta');
+                        document.getElementById('infoAsignacion').textContent = `${placa} - ${licencia} (${ruta})`;
+                    }
+
+                    // Actualizar contador de caracteres
+                    document.getElementById('contadorCaracteres').textContent = data.data.descripcion.length;
+
+                    // Cambiar el modal a modo edición
+                    document.getElementById('modalTitulo').textContent = 'Editar Incidente';
+                    document.getElementById('btnGuardar').innerHTML = '<i class="bi bi-check-circle"></i> Actualizar';
+                    modoEdicion = true;
+
+                    // Mostrar el modal
+                    const modal = new bootstrap.Modal(document.getElementById('modalAgregarIncidente'));
+                    modal.show();
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message || 'Error al cargar los datos del incidente',
+                        confirmButtonColor: '#3085d6'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error al cargar los datos del incidente: ' + error.message,
+                    confirmButtonColor: '#3085d6'
+                });
+            });
+    }
+
+    function verSolucion(id) {
+        // Obtener datos del incidente
+        fetch(`/incidentes/${id}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('verDescripcionIncidente').value = data.data.descripcion;
+                    document.getElementById('verSolucion').value = data.data.solucion || 'No hay solución registrada';
+
+                    const modal = new bootstrap.Modal(document.getElementById('modalVerSolucion'));
+                    modal.show();
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message || 'Error al cargar los datos del incidente',
+                        confirmButtonColor: '#3085d6'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error al cargar los datos del incidente',
+                    confirmButtonColor: '#3085d6'
+                });
+            });
+    }
+
+    function eliminarIncidente(id, event) {
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: "¡No podrás revertir esta acción!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const btnEliminar = event.target.closest('button');
+                const originalText = btnEliminar.innerHTML;
+                btnEliminar.innerHTML = '<i class="bi bi-hourglass-split"></i> Eliminando...';
+                btnEliminar.disabled = true;
+
+                fetch(`/incidentes/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Error en la respuesta del servidor');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire({
+                                position: "center",
+                                icon: "success",
+                                title: data.message,
+                                showConfirmButton: false,
+                                timer: 1500
+                            });
+
+                            // Eliminar la fila de ambas DataTables
+                            tablaIncidentes.row('#fila-' + id).remove().draw();
+                            tablaSolucion.row('#fila-sol-' + id).remove().draw();
+
+                            // Verificar si quedan filas
+                            if (tablaIncidentes.rows().count() === 0 && tablaSolucion.rows().count() === 0) {
+                                setTimeout(() => {
+                                    location.reload();
+                                }, 1500);
+                            }
+                        } else {
+                            throw new Error(data.message || 'Error al eliminar el incidente');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Error al eliminar el incidente: ' + error.message,
+                            confirmButtonColor: '#3085d6'
+                        });
+                    })
+                    .finally(() => {
+                        btnEliminar.innerHTML = originalText;
+                        btnEliminar.disabled = false;
+                    });
+            }
+        });
+    }
+
+    function guardarIncidente() {
+        const incidenteId = document.getElementById('incidenteId').value;
+        const idAsignacion = document.getElementById('id_asignacion').value;
+        const descripcion = document.getElementById('descripcion').value.trim();
+        const fecha = document.getElementById('fecha').value;
+        const hora = document.getElementById('hora').value;
+        const estado = document.getElementById('estado').value;
+
+        // Validaciones básicas
+        if (!idAsignacion || !descripcion || !fecha || !hora || !estado) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Campos incompletos',
+                text: 'Por favor complete todos los campos obligatorios',
+                confirmButtonColor: '#3085d6'
+            });
+            return;
+        }
+
+        if (descripcion.length > 500) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Descripción muy larga',
+                text: 'La descripción no puede exceder los 500 caracteres',
+                confirmButtonColor: '#3085d6'
+            });
+            return;
+        }
+
+        const url = modoEdicion ? `/incidentes/${incidenteId}` : '/incidentes';
+        const method = modoEdicion ? 'PUT' : 'POST';
+
+        fetch(url, {
+            method: method,
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                id_asignacion: parseInt(idAsignacion),
+                descripcion: descripcion,
+                fecha: fecha,
+                hora: hora,
+                estado: estado
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        position: "center",
+                        icon: "success",
+                        title: data.message,
+                        showConfirmButton: false,
+                        timer: 1500
+                    }).then(() => {
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('modalAgregarIncidente'));
+                        modal.hide();
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message,
+                        confirmButtonColor: '#3085d6'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error al guardar el incidente',
+                    confirmButtonColor: '#3085d6'
+                });
+            });
+    }
+
+    // Limpiar el formulario cuando se cierra el modal
+    document.getElementById('modalAgregarIncidente').addEventListener('hidden.bs.modal', function () {
+        document.getElementById('formIncidente').reset();
+        document.getElementById('incidenteId').value = '';
+        document.getElementById('infoAsignacion').textContent = 'Ninguna seleccionada';
+        document.getElementById('contadorCaracteres').textContent = '0';
+        document.getElementById('modalTitulo').textContent = 'Registrar Incidente';
+        document.getElementById('btnGuardar').innerHTML = '<i class="bi bi-check-circle"></i> Guardar';
+        modoEdicion = false;
+
+        // Restablecer fecha y hora actual
+        const now = new Date();
+        const fechaActual = now.toISOString().split('T')[0];
+        const horas = now.getHours().toString().padStart(2, '0');
+        const minutos = now.getMinutes().toString().padStart(2, '0');
+        const horaActual = `${horas}:${minutos}`;
+
+        document.getElementById('fecha').value = fechaActual;
+        document.getElementById('hora').value = horaActual;
+    });
+
+    // Limpiar el formulario de solución cuando se cierra el modal
+    document.getElementById('modalSolucion').addEventListener('hidden.bs.modal', function () {
+        document.getElementById('formSolucion').reset();
+        document.getElementById('contadorSolucion').textContent = '0';
+        modoEdicionSolucion = false;
+    });
+
+    // Inicializar vista al cargar
+    $(window).on('load', function() {
+        actualizarVista();
+    });
+
+
 </script>
 </body>
 </html>

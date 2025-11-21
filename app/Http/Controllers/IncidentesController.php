@@ -29,27 +29,25 @@ class IncidentesController extends Controller
     public function store(Request $request)
     {
         try {
-            DB::beginTransaction();
-
             $request->validate([
-                'id_asignacion' => 'required|exists:asignacion,id_asignacion',
+                'id_asignacion' => 'required|integer|exists:asignacion,id_asignacion',
+                'descripcion' => 'required|string|max:500',
                 'fecha' => 'required|date',
                 'hora' => 'required',
-                'descripcion' => 'required|string|max:1000',
-                'estado' => 'required|in:Pendiente,Resuelto'
+                'estado' => 'required|string|in:pendiente,resuelto'
             ]);
 
-            // Insertar el incidente
-            DB::table('incidente')->insert([
+            $incidentesModel = new IncidentesModel();
+
+            $datos = [
                 'id_asignacion' => $request->id_asignacion,
+                'descripcion' => $request->descripcion,
                 'fecha' => $request->fecha,
                 'hora' => $request->hora,
-                'descripcion' => $request->descripcion,
                 'estado' => $request->estado
-                // 'solucion' => null
-            ]);
+            ];
 
-            DB::commit();
+            $incidentesModel->crear($datos);
 
             return response()->json([
                 'success' => true,
@@ -57,46 +55,114 @@ class IncidentesController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            DB::rollBack();
             return response()->json([
                 'success' => false,
-                'message' => 'Error al registrar el incidente: ' . $e->getMessage()
+                'message' => 'Error al registrar incidente: ' . $e->getMessage()
             ], 500);
         }
     }
 
-        public function solucionar(Request $request)
-        {
-            try {
-                DB::beginTransaction();
+    public function update(Request $request, $id)
+    {
+        try {
+            $request->validate([
+                'id_asignacion' => 'required|integer|exists:asignacion,id_asignacion',
+                'descripcion' => 'required|string|max:500',
+                'fecha' => 'required|date',
+                'hora' => 'required',
+                'estado' => 'required|string|in:pendiente,resuelto'
+            ]);
 
-                $request->validate([
-                    'id_incidente' => 'required|exists:incidente,id_incidente',
-                    'solucion' => 'required|string|max:1000'
-                ]);
+            $incidentesModel = new IncidentesModel();
 
-                // Actualizar el incidente con la solución
-                DB::table('incidente')
-                    ->where('id_incidente', $request->id_incidente)
-                    ->update([
-                        'solucion' => $request->solucion,
-                        'estado' => 'Solucionado'
-                    ]);
+            $datos = [
+                'id_asignacion' => $request->id_asignacion,
+                'descripcion' => $request->descripcion,
+                'fecha' => $request->fecha,
+                'hora' => $request->hora,
+                'estado' => $request->estado
+            ];
 
-                DB::commit();
+            $incidentesModel->actualizar($id, $datos);
 
+            return response()->json([
+                'success' => true,
+                'message' => 'Incidente actualizado correctamente'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al actualizar incidente: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function destroy($id)
+    {
+        try {
+            $incidentesModel = new IncidentesModel();
+            $incidentesModel->eliminar($id);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Incidente eliminado correctamente'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al eliminar incidente: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function show($id)
+    {
+        try {
+            $incidentesModel = new IncidentesModel();
+            $incidente = $incidentesModel->obtenerPorId($id);
+
+            if ($incidente) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Solución asignada correctamente'
+                    'data' => $incidente
                 ]);
-
-            } catch (\Exception $e) {
-                DB::rollBack();
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Error al asignar la solución: ' . $e->getMessage()
-                ], 500);
             }
-        }
 
+            return response()->json([
+                'success' => false,
+                'message' => 'Incidente no encontrado'
+            ], 404);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener incidente: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function solucionar(Request $request, $id)
+    {
+        try {
+            $request->validate([
+                'solucion' => 'required|string|max:500'
+            ]);
+
+            $incidentesModel = new IncidentesModel();
+            $incidentesModel->agregarSolucion($id, $request->solucion);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Solución asignada correctamente'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al asignar la solución: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

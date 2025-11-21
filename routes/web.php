@@ -47,11 +47,14 @@
     // Rutas para Incidentes
     Route::get('/incidentes', [App\Http\Controllers\IncidentesController::class, 'index'])->name('incidentes');
 
-    // Ruta para solucionar incidentes
-    Route::post('/incidentes/solucionar', [IncidentesController::class, 'solucionar'])->name('incidentes.solucionar');
 
-    // Rutas para el CRUD de incidentes
+    // Rutas para IncidentesController
+    Route::get('/incidentes', [IncidentesController::class, 'index'])->name('incidentes');
     Route::post('/incidentes', [IncidentesController::class, 'store'])->name('incidentes.store');
+    Route::get('/incidentes/{id}', [IncidentesController::class, 'show'])->name('incidentes.show');
+    Route::put('/incidentes/{id}', [IncidentesController::class, 'update'])->name('incidentes.update');
+    Route::delete('/incidentes/{id}', [IncidentesController::class, 'destroy'])->name('incidentes.destroy');
+    Route::post('/incidentes/solucionar', [IncidentesController::class, 'solucionar'])->name('incidentes.solucionar');
 
 
     //Página de contabilidad :)

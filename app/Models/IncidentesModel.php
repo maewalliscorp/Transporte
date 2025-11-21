@@ -17,12 +17,12 @@ class IncidentesModel extends Model
 
         $sql = "
             SELECT
-                i.id_incidente, i.descripcion, i.fecha, i.hora, i.estado,
+                i.id_incidente, i.descripcion, i.fecha, i.hora, i.estado, i.solucion,
                 a.id_asignacion,
-                a.id_unidad,
+                u.placa,
                 o.licencia,
                 r.origen,
-                r.destino, u.placa
+                r.destino
             FROM incidente i
             LEFT JOIN asignacion a ON a.id_asignacion = i.id_asignacion
             LEFT JOIN unidad u ON u.id_unidad = a.id_unidad
@@ -41,9 +41,9 @@ class IncidentesModel extends Model
 
         $sql = "
             SELECT
-                i.id_incidente, i.descripcion, i.fecha, i.hora, i.estado,
+                i.id_incidente, i.descripcion, i.fecha, i.hora, i.estado, i.solucion,
                 a.id_asignacion,
-                u.id_unidad, u.placa, u.modelo,
+                u.placa,
                 o.licencia,
                 r.origen, r.destino
             FROM incidente i
@@ -66,7 +66,7 @@ class IncidentesModel extends Model
         $sql = "
             SELECT
                 a.id_asignacion,
-                u.placa, u.modelo,
+                u.placa,
                 o.licencia,
                 r.origen, r.destino
             FROM asignacion a
@@ -87,5 +87,60 @@ class IncidentesModel extends Model
         $sql = "SELECT id_unidad, placa, modelo FROM unidad ORDER BY placa";
         $result = $db->select($sql);
         return array_map(fn($row) => (array)$row, $result);
+    }
+
+    public function crear($datos)
+    {
+        return $this->getConnection()
+            ->table('incidente')
+            ->insert($datos);
+    }
+
+    public function actualizar($id, $datos)
+    {
+        return $this->getConnection()
+            ->table('incidente')
+            ->where('id_incidente', $id)
+            ->update($datos);
+    }
+
+    public function eliminar($id)
+    {
+        return $this->getConnection()
+            ->table('incidente')
+            ->where('id_incidente', $id)
+            ->delete();
+    }
+
+    public function obtenerPorId($id)
+    {
+        $db = $this->getConnection();
+
+        $sql = "
+            SELECT
+                i.id_incidente,
+                i.id_asignacion,
+                i.descripcion,
+                i.fecha,
+                i.hora,
+                i.estado,
+                i.solucion
+            FROM incidente i
+            WHERE i.id_incidente = ?
+        ";
+
+        $result = $db->select($sql, [$id]);
+        return count($result) > 0 ? (array)$result[0] : null;
+    }
+
+    public function agregarSolucion($id, $solucion)
+    {
+        return $this->getConnection()
+            ->table('incidente')
+            ->where('id_incidente', $id)
+            ->update([
+                'solucion' => $solucion,
+                'estado' => 'resuelto'
+            ]);
     }
 }
