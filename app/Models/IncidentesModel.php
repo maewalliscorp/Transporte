@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class IncidentesModel extends Model
 {
@@ -13,11 +14,15 @@ class IncidentesModel extends Model
 
     public function obtenerIncidentes(): array
     {
-        $db = $this->getConnection();
-
         $sql = "
             SELECT
-                i.id_incidente, i.descripcion, i.fecha, i.hora, i.estado, i.solucion,
+                i.id_incidente,
+                i.descripcion,
+                i.fecha,
+                i.hora,
+                i.estado,
+                i.solucion,
+                i.id_asignacion,
                 a.id_asignacion,
                 u.placa,
                 o.licencia,
@@ -31,21 +36,26 @@ class IncidentesModel extends Model
             ORDER BY i.fecha DESC, i.hora DESC
         ";
 
-        $result = $db->select($sql);
+        $result = DB::select($sql);
         return array_map(fn($row) => (array)$row, $result);
     }
 
     public function obtenerIncidentesPendientes(): array
     {
-        $db = $this->getConnection();
-
         $sql = "
             SELECT
-                i.id_incidente, i.descripcion, i.fecha, i.hora, i.estado, i.solucion,
+                i.id_incidente,
+                i.descripcion,
+                i.fecha,
+                i.hora,
+                i.estado,
+                i.solucion,
+                i.id_asignacion,
                 a.id_asignacion,
                 u.placa,
                 o.licencia,
-                r.origen, r.destino
+                r.origen,
+                r.destino
             FROM incidente i
             LEFT JOIN asignacion a ON i.id_asignacion = a.id_asignacion
             LEFT JOIN unidad u ON a.id_unidad = u.id_unidad
@@ -55,20 +65,19 @@ class IncidentesModel extends Model
             ORDER BY i.fecha DESC, i.hora DESC
         ";
 
-        $result = $db->select($sql);
+        $result = DB::select($sql);
         return array_map(fn($row) => (array)$row, $result);
     }
 
     public function obtenerAsignacionesActivas(): array
     {
-        $db = $this->getConnection();
-
         $sql = "
             SELECT
                 a.id_asignacion,
                 u.placa,
                 o.licencia,
-                r.origen, r.destino
+                r.origen,
+                r.destino
             FROM asignacion a
             LEFT JOIN unidad u ON a.id_unidad = u.id_unidad
             LEFT JOIN operador o ON o.id_operator = a.id_operador
@@ -76,46 +85,38 @@ class IncidentesModel extends Model
             ORDER BY a.fecha DESC
         ";
 
-        $result = $db->select($sql);
+        $result = DB::select($sql);
         return array_map(fn($row) => (array)$row, $result);
     }
 
     public function obtenerUnidades(): array
     {
-        $db = $this->getConnection();
-
         $sql = "SELECT id_unidad, placa, modelo FROM unidad ORDER BY placa";
-        $result = $db->select($sql);
+        $result = DB::select($sql);
         return array_map(fn($row) => (array)$row, $result);
     }
 
     public function crear($datos)
     {
-        return $this->getConnection()
-            ->table('incidente')
-            ->insert($datos);
+        return DB::table('incidente')->insert($datos);
     }
 
     public function actualizar($id, $datos)
     {
-        return $this->getConnection()
-            ->table('incidente')
+        return DB::table('incidente')
             ->where('id_incidente', $id)
             ->update($datos);
     }
 
     public function eliminar($id)
     {
-        return $this->getConnection()
-            ->table('incidente')
+        return DB::table('incidente')
             ->where('id_incidente', $id)
             ->delete();
     }
 
     public function obtenerPorId($id)
     {
-        $db = $this->getConnection();
-
         $sql = "
             SELECT
                 i.id_incidente,
@@ -124,19 +125,26 @@ class IncidentesModel extends Model
                 i.fecha,
                 i.hora,
                 i.estado,
-                i.solucion
+                i.solucion,
+                u.placa,
+                o.licencia,
+                r.origen,
+                r.destino
             FROM incidente i
+            LEFT JOIN asignacion a ON i.id_asignacion = a.id_asignacion
+            LEFT JOIN unidad u ON a.id_unidad = u.id_unidad
+            LEFT JOIN operador o ON o.id_operator = a.id_operador
+            LEFT JOIN ruta r ON a.id_ruta = r.id_ruta
             WHERE i.id_incidente = ?
         ";
 
-        $result = $db->select($sql, [$id]);
+        $result = DB::select($sql, [$id]);
         return count($result) > 0 ? (array)$result[0] : null;
     }
 
     public function agregarSolucion($id, $solucion)
     {
-        return $this->getConnection()
-            ->table('incidente')
+        return DB::table('incidente')
             ->where('id_incidente', $id)
             ->update([
                 'solucion' => $solucion,

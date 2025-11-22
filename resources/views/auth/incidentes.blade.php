@@ -17,176 +17,8 @@
     <!-- SweetAlert2 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
 
-    <style>
-        body {
-            font-family: "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", Helvetica, Arial, sans-serif;
-            background: linear-gradient(135deg, #E3F2FD 0%, #F3E5F5 100%);
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px;
-        }
-        /* Estilos para los badges de estado */
-        .badge-pendiente { background-color: #ffc107; color: #000; }
-        .badge-resuelto { background-color: #198754; color: #fff; }
-
-        .container-card {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
-            overflow: hidden;
-            border: 1px solid #E1F5FE;
-        }
-        .header-section {
-            background: linear-gradient(135deg, #4FC3F7 0%, #7E57C2 100%);
-            color: white;
-            padding: 1.5rem;
-            text-align: center;
-            box-shadow: 0 4px 12px rgba(79, 195, 247, 0.3);
-        }
-        .header-section h4 {
-            margin: 0;
-            font-weight: 700;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-        .content-section {
-            padding: 2rem;
-        }
-        .filter-section {
-            background: #F8F9FA;
-            padding: 1.5rem;
-            border-radius: 10px;
-            margin-bottom: 2rem;
-            border: 1px solid #E3F2FD;
-        }
-        .form-control, .form-select {
-            border-radius: 8px;
-            border: 2px solid #E1F5FE;
-            transition: all 0.3s ease;
-            background: white;
-        }
-        .form-control:focus, .form-select:focus {
-            border-color: #4FC3F7;
-            box-shadow: 0 0 0 0.2rem rgba(79, 195, 247, 0.25);
-        }
-        .btn-outline-secondary {
-            border: 2px solid #4FC3F7;
-            color: #4FC3F7;
-            border-radius: 8px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        .btn-outline-secondary:hover {
-            background: #4FC3F7;
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(79, 195, 247, 0.3);
-        }
-        .table-dark th {
-            background: rgba(0, 0, 0, 0.2);
-            border: none;
-            padding: 1rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: 0.85rem;
-            letter-spacing: 0.5px;
-        }
-        .table-hover tbody tr:hover {
-            background: rgba(79, 195, 247, 0.1);
-            transform: scale(1.01);
-            transition: all 0.2s ease;
-        }
-        .table-hover tbody tr td {
-            padding: 1rem;
-            border-color: #E3F2FD;
-            vertical-align: middle;
-        }
-        /* Badges mejorados */
-        .badge.bg-success {
-            background: linear-gradient(135deg, #66BB6A 0%, #4CAF50 100%) !important;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-weight: 600;
-        }
-        .badge.bg-warning {
-            background: linear-gradient(135deg, #FFB74D 0%, #FF9800 100%) !important;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-weight: 600;
-            color: white !important;
-        }
-        .table-responsive {
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-        .form-label {
-            font-weight: 600;
-            color: #37474F;
-            margin-bottom: 0.5rem;
-        }
-        .table-actions {
-            white-space: nowrap;
-        }
-        .table-actions .btn {
-            margin: 0 2px;
-        }
-        /* Estilos para botones outline */
-        .btn-outline-warning {
-            border-color: #ffc107;
-            color: #ffc107;
-        }
-        .btn-outline-warning:hover {
-            background-color: #ffc107;
-            color: #000;
-        }
-        .btn-outline-danger {
-            border-color: #dc3545;
-            color: #dc3545;
-        }
-        .btn-outline-danger:hover {
-            background-color: #dc3545;
-            color: #fff;
-        }
-        .btn-outline-success {
-            border-color: #198754;
-            color: #198754;
-        }
-        .btn-outline-success:hover {
-            background-color: #198754;
-            color: #fff;
-        }
-        .btn-outline-info {
-            border-color: #0dcaf0;
-            color: #0dcaf0;
-        }
-        .btn-outline-info:hover {
-            background-color: #0dcaf0;
-            color: #000;
-        }
-
-        /* Estilos específicos para DataTables responsive en Solución de Incidentes */
-        .dtr-details {
-            width: 100%;
-        }
-        .dtr-details li {
-            border-bottom: 1px solid #eee;
-            padding: 8px 0;
-            display: flex;
-            justify-content: space-between;
-        }
-        .dtr-title {
-            font-weight: 600;
-            min-width: 120px;
-        }
-        .dtr-data {
-            text-align: right;
-        }
-        .dtr-data .btn-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 4px;
-            justify-content: flex-end;
-        }
-    </style>
+    <!-- Estilos personalizados -->
+    <link rel="stylesheet" href="{{ asset('build/assets/estilos.css')}}">
 
 </head>
 <body>
@@ -225,13 +57,14 @@
                         <tr>
                             <th>ID</th>
                             <th>Unidad</th>
+                            <th>Descripción</th>
+                            <th>Solución</th>
+                            <th>Estado</th>
+                            <th class="table-actions">Acciones</th>
                             <th>Operador</th>
                             <th>Ruta</th>
                             <th>Fecha</th>
                             <th>Hora</th>
-                            <th>Descripción</th>
-                            <th>Estado</th>
-                            <th class="table-actions">Acciones</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -240,11 +73,8 @@
                                 <tr id="fila-{{ $incidente['id_incidente'] }}">
                                     <td>{{ $incidente['id_incidente'] }}</td>
                                     <td>{{ $incidente['placa'] ?? 'N/A' }}</td>
-                                    <td>{{ $incidente['licencia'] ?? 'N/A' }}</td>
-                                    <td>{{ $incidente['origen'] ?? 'N/A' }} - {{ $incidente['destino'] ?? 'N/A' }}</td>
-                                    <td>{{ $incidente['fecha'] }}</td>
-                                    <td>{{ $incidente['hora'] }}</td>
                                     <td>{{ Str::limit($incidente['descripcion'], 50) }}</td>
+                                    <td>{{ $incidente['solucion'] ? Str::limit($incidente['solucion'], 50) : 'Sin solución' }}</td>
                                     <td>
                                         @if($incidente['estado'] == 'pendiente')
                                             <span class="badge bg-warning">Pendiente</span>
@@ -253,27 +83,34 @@
                                         @endif
                                     </td>
                                     <td class="table-actions">
-                                        <button class="btn btn-outline-warning btn-sm" onclick="editarIncidente({{ $incidente['id_incidente'] }})">
-                                            <i class="bi bi-pencil"></i> Editar
-                                        </button>
-                                        <button class="btn btn-outline-danger btn-sm" onclick="eliminarIncidente({{ $incidente['id_incidente'] }}, event)">
-                                            <i class="bi bi-trash"></i> Eliminar
-                                        </button>
                                         @if($incidente['estado'] == 'pendiente')
-                                            <button class="btn btn-outline-success btn-sm" onclick="asignarSolucion({{ $incidente['id_incidente'] }})">
-                                                <i class="bi bi-check-circle"></i> Solucionar
+                                            <button class="btn btn-outline-warning btn-sm" onclick="editarIncidente({{ $incidente['id_incidente'] }})">
+                                                <i class="bi bi-pencil"></i> Editar
+                                            </button>
+                                            <button class="btn btn-outline-danger btn-sm" onclick="eliminarIncidente({{ $incidente['id_incidente'] }}, event)">
+                                                <i class="bi bi-trash"></i> Eliminar
                                             </button>
                                         @else
-                                            <button class="btn btn-outline-info btn-sm" onclick="verSolucion({{ $incidente['id_incidente'] }})">
-                                                <i class="bi bi-eye"></i> Ver Solución
+                                            <button class="btn btn-outline-warning btn-sm" onclick="editarIncidente({{ $incidente['id_incidente'] }})">
+                                                <i class="bi bi-pencil"></i> Editar
+                                            </button>
+                                            <button class="btn btn-outline-info btn-sm" onclick="editarSolucion({{ $incidente['id_incidente'] }})">
+                                                <i class="bi bi-pencil"></i> Editar Sol.
+                                            </button>
+                                            <button class="btn btn-outline-danger btn-sm" onclick="eliminarIncidente({{ $incidente['id_incidente'] }}, event)">
+                                                <i class="bi bi-trash"></i> Eliminar
                                             </button>
                                         @endif
                                     </td>
+                                    <td>{{ $incidente['licencia'] ?? 'N/A' }}</td>
+                                    <td>{{ $incidente['origen'] ?? 'N/A' }} - {{ $incidente['destino'] ?? 'N/A' }}</td>
+                                    <td>{{ $incidente['fecha'] }}</td>
+                                    <td>{{ $incidente['hora'] }}</td>
                                 </tr>
                             @endforeach
                         @else
                             <tr>
-                                <td colspan="9" class="text-center text-muted">No hay incidentes registrados</td>
+                                <td colspan="10" class="text-center text-muted">No hay incidentes registrados</td>
                             </tr>
                         @endisset
                         </tbody>
@@ -287,9 +124,6 @@
     <div id="seccionSolucion" style="display: none;">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h5>Solución de Incidentes</h5>
-            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalSolucion">
-                <i class="bi bi-check-circle"></i> Asignar Solución
-            </button>
         </div>
 
         <!-- Tabla solución con DataTable RESPONSIVE -->
@@ -302,13 +136,13 @@
                             <th>ID</th>
                             <th>Unidad</th>
                             <th>Operador</th>
-                            <th>Ruta</th>
-                            <th>Fecha</th>
-                            <th>Hora</th>
                             <th>Descripción</th>
                             <th>Solución</th>
                             <th>Estado</th>
                             <th>Acciones</th>
+                            <th>Ruta</th>
+                            <th>Fecha</th>
+                            <th>Hora</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -318,9 +152,6 @@
                                     <td>{{ $incidente['id_incidente'] }}</td>
                                     <td>{{ $incidente['placa'] ?? 'N/A' }}</td>
                                     <td>{{ $incidente['licencia'] ?? 'N/A' }}</td>
-                                    <td>{{ $incidente['origen'] ?? 'N/A' }} - {{ $incidente['destino'] ?? 'N/A' }}</td>
-                                    <td>{{ $incidente['fecha'] }}</td>
-                                    <td>{{ $incidente['hora'] }}</td>
                                     <td>{{ Str::limit($incidente['descripcion'], 50) }}</td>
                                     <td>{{ $incidente['solucion'] ? Str::limit($incidente['solucion'], 50) : 'Sin solución' }}</td>
                                     <td>
@@ -330,13 +161,13 @@
                                         <button class="btn btn-outline-success btn-sm" onclick="asignarSolucion({{ $incidente['id_incidente'] }})">
                                             <i class="bi bi-check-circle"></i> Solucionar
                                         </button>
-                                        <button class="btn btn-outline-warning btn-sm" onclick="editarSolucion({{ $incidente['id_incidente'] }})">
-                                            <i class="bi bi-pencil"></i> Editar Sol.
-                                        </button>
                                         <button class="btn btn-outline-danger btn-sm" onclick="eliminarIncidente({{ $incidente['id_incidente'] }}, event)">
                                             <i class="bi bi-trash"></i> Eliminar
                                         </button>
                                     </td>
+                                    <td>{{ $incidente['origen'] ?? 'N/A' }} - {{ $incidente['destino'] ?? 'N/A' }}</td>
+                                    <td>{{ $incidente['fecha'] }}</td>
+                                    <td>{{ $incidente['hora'] }}</td>
                                 </tr>
                             @endforeach
                         @else
@@ -352,7 +183,7 @@
     </div>
 </div>
 
-<!-- MODAL PARA AGREGAR/EDITAR INCIDENTE -->
+<!-- MODAL PARA AGREGAR INCIDENTE -->
 <div class="modal fade" id="modalAgregarIncidente" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -433,32 +264,16 @@
             <div class="modal-body">
                 <form id="formSolucion">
                     @csrf
+                    <input type="hidden" id="solucionIncidenteId" name="id_incidente">
                     <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Incidente</label>
-                            <select class="form-select" name="id_incidente" id="selectIncidente" required>
-                                <option value="" selected disabled>Selecciona un incidente...</option>
-                                @isset($incidentesPendientes)
-                                    @foreach($incidentesPendientes as $incidente)
-                                        <option value="{{ $incidente['id_incidente'] }}"
-                                                data-descripcion="{{ $incidente['descripcion'] }}"
-                                                data-fecha="{{ $incidente['fecha'] }}"
-                                                data-hora="{{ $incidente['hora'] }}"
-                                                data-placa="{{ $incidente['placa'] ?? 'N/A' }}"
-                                                data-licencia="{{ $incidente['licencia'] ?? 'N/A' }}"
-                                                data-ruta="{{ $incidente['origen'] ?? 'N/A' }} - {{ $incidente['destino'] ?? 'N/A' }}">
-                                            {{ $incidente['placa'] }} - {{ $incidente['fecha'] }} {{ $incidente['hora'] }}
-                                        </option>
-                                    @endforeach
-                                @endisset
-                            </select>
-                        </div>
-                        <!-- Información del incidente seleccionado -->
-                        <div class="col-12 mb-3" id="infoIncidente" style="display: none;">
+                        <div class="col-12 mb-3" id="infoIncidente">
                             <div class="card bg-light">
                                 <div class="card-body">
-                                    <h6 class="card-title">Información del Incidente Seleccionado:</h6>
+                                    <h6 class="card-title">Información del Incidente:</h6>
                                     <div class="row">
+                                        <div class="col-md-4">
+                                            <strong>ID:</strong> <span id="infoId">-</span>
+                                        </div>
                                         <div class="col-md-4">
                                             <strong>Unidad:</strong> <span id="infoPlaca">-</span>
                                         </div>
@@ -483,8 +298,9 @@
                             </div>
                         </div>
                         <div class="col-12 mb-3">
-                            <label class="form-label">Solución del Incidente</label>
-                            <textarea class="form-control" name="solucion" id="solucion" rows="4" placeholder="Describe la solución aplicada..." required maxlength="500"></textarea>
+                            <label class="form-label">Solución del Incidente *</label>
+                            <textarea class="form-control" name="solucion" id="solucion" rows="4"
+                                      placeholder="Describe la solución aplicada..." required maxlength="500"></textarea>
                             <div class="form-text">
                                 <span id="contadorSolucion">0</span>/500 caracteres
                             </div>
@@ -500,28 +316,58 @@
     </div>
 </div>
 
-<!-- MODAL PARA VER SOLUCIÓN -->
-<div class="modal fade" id="modalVerSolucion" tabindex="-1">
+<!-- MODAL PARA EDITAR SOLUCIÓN -->
+<div class="modal fade" id="modalEditarSolucion" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="bi bi-eye me-2"></i>Ver Solución</h5>
+                <h5 class="modal-title"><i class="bi bi-pencil me-2"></i>Editar Solución</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <div class="row">
-                    <div class="col-12 mb-3">
-                        <label class="form-label">Descripción del Incidente</label>
-                        <textarea class="form-control" id="verDescripcionIncidente" rows="3" readonly></textarea>
+                <form id="formEditarSolucion">
+                    @csrf
+                    <input type="hidden" id="editarSolucionIncidenteId" name="id_incidente">
+                    <div class="row">
+                        <div class="col-12 mb-3">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6 class="card-title">Información del Incidente:</h6>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <strong>ID:</strong> <span id="editarInfoId">-</span>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <strong>Unidad:</strong> <span id="editarInfoPlaca">-</span>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <strong>Operador:</strong> <span id="editarInfoLicencia">-</span>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <strong>Ruta:</strong> <span id="editarInfoRuta">-</span>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <strong>Descripción:</strong>
+                                        <p id="editarInfoDescripcion" class="mb-0">-</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label class="form-label">Solución del Incidente *</label>
+                            <textarea class="form-control" name="solucion" id="editarSolucion" rows="4"
+                                      placeholder="Describe la solución aplicada..." required maxlength="500"></textarea>
+                            <div class="form-text">
+                                <span id="editarContadorSolucion">0</span>/500 caracteres
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-12 mb-3">
-                        <label class="form-label">Solución Aplicada</label>
-                        <textarea class="form-control" id="verSolucion" rows="4" readonly></textarea>
-                    </div>
-                </div>
+                </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success" id="btnEditarSolucion">Actualizar Solución</button>
             </div>
         </div>
     </div>
@@ -541,7 +387,7 @@
     let tablaIncidentes, tablaSolucion;
 
     $(document).ready(function() {
-        // Configuración para DataTables de TODOS LOS INCIDENTES (EXACTAMENTE COMO ESTABA)
+        // Configuración para DataTables de TODOS LOS INCIDENTES
         const configIncidentes = {
             language: {
                 "decimal": "",
@@ -575,7 +421,7 @@
             dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>rt<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>'
         };
 
-        // Configuración para DataTables de SOLUCIÓN DE INCIDENTES (CON RESPONSIVE OPTIMIZADO)
+        // Configuración para DataTables de SOLUCIÓN DE INCIDENTES (CON RESPONSIVE)
         const configSolucion = {
             language: {
                 "decimal": "",
@@ -632,11 +478,11 @@
                 },
                 {
                     responsivePriority: 4,
-                    targets: 6 // Descripción
+                    targets: 3 // Descripción
                 },
                 {
                     responsivePriority: 5,
-                    targets: 7 // Solución
+                    targets: 4 // Solución
                 }
             ]
         };
@@ -659,22 +505,6 @@
             }
         });
 
-        // Mostrar información del incidente seleccionado en el modal de solución
-        document.getElementById('selectIncidente').addEventListener('change', function() {
-            const selectedOption = this.options[this.selectedIndex];
-            if (selectedOption.value) {
-                document.getElementById('infoPlaca').textContent = selectedOption.getAttribute('data-placa');
-                document.getElementById('infoLicencia').textContent = selectedOption.getAttribute('data-licencia');
-                document.getElementById('infoRuta').textContent = selectedOption.getAttribute('data-ruta');
-                document.getElementById('infoFecha').textContent = selectedOption.getAttribute('data-fecha');
-                document.getElementById('infoHora').textContent = selectedOption.getAttribute('data-hora');
-                document.getElementById('infoDescripcion').textContent = selectedOption.getAttribute('data-descripcion');
-                document.getElementById('infoIncidente').style.display = 'block';
-            } else {
-                document.getElementById('infoIncidente').style.display = 'none';
-            }
-        });
-
         // Contador de caracteres para la descripción
         document.getElementById('descripcion').addEventListener('input', function() {
             document.getElementById('contadorCaracteres').textContent = this.value.length;
@@ -683,6 +513,11 @@
         // Contador de caracteres para la solución
         document.getElementById('solucion').addEventListener('input', function() {
             document.getElementById('contadorSolucion').textContent = this.value.length;
+        });
+
+        // Contador de caracteres para la edición de solución
+        document.getElementById('editarSolucion').addEventListener('input', function() {
+            document.getElementById('editarContadorSolucion').textContent = this.value.length;
         });
 
         // Establecer fecha y hora actual por defecto
@@ -697,6 +532,7 @@
 
         // Event listeners para los botones
         $('#btnGuardarSolucion').on('click', guardarSolucion);
+        $('#btnEditarSolucion').on('click', editarSolucionGuardar);
     });
 
     // Cambiar entre secciones
@@ -718,175 +554,6 @@
             if (tablaSolucion) tablaSolucion.draw();
         }, 100);
     }
-
-    function asignarSolucion(id) {
-        // Obtener datos del incidente
-        fetch(`/incidentes/${id}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Seleccionar el incidente en el dropdown
-                    document.getElementById('selectIncidente').value = data.data.id_incidente;
-
-                    // Disparar el evento change para mostrar la información
-                    const event = new Event('change');
-                    document.getElementById('selectIncidente').dispatchEvent(event);
-
-                    document.getElementById('solucion').value = data.data.solucion || '';
-                    document.getElementById('contadorSolucion').textContent = (data.data.solucion || '').length;
-
-                    const modal = new bootstrap.Modal(document.getElementById('modalSolucion'));
-                    modal.show();
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: data.message || 'Error al cargar los datos del incidente',
-                        confirmButtonColor: '#3085d6'
-                    });
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Error al cargar los datos del incidente',
-                    confirmButtonColor: '#3085d6'
-                });
-            });
-    }
-
-    function editarSolucion(id) {
-        // Obtener datos del incidente
-        fetch(`/incidentes/${id}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Seleccionar el incidente en el dropdown
-                    document.getElementById('selectIncidente').value = data.data.id_incidente;
-
-                    // Disparar el evento change para mostrar la información
-                    const event = new Event('change');
-                    document.getElementById('selectIncidente').dispatchEvent(event);
-
-                    document.getElementById('solucion').value = data.data.solucion || '';
-                    document.getElementById('contadorSolucion').textContent = (data.data.solucion || '').length;
-
-                    const modal = new bootstrap.Modal(document.getElementById('modalSolucion'));
-                    modal.show();
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: data.message || 'Error al cargar los datos del incidente',
-                        confirmButtonColor: '#3085d6'
-                    });
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Error al cargar los datos del incidente',
-                    confirmButtonColor: '#3085d6'
-                });
-            });
-    }
-
-    function guardarSolucion() {
-        const incidenteId = document.getElementById('selectIncidente').value;
-        const solucion = document.getElementById('solucion').value.trim();
-
-        if (!incidenteId) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Incidente requerido',
-                text: 'Por favor selecciona un incidente',
-                confirmButtonColor: '#3085d6'
-            });
-            return;
-        }
-
-        if (!solucion) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Solución requerida',
-                text: 'Por favor describe la solución aplicada',
-                confirmButtonColor: '#3085d6'
-            });
-            return;
-        }
-
-        if (solucion.length > 500) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Solución muy larga',
-                text: 'La solución no puede exceder los 500 caracteres',
-                confirmButtonColor: '#3085d6'
-            });
-            return;
-        }
-
-        const url = `/incidentes/${incidenteId}/solucionar`;
-        const method = 'POST';
-
-        fetch(url, {
-            method: method,
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                solucion: solucion
-            })
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    Swal.fire({
-                        position: "center",
-                        icon: "success",
-                        title: data.message,
-                        showConfirmButton: false,
-                        timer: 1500
-                    }).then(() => {
-                        const modal = bootstrap.Modal.getInstance(document.getElementById('modalSolucion'));
-                        modal.hide();
-                        location.reload();
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: data.message,
-                        confirmButtonColor: '#3085d6'
-                    });
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Error al guardar la solución',
-                    confirmButtonColor: '#3085d6'
-                });
-            });
-    }
-
-    // Limpiar el formulario de solución cuando se cierra el modal
-    document.getElementById('modalSolucion').addEventListener('hidden.bs.modal', function () {
-        document.getElementById('formSolucion').reset();
-        document.getElementById('contadorSolucion').textContent = '0';
-        document.getElementById('infoIncidente').style.display = 'none';
-    });
-
-    // Inicializar vista al cargar
-    $(window).on('load', function() {
-        actualizarVista();
-    });
 
     function editarIncidente(id) {
         fetch(`/incidentes/${id}`)
@@ -946,16 +613,67 @@
             });
     }
 
-    function verSolucion(id) {
+    function asignarSolucion(id) {
         // Obtener datos del incidente
         fetch(`/incidentes/${id}`)
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    document.getElementById('verDescripcionIncidente').value = data.data.descripcion;
-                    document.getElementById('verSolucion').value = data.data.solucion || 'No hay solución registrada';
+                    // Llenar la información del incidente
+                    document.getElementById('solucionIncidenteId').value = data.data.id_incidente;
+                    document.getElementById('infoId').textContent = data.data.id_incidente;
+                    document.getElementById('infoPlaca').textContent = data.data.placa || 'N/A';
+                    document.getElementById('infoLicencia').textContent = data.data.licencia || 'N/A';
+                    document.getElementById('infoRuta').textContent = (data.data.origen || 'N/A') + ' - ' + (data.data.destino || 'N/A');
+                    document.getElementById('infoFecha').textContent = data.data.fecha;
+                    document.getElementById('infoHora').textContent = data.data.hora;
+                    document.getElementById('infoDescripcion').textContent = data.data.descripcion;
 
-                    const modal = new bootstrap.Modal(document.getElementById('modalVerSolucion'));
+                    // Limpiar y preparar el campo de solución
+                    document.getElementById('solucion').value = '';
+                    document.getElementById('contadorSolucion').textContent = '0';
+
+                    const modal = new bootstrap.Modal(document.getElementById('modalSolucion'));
+                    modal.show();
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message || 'Error al cargar los datos del incidente',
+                        confirmButtonColor: '#3085d6'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error al cargar los datos del incidente',
+                    confirmButtonColor: '#3085d6'
+                });
+            });
+    }
+
+    function editarSolucion(id) {
+        // Obtener datos del incidente
+        fetch(`/incidentes/${id}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Llenar la información del incidente
+                    document.getElementById('editarSolucionIncidenteId').value = data.data.id_incidente;
+                    document.getElementById('editarInfoId').textContent = data.data.id_incidente;
+                    document.getElementById('editarInfoPlaca').textContent = data.data.placa || 'N/A';
+                    document.getElementById('editarInfoLicencia').textContent = data.data.licencia || 'N/A';
+                    document.getElementById('editarInfoRuta').textContent = (data.data.origen || 'N/A') + ' - ' + (data.data.destino || 'N/A');
+                    document.getElementById('editarInfoDescripcion').textContent = data.data.descripcion;
+
+                    // Llenar el campo de solución
+                    document.getElementById('editarSolucion').value = data.data.solucion || '';
+                    document.getElementById('editarContadorSolucion').textContent = (data.data.solucion || '').length;
+
+                    const modal = new bootstrap.Modal(document.getElementById('modalEditarSolucion'));
                     modal.show();
                 } else {
                     Swal.fire({
@@ -1129,6 +847,190 @@
             });
     }
 
+    function guardarSolucion() {
+        const incidenteId = document.getElementById('solucionIncidenteId').value;
+        const solucion = document.getElementById('solucion').value.trim();
+
+        if (!incidenteId) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Error',
+                text: 'No se ha seleccionado un incidente válido',
+                confirmButtonColor: '#3085d6'
+            });
+            return;
+        }
+
+        if (!solucion) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Solución requerida',
+                text: 'Por favor describe la solución aplicada',
+                confirmButtonColor: '#3085d6'
+            });
+            return;
+        }
+
+        if (solucion.length > 500) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Solución muy larga',
+                text: 'La solución no puede exceder los 500 caracteres',
+                confirmButtonColor: '#3085d6'
+            });
+            return;
+        }
+
+        const url = `/incidentes/${incidenteId}/solucionar`;
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                solucion: solucion
+            })
+        })
+            .then(response => {
+                // Primero verificar si la respuesta es JSON
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    return response.json();
+                } else {
+                    // Si no es JSON, obtener el texto para ver qué pasó
+                    return response.text().then(text => {
+                        throw new Error('El servidor devolvió HTML en lugar de JSON: ' + text.substring(0, 100));
+                    });
+                }
+            })
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        position: "center",
+                        icon: "success",
+                        title: data.message,
+                        showConfirmButton: false,
+                        timer: 1500
+                    }).then(() => {
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('modalSolucion'));
+                        modal.hide();
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message || 'Error al guardar la solución',
+                        confirmButtonColor: '#3085d6'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error completo:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error del servidor',
+                    text: 'Error al guardar la solución. Verifique la consola para más detalles.',
+                    confirmButtonColor: '#3085d6'
+                });
+            });
+    }
+
+    function editarSolucionGuardar() {
+        const incidenteId = document.getElementById('editarSolucionIncidenteId').value;
+        const solucion = document.getElementById('editarSolucion').value.trim();
+
+        if (!incidenteId) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Error',
+                text: 'No se ha seleccionado un incidente válido',
+                confirmButtonColor: '#3085d6'
+            });
+            return;
+        }
+
+        if (!solucion) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Solución requerida',
+                text: 'Por favor describe la solución aplicada',
+                confirmButtonColor: '#3085d6'
+            });
+            return;
+        }
+
+        if (solucion.length > 500) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Solución muy larga',
+                text: 'La solución no puede exceder los 500 caracteres',
+                confirmButtonColor: '#3085d6'
+            });
+            return;
+        }
+
+        const url = `/incidentes/${incidenteId}/solucionar`;
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                solucion: solucion
+            })
+        })
+            .then(response => {
+                // Primero verificar si la respuesta es JSON
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    return response.json();
+                } else {
+                    // Si no es JSON, obtener el texto para ver qué pasó
+                    return response.text().then(text => {
+                        throw new Error('El servidor devolvió HTML en lugar de JSON: ' + text.substring(0, 100));
+                    });
+                }
+            })
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        position: "center",
+                        icon: "success",
+                        title: data.message,
+                        showConfirmButton: false,
+                        timer: 1500
+                    }).then(() => {
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('modalEditarSolucion'));
+                        modal.hide();
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message || 'Error al actualizar la solución',
+                        confirmButtonColor: '#3085d6'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error completo:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error del servidor',
+                    text: 'Error al actualizar la solución. Verifique la consola para más detalles.',
+                    confirmButtonColor: '#3085d6'
+                });
+            });
+    }
+
     // Limpiar el formulario cuando se cierra el modal
     document.getElementById('modalAgregarIncidente').addEventListener('hidden.bs.modal', function () {
         document.getElementById('formIncidente').reset();
@@ -1154,15 +1056,20 @@
     document.getElementById('modalSolucion').addEventListener('hidden.bs.modal', function () {
         document.getElementById('formSolucion').reset();
         document.getElementById('contadorSolucion').textContent = '0';
-        modoEdicionSolucion = false;
+        document.getElementById('solucionIncidenteId').value = '';
+    });
+
+    // Limpiar el formulario de edición de solución cuando se cierra el modal
+    document.getElementById('modalEditarSolucion').addEventListener('hidden.bs.modal', function () {
+        document.getElementById('formEditarSolucion').reset();
+        document.getElementById('editarContadorSolucion').textContent = '0';
+        document.getElementById('editarSolucionIncidenteId').value = '';
     });
 
     // Inicializar vista al cargar
     $(window).on('load', function() {
         actualizarVista();
     });
-
-
 </script>
 </body>
 </html>

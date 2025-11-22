@@ -146,19 +146,57 @@ class IncidentesController extends Controller
     public function solucionar(Request $request, $id)
     {
         try {
-            $request->validate([
-                'solucion' => 'required|string|max:500'
-            ]);
+            // Validar que la solicitud sea JSON
+            if (!$request->expectsJson() && $request->isJson()) {
+                $data = $request->json()->all();
+                $solucion = $data['solucion'] ?? null;
+            } else {
+                $solucion = $request->solucion;
+            }
+
+            // Validar que la solución no esté vacía
+            if (empty($solucion)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'La solución es requerida'
+                ], 422);
+            }
+
+            // Validar longitud
+            if (strlen($solucion) > 500) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'La solución no puede exceder los 500 caracteres'
+                ], 422);
+            }
 
             $incidentesModel = new IncidentesModel();
-            $incidentesModel->agregarSolucion($id, $request->solucion);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Solución asignada correctamente'
-            ]);
+            // Verificar que el incidente existe
+            $incidente = $incidentesModel->obtenerPorId($id);
+            if (!$incidente) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Incidente no encontrado'
+                ], 404);
+            }
+
+            $resultado = $incidentesModel->agregarSolucion($id, $solucion);
+
+            if ($resultado) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Solución asignada correctamente'
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No se pudo asignar la solución'
+                ], 500);
+            }
 
         } catch (\Exception $e) {
+            \Log::error('Error en solucionar incidente: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Error al asignar la solución: ' . $e->getMessage()

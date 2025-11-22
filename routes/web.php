@@ -55,6 +55,7 @@
     Route::put('/incidentes/{id}', [IncidentesController::class, 'update'])->name('incidentes.update');
     Route::delete('/incidentes/{id}', [IncidentesController::class, 'destroy'])->name('incidentes.destroy');
     Route::post('/incidentes/solucionar', [IncidentesController::class, 'solucionar'])->name('incidentes.solucionar');
+    Route::post('/incidentes/{id}/solucionar', [IncidentesController::class, 'solucionar'])->name('incidentes.solucionar');
 
 
     //Página de contabilidad :)
