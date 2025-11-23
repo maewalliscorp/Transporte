@@ -20,6 +20,99 @@
     <!-- Estilos personalizados -->
     <link rel="stylesheet" href="{{ asset('build/assets/estilos.css')}}">
 
+    <style>
+        /* Estilos para las columnas de Descripción y Solución */
+        .descripcion-col, .solucion-col {
+            min-width: 200px;
+            max-width: 300px;
+            word-wrap: break-word;
+            word-break: break-word;
+            white-space: normal;
+            line-height: 1.4;
+        }
+
+        .texto-largo {
+            white-space: normal;
+            word-wrap: break-word;
+            word-break: break-word;
+            line-height: 1.4;
+        }
+
+        /* Asegurar que las acciones se mantengan visibles */
+        .table-actions {
+            min-width: 180px;
+            white-space: nowrap;
+        }
+
+        /* Estilos para el icono de expandir */
+        table.dataTable.dtr-inline.collapsed > tbody > tr > td.dtr-control:before,
+        table.dataTable.dtr-inline.collapsed > tbody > tr > th.dtr-control:before {
+            background-color: #0d6efd;
+            border-radius: 50%;
+            color: white;
+            content: "+";
+            font-family: Arial, sans-serif;
+            font-weight: bold;
+            height: 1.2em;
+            line-height: 1.2em;
+            text-align: center;
+            width: 1.2em;
+            box-shadow: 0 0 3px #444;
+        }
+
+        table.dataTable.dtr-inline.collapsed > tbody > tr.parent > td.dtr-control:before,
+        table.dataTable.dtr-inline.collapsed > tbody > tr.parent > th.dtr-control:before {
+            background-color: #d33333;
+            content: "-";
+        }
+
+        /* Estilos para los detalles expandidos */
+        .dtr-details {
+            width: 100%;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .dtr-details li {
+            border-bottom: 1px solid #eee;
+            padding: 8px 0;
+            display: flex;
+        }
+
+        .dtr-details .dtr-title {
+            font-weight: bold;
+            min-width: 120px;
+            display: inline-block;
+        }
+
+        .dtr-details .dtr-data {
+            flex: 1;
+        }
+
+        /* Mejorar la visualización en dispositivos móviles */
+        @media (max-width: 768px) {
+            .descripcion-col, .solucion-col {
+                min-width: 150px;
+                max-width: 200px;
+            }
+
+            .table-actions {
+                min-width: 140px;
+            }
+
+            .dtr-details .dtr-title {
+                min-width: 100px;
+            }
+        }
+
+        /* Forzar el salto de línea en las celdas de texto largo */
+        .force-break {
+            white-space: pre-line !important;
+            word-wrap: break-word !important;
+            word-break: break-word !important;
+        }
+    </style>
 </head>
 <body>
 
@@ -55,12 +148,14 @@
                     <table class="table table-striped table-hover display nowrap" id="tablaIncidentes" style="width:100%">
                         <thead class="table-primary">
                         <tr>
-                            <th>ID</th>
+                            <th></th> <!-- Columna para el icono de expandir -->
                             <th>Unidad</th>
-                            <th>Descripción</th>
-                            <th>Solución</th>
+                            <th class="descripcion-col">Descripción</th>
+                            <th class="solucion-col">Solución</th>
                             <th>Estado</th>
                             <th class="table-actions">Acciones</th>
+                            <!-- Columnas ocultas para responsive -->
+                            <th>ID</th>
                             <th>Operador</th>
                             <th>Ruta</th>
                             <th>Fecha</th>
@@ -71,10 +166,10 @@
                         @isset($incidentes)
                             @foreach($incidentes as $incidente)
                                 <tr id="fila-{{ $incidente['id_incidente'] }}">
-                                    <td>{{ $incidente['id_incidente'] }}</td>
+                                    <td></td> <!-- Celda para el icono de expandir -->
                                     <td>{{ $incidente['placa'] ?? 'N/A' }}</td>
-                                    <td>{{ Str::limit($incidente['descripcion'], 50) }}</td>
-                                    <td>{{ $incidente['solucion'] ? Str::limit($incidente['solucion'], 50) : 'Sin solución' }}</td>
+                                    <td class="texto-largo descripcion-col force-break">{{ $incidente['descripcion'] }}</td>
+                                    <td class="texto-largo solucion-col force-break">{{ $incidente['solucion'] ? $incidente['solucion'] : 'Sin solución' }}</td>
                                     <td>
                                         @if($incidente['estado'] == 'pendiente')
                                             <span class="badge bg-warning">Pendiente</span>
@@ -102,6 +197,8 @@
                                             </button>
                                         @endif
                                     </td>
+                                    <!-- Datos para responsive -->
+                                    <td>{{ $incidente['id_incidente'] }}</td>
                                     <td>{{ $incidente['licencia'] ?? 'N/A' }}</td>
                                     <td>{{ $incidente['origen'] ?? 'N/A' }} - {{ $incidente['destino'] ?? 'N/A' }}</td>
                                     <td>{{ $incidente['fecha'] }}</td>
@@ -110,7 +207,7 @@
                             @endforeach
                         @else
                             <tr>
-                                <td colspan="10" class="text-center text-muted">No hay incidentes registrados</td>
+                                <td colspan="11" class="text-center text-muted">No hay incidentes registrados</td>
                             </tr>
                         @endisset
                         </tbody>
@@ -133,13 +230,16 @@
                     <table class="table table-striped table-hover display nowrap" id="tablaSolucion" style="width:100%">
                         <thead class="table-primary">
                         <tr>
+                            <th></th> <!-- Columna para el icono de expandir -->
                             <th>ID</th>
                             <th>Unidad</th>
-                            <th>Operador</th>
-                            <th>Descripción</th>
-                            <th>Solución</th>
+                            <th class="descripcion-col">Descripción</th>
+                            <th class="solucion-col">Solución</th>
                             <th>Estado</th>
-                            <th>Acciones</th>
+                            <th class="table-actions">Acciones</th>
+                            <!-- Columnas ocultas para responsive -->
+                            <th>Operador</th>
+
                             <th>Ruta</th>
                             <th>Fecha</th>
                             <th>Hora</th>
@@ -149,11 +249,11 @@
                         @isset($incidentesPendientes)
                             @foreach($incidentesPendientes as $incidente)
                                 <tr id="fila-sol-{{ $incidente['id_incidente'] }}">
+                                    <td></td> <!-- Celda para el icono de expandir -->
                                     <td>{{ $incidente['id_incidente'] }}</td>
                                     <td>{{ $incidente['placa'] ?? 'N/A' }}</td>
-                                    <td>{{ $incidente['licencia'] ?? 'N/A' }}</td>
-                                    <td>{{ Str::limit($incidente['descripcion'], 50) }}</td>
-                                    <td>{{ $incidente['solucion'] ? Str::limit($incidente['solucion'], 50) : 'Sin solución' }}</td>
+                                    <td class="texto-largo descripcion-col force-break">{{ $incidente['descripcion'] }}</td>
+                                    <td class="texto-largo solucion-col force-break">{{ $incidente['solucion'] ? $incidente['solucion'] : 'Sin solución' }}</td>
                                     <td>
                                         <span class="badge bg-warning">Pendiente</span>
                                     </td>
@@ -165,6 +265,9 @@
                                             <i class="bi bi-trash"></i> Eliminar
                                         </button>
                                     </td>
+                                    <!-- Datos para responsive -->
+
+                                    <td>{{ $incidente['licencia'] ?? 'N/A' }}</td>
                                     <td>{{ $incidente['origen'] ?? 'N/A' }} - {{ $incidente['destino'] ?? 'N/A' }}</td>
                                     <td>{{ $incidente['fecha'] }}</td>
                                     <td>{{ $incidente['hora'] }}</td>
@@ -172,7 +275,7 @@
                             @endforeach
                         @else
                             <tr>
-                                <td colspan="10" class="text-center text-muted">No hay incidentes pendientes</td>
+                                <td colspan="11" class="text-center text-muted">No hay incidentes pendientes</td>
                             </tr>
                         @endisset
                         </tbody>
@@ -415,13 +518,61 @@
             },
             pageLength: 10,
             lengthMenu: [5, 10, 25, 50, 100],
-            responsive: true,
+            responsive: {
+                details: {
+                    type: 'column',
+                    target: 0 // La primera columna tendrá el control de expandir/colapsar
+                }
+            },
             autoWidth: false,
-            order: [[0, 'desc']],
-            dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>rt<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>'
+            order: [[6, 'desc']], // Ordenar por ID (columna 6)
+            dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>rt<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+            columnDefs: [
+                {
+                    // Columna del control de expandir (ícono +)
+                    targets: 0,
+                    className: 'dtr-control',
+                    orderable: false,
+                    responsivePriority: 1
+                },
+                {
+                    // Columnas que se muestran siempre
+                    targets: [1, 2, 3, 4, 5], // Unidad, Descripción, Solución, Estado, Acciones
+                    className: 'all',
+                    responsivePriority: 2
+                },
+                {
+                    // Columnas que se ocultan en responsive (se muestran al expandir)
+                    targets: [6, 7, 8, 9, 10], // ID, Operador, Ruta, Fecha, Hora
+                    className: 'none',
+                    responsivePriority: 3
+                },
+                {
+                    targets: [2, 3], // Descripción y Solución
+                    className: 'texto-largo descripcion-col force-break',
+                    render: function (data, type, row) {
+                        // Para mostrar texto completo con saltos de línea
+                        if (type === 'display' && data) {
+                            // Reemplazar saltos de línea reales por <br>
+                            return data.replace(/\n/g, '<br>');
+                        }
+                        return data;
+                    }
+                },
+                {
+                    targets: 5, // Acciones
+                    className: 'table-actions',
+                    orderable: false
+                }
+            ],
+            createdRow: function (row, data, dataIndex) {
+                // Aplicar estilos de force-break a las celdas de texto largo
+                $('td:eq(2)', row).addClass('force-break');
+                $('td:eq(3)', row).addClass('force-break');
+            }
         };
 
-        // Configuración para DataTables de SOLUCIÓN DE INCIDENTES (CON RESPONSIVE)
+        // Configuración para DataTables de SOLUCIÓN DE INCIDENTES
         const configSolucion = {
             language: {
                 "decimal": "",
@@ -451,40 +602,56 @@
             lengthMenu: [5, 10, 25, 50, 100],
             responsive: {
                 details: {
-                    display: $.fn.dataTable.Responsive.display.modal({
-                        header: function (row) {
-                            var data = row.data();
-                            return 'Detalles del Incidente ID: ' + data[0];
-                        }
-                    }),
-                    renderer: $.fn.dataTable.Responsive.renderer.listHiddenNodes()
+                    type: 'column',
+                    target: 0 // La primera columna tendrá el control de expandir/colapsar
                 }
             },
             autoWidth: false,
-            order: [[0, 'desc']],
+            order: [[1, 'desc']], // Ordenar por ID (columna 1)
             dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>rt<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
             columnDefs: [
                 {
-                    responsivePriority: 1,
-                    targets: 0 // ID
+                    // Columna del control de expandir (ícono +)
+                    targets: 0,
+                    className: 'dtr-control',
+                    orderable: false,
+                    responsivePriority: 1
                 },
                 {
-                    responsivePriority: 2,
-                    targets: -1 // Acciones
+                    // Columnas que se muestran siempre
+                    targets: [1, 2, 3, 4, 5, 6], // ID, Operador, Descripción, Solución, Estado, Acciones
+                    className: 'all',
+                    responsivePriority: 2
                 },
                 {
-                    responsivePriority: 3,
-                    targets: 1 // Unidad
+                    // Columnas que se ocultan en responsive (se muestran al expandir)
+                    targets: [7, 8, 9, 10], // Unidad, Ruta, Fecha, Hora
+                    className: 'none',
+                    responsivePriority: 3
                 },
                 {
-                    responsivePriority: 4,
-                    targets: 3 // Descripción
+                    targets: [3, 4], // Descripción y Solución
+                    className: 'texto-largo descripcion-col force-break',
+                    render: function (data, type, row) {
+                        // Para mostrar texto completo con saltos de línea
+                        if (type === 'display' && data) {
+                            // Reemplazar saltos de línea reales por <br>
+                            return data.replace(/\n/g, '<br>');
+                        }
+                        return data;
+                    }
                 },
                 {
-                    responsivePriority: 5,
-                    targets: 4 // Solución
+                    targets: 6, // Acciones
+                    className: 'table-actions',
+                    orderable: false
                 }
-            ]
+            ],
+            createdRow: function (row, data, dataIndex) {
+                // Aplicar estilos de force-break a las celdas de texto largo
+                $('td:eq(3)', row).addClass('force-break');
+                $('td:eq(4)', row).addClass('force-break');
+            }
         };
 
         // Inicializar DataTables
@@ -550,11 +717,16 @@
 
         // Redibujar las tablas cuando se muestren
         setTimeout(() => {
-            if (tablaIncidentes) tablaIncidentes.draw();
-            if (tablaSolucion) tablaSolucion.draw();
+            if (tablaIncidentes) {
+                tablaIncidentes.columns.adjust().responsive.recalc();
+            }
+            if (tablaSolucion) {
+                tablaSolucion.columns.adjust().responsive.recalc();
+            }
         }, 100);
     }
 
+    // ... (el resto de las funciones JavaScript se mantienen igual)
     function editarIncidente(id) {
         fetch(`/incidentes/${id}`)
             .then(response => {
