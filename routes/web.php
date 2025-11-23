@@ -133,6 +133,7 @@
         // Quejas y Sugerencias
         Route::get('/p-quejas', [PquejasugerenciaController::class, 'index'])->name('pasajero.p-queja-sugerencia');
         Route::post('/quejas', [PquejasugerenciaController::class, 'store'])->name('pasajero.quejas.store');
+
     });
 
     // Ruta para guardar la asignación
@@ -162,7 +163,6 @@
     Route::get('/horarios/{id}', [HorarioController::class, 'show'])->name('horarios.show');
     Route::put('/horarios/{id}', [HorarioController::class, 'update'])->name('horarios.update');
     Route::delete('/horarios/{id}', [HorarioController::class, 'destroy'])->name('horarios.destroy');
-
 
     // Rutas para TABLA Rutas
     Route::get('/rutas', [RutaController::class, 'index'])->name('rutas.index');

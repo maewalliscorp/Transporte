@@ -8,6 +8,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
     <!-- SweetAlert2 CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
         body {
@@ -60,6 +62,10 @@
             box-shadow: 0 0 0 0.3rem rgba(79, 195, 247, 0.2);
             background: white;
         }
+        .form-control:read-only {
+            background-color: #f8f9fa;
+            opacity: 1;
+        }
         .form-label {
             font-weight: 600;
             color: #37474F;
@@ -89,6 +95,7 @@
         .type-buttons .btn-check:checked + .btn-outline-danger {
             background: #dc3545;
             border-color: #dc3545;
+            color: white;
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
         }
@@ -100,6 +107,7 @@
         .type-buttons .btn-check:checked + .btn-outline-success {
             background: #198754;
             border-color: #198754;
+            color: white;
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(25, 135, 84, 0.3);
         }
@@ -111,6 +119,7 @@
         .type-buttons .btn-check:checked + .btn-outline-primary {
             background: #4FC3F7;
             border-color: #4FC3F7;
+            color: white;
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(79, 195, 247, 0.3);
         }
@@ -152,7 +161,6 @@
             min-height: 140px;
         }
     </style>
-
 </head>
 <body>
 
@@ -166,25 +174,23 @@
         </div>
 
         <div class="form-section">
-            <form id="formQuejas" onsubmit="return enviarQueja(event)">
+            <form id="formQuejas">
+                @csrf
                 <div class="row g-3">
                     <!-- Información Personal -->
-                    <div class="col-md-4">
-                        <label for="nombreQueja" class="form-label">Nombre</label>
-                        <input type="text" id="nombreQueja" class="form-control" required />
+                    <div class="col-md-6">
+                        <label for="nombreQueja" class="form-label">Nombre Completo</label>
+                        <input type="text" id="nombreQueja" class="form-control" value="{{ $user->name }}" readonly />
                     </div>
-                    <div class="col-md-4">
-                        <label for="apellidoQueja" class="form-label">Apellido</label>
-                        <input type="text" id="apellidoQueja" class="form-control" required />
-                    </div>
-                    <div class="col-md-4">
+
+                    <div class="col-md-6">
                         <label for="correoQueja" class="form-label">Correo Electrónico</label>
-                        <input type="email" id="correoQueja" class="form-control" required />
+                        <input type="email" id="correoQueja" class="form-control" value="{{ $user->email }}" readonly />
                     </div>
 
                     <!-- Tipo de comentario -->
                     <div class="col-12">
-                        <label class="form-label">Tipo de comentario</label>
+                        <label class="form-label">Tipo de comentario <span class="text-danger">*</span></label>
                         <div class="type-buttons text-center">
                             <input type="radio" class="btn-check" name="tipoComentario" id="queja" value="queja" checked>
                             <label class="btn btn-outline-danger" for="queja">Queja</label>
@@ -199,8 +205,8 @@
 
                     <!-- Área relacionada -->
                     <div class="col-12">
-                        <label for="areaRelacionada" class="form-label">Área relacionada</label>
-                        <select id="areaRelacionada" class="form-select">
+                        <label for="areaRelacionada" class="form-label">Área relacionada <span class="text-danger">*</span></label>
+                        <select id="areaRelacionada" class="form-select" required>
                             <option value="">Seleccione un área</option>
                             <option value="conductor">Conductor</option>
                             <option value="unidad">Unidad</option>
@@ -213,8 +219,8 @@
 
                     <!-- Comentario -->
                     <div class="col-12">
-                        <label for="textoQueja" class="form-label">Tu comentario</label>
-                        <textarea id="textoQueja" rows="6" class="form-control" placeholder="Por favor, describe detalladamente tu queja, sugerencia o felicitación..." required></textarea>
+                        <label for="textoQueja" class="form-label">Tu comentario <span class="text-danger">*</span></label>
+                        <textarea id="textoQueja" name="quejaSugerencia" rows="6" class="form-control" placeholder="Por favor, describe detalladamente tu queja, sugerencia o felicitación..." required maxlength="500"></textarea>
                         <div class="form-text">
                             <span id="contadorCaracteres">0</span>/500 caracteres
                         </div>
@@ -251,15 +257,23 @@
     });
 
     // Enviar queja o sugerencia
-    function enviarQueja(event) {
+    document.getElementById('formQuejas').addEventListener('submit', function(event) {
         event.preventDefault();
 
-        const nombre = document.getElementById('nombreQueja').value.trim();
-        const apellido = document.getElementById('apellidoQueja').value.trim();
-        const correo = document.getElementById('correoQueja').value.trim();
         const texto = document.getElementById('textoQueja').value.trim();
-        const tipoComentario = document.querySelector('input[name="tipoComentario"]:checked').value;
+        const tipoComentario = document.querySelector('input[name="tipoComentario"]:checked');
         const areaRelacionada = document.getElementById('areaRelacionada').value;
+
+        // Validaciones
+        if (!texto) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Por favor, escribe tu comentario.',
+                confirmButtonColor: '#667eea'
+            });
+            return false;
+        }
 
         if (texto.length > 500) {
             Swal.fire({
@@ -271,24 +285,84 @@
             return false;
         }
 
-        // Simulación de envío exitoso(pendiente backend)
+        if (!areaRelacionada) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Por favor, selecciona un área relacionada.',
+                confirmButtonColor: '#667eea'
+            });
+            return false;
+        }
+
+        // Mostrar loading
         Swal.fire({
-            position: "center",
-            icon: "success",
-            title: "Comentario enviado exitosamente",
-            text: `Tipo: ${tipoComentario.charAt(0).toUpperCase() + tipoComentario.slice(1)}`,
-            showConfirmButton: false,
-            timer: 1500
+            title: 'Enviando...',
+            text: 'Por favor espera',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
         });
 
-        // Limpiar formulario después de 1.5 segundos
-        setTimeout(() => {
-            document.getElementById('formQuejas').reset();
-            document.getElementById('contadorCaracteres').textContent = '0';
-        }, 1500);
+        // Crear FormData para enviar
+        const formData = new FormData();
+        formData.append('_token', '{{ csrf_token() }}');
+        formData.append('quejaSugerencia', texto);
+        formData.append('tipoComentario', tipoComentario.value);
+        formData.append('areaQS', areaRelacionada);
+
+        // Enviar datos al servidor
+        fetch('{{ route("pasajero.quejas.store") }}', {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => response.json())
+            .then(data => {
+                Swal.close();
+
+                if (data.success) {
+                    Swal.fire({
+                        position: "center",
+                        icon: "success",
+                        title: data.message,
+                        showConfirmButton: false,
+                        timer: 2000
+                    });
+
+                    // Limpiar formulario después de 2 segundos
+                    setTimeout(() => {
+                        document.getElementById('formQuejas').reset();
+                        document.getElementById('contadorCaracteres').textContent = '0';
+                        // Seleccionar queja por defecto
+                        document.getElementById('queja').checked = true;
+                    }, 2000);
+                } else {
+                    let errorMessage = data.message;
+                    if (data.errors) {
+                        errorMessage = Object.values(data.errors).join('\n');
+                    }
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: errorMessage,
+                        confirmButtonColor: '#667eea'
+                    });
+                }
+            })
+            .catch(error => {
+                Swal.close();
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error de conexión',
+                    text: 'Por favor intenta nuevamente.',
+                    confirmButtonColor: '#667eea'
+                });
+                console.error('Error:', error);
+            });
 
         return false;
-    }
+    });
 </script>
 
 </body>
