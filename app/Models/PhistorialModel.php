@@ -18,11 +18,11 @@ class PhistorialModel extends Model
             SELECT
                 v.id_viaje,
                 v.fecha as fecha_viaje,
+                v.medio_pago,
                 u.placa as unidad,
                 r.nombre as ruta,
                 a.hora,
                 p.tarifaPasajero as monto,
-                'Efectivo' as medio_pago,
                 r.origen,
                 r.destino
             FROM viaje v

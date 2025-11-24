@@ -85,7 +85,7 @@
                                 <td>{{ $viaje['ruta'] ?? 'N/A' }}</td>
                                 <td>{{ $viaje['hora'] ?? 'N/A' }}</td>
                                 <td>${{ number_format($viaje['monto'] ?? 0, 2) }}</td>
-                                <td><span class="badge bg-warning text-dark">{{ $viaje['medio_pago'] ?? 'Efectivo' }}</span></td>
+                                <td><span class="badge bg-warning text-dark">{{ $viaje['medio_pago'] ?? 'N/A' }}</span></td>
                                 <td>{{ $viaje['origen'] ?? 'N/A' }}</td>
                                 <td>{{ $viaje['destino'] ?? 'N/A' }}</td>
                             </tr>
@@ -158,11 +158,11 @@
             tableHistorial.column(1).search(valor).draw();
         });
 
-        // Limpiar filtros al cargar
-        limpiarFiltros();
+        // REMOVÍ la llamada automática a limpiarFiltros() aquí
+        // Los filtros se mantendrán como están al cargar la página
     });
 
-    // Función para limpiar todos los filtros
+    // Función para limpiar todos los filtros - SOLO se ejecuta al hacer clic
     function limpiarFiltros() {
         $('#filtroRuta').val('');
         $('#fechaFiltro').val('');
