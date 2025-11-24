@@ -43,13 +43,12 @@ class PregistroModel extends Model
             // Determinar tarifa
             $tarifa = self::determinarTarifa($datos['tipoPasajero']);
 
-            // Crear pasajero
+            // Crear pasajero - CON el tipo de pasajero
             \Illuminate\Support\Facades\DB::table('pasajero')->insert([
                 'tarifaPasajero' => $tarifa,
                 'id' => $usuario->id,
                 'numtarjeta' => $datos['idTarjeta'],
-                'created_at' => now(),
-                'updated_at' => now(),
+                'tipoPasajero' => $datos['tipoPasajero'] // ← AQUÍ ESTÁ EL CAMBIO
             ]);
 
             return $usuario;

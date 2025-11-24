@@ -157,6 +157,8 @@
 <!-- SweetAlert2 JS -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
 
+<!-- ... (el resto del código HTML permanece igual) ... -->
+
 <script>
     document.getElementById('formRegistro').addEventListener('submit', function(e) {
         e.preventDefault();
@@ -204,6 +206,17 @@
             return false;
         }
 
+        // Validar que se seleccionó un tipo de pasajero
+        if (!tipoPasajero) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Debe seleccionar un tipo de pasajero.',
+                confirmButtonColor: '#667eea'
+            });
+            return false;
+        }
+
         // Mostrar loading
         Swal.fire({
             title: 'Registrando...',
@@ -227,12 +240,13 @@
             body: formData
         })
             .then(async response => {
-                const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.message || 'Error del servidor');
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    return response.json();
+                } else {
+                    const text = await response.text();
+                    throw new Error('El servidor no respondió con JSON');
                 }
-                return data;
             })
             .then(data => {
                 Swal.close();
@@ -243,13 +257,13 @@
                         icon: "success",
                         title: data.message,
                         showConfirmButton: false,
-                        timer: 1500
+                        timer: 2000
                     });
 
-                    // Limpiar formulario después de 1.5 segundos
+                    // Limpiar formulario después de 2 segundos
                     setTimeout(() => {
                         document.getElementById('formRegistro').reset();
-                    }, 1500);
+                    }, 2000);
                 } else {
                     if (data.errors) {
                         let errorMessage = '';
@@ -277,8 +291,8 @@
                 console.error('Error completo:', error);
                 Swal.fire({
                     icon: 'error',
-                    title: 'Error',
-                    text: error.message || 'Error de conexión con el servidor',
+                    title: 'Error de conexión',
+                    text: 'No se pudo conectar con el servidor. Verifica tu conexión.',
                     confirmButtonColor: '#667eea'
                 });
             });
@@ -286,6 +300,9 @@
         return false;
     }
 </script>
+
+</body>
+</html>
 
 </body>
 </html>
