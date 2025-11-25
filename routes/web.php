@@ -18,6 +18,8 @@
     use App\Http\Controllers\PhistorialController;
     use App\Http\Controllers\PquejasugerenciaController;
     use App\Http\Controllers\PregistroController;
+    use App\Http\Controllers\Auth\ForgotPasswordController;
+    use App\Http\Controllers\Auth\ResetPasswordController;
 
     // Redirigir / al login
     Route::get('/', function () {
@@ -47,7 +49,6 @@
     // Rutas para Incidentes
     Route::get('/incidentes', [App\Http\Controllers\IncidentesController::class, 'index'])->name('incidentes');
 
-
     // Rutas para IncidentesController
     Route::get('/incidentes', [IncidentesController::class, 'index'])->name('incidentes');
     Route::post('/incidentes', [IncidentesController::class, 'store'])->name('incidentes.store');
@@ -56,7 +57,6 @@
     Route::delete('/incidentes/{id}', [IncidentesController::class, 'destroy'])->name('incidentes.destroy');
     Route::post('/incidentes/solucionar', [IncidentesController::class, 'solucionar'])->name('incidentes.solucionar');
     Route::post('/incidentes/{id}/solucionar', [IncidentesController::class, 'solucionar'])->name('incidentes.solucionar');
-
 
     //Página de contabilidad :)
     Route::get('/finanzas', [FinanzasController::class, 'index'])->name('finanzas');
@@ -78,7 +78,6 @@
 
     // Rutas para Finanzas - Conciliaciones
     Route::post('/finanzas/conciliaciones', [FinanzasController::class, 'storeConciliacion'])->name('finanzas.conciliaciones.store');
-
 
     // ------- RUTAS PARA  MANTENIMIENTO -------
     //Página de mantenimiento :)
@@ -184,5 +183,11 @@
     Route::get('/tincidente/{id}', [TincidenteController::class, 'show'])->name('tincidente.show');
     Route::put('/tincidente/{id}', [TincidenteController::class, 'update'])->name('tincidente.update');
     Route::delete('/tincidente/{id}', [TincidenteController::class, 'destroy'])->name('tincidente.destroy');
+
+    // Rutas de autenticación
+    Route::get('password/reset', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
+    Route::post('password/email', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
+    Route::get('password/reset/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
+    Route::post('password/reset', [ResetPasswordController::class, 'reset'])->name('password.update');
 
 
