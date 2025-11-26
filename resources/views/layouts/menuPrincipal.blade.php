@@ -47,120 +47,151 @@
 
         <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
             <ul class="navbar-nav">
+                @auth
+                    @php
+                        $user = Auth::user();
+                        $role = $user->getRole();
+                    @endphp
 
-                <!-- Menú desplegable de AGREGAR -->
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="agregarDropdown" role="button"
-                       data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-plus-circle me-1"></i>Agregar
-                    </a>
-                    <ul class="dropdown-menu" aria-labelledby="agregarDropdown">
-                        <li>
-                            <a class="dropdown-item" href="{{ route('agregar.unidades') }}">
-                                <i class="bi bi-bus-front me-2"></i>Unidades
+                    @if($role === 'administrador')
+                        <!-- Menú desplegable de AGREGAR - Solo Administrador -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="agregarDropdown" role="button"
+                               data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-plus-circle me-1"></i>Agregar
                             </a>
+                            <ul class="dropdown-menu" aria-labelledby="agregarDropdown">
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('agregar.unidades') }}">
+                                        <i class="bi bi-bus-front me-2"></i>Unidades
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('agregar.operadores') }}">
+                                        <i class="bi bi-person-badge me-2"></i>Operadores
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('agregar.rutas') }}">
+                                        <i class="bi bi-signpost-split me-2"></i>Rutas
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('agregar.horarios') }}">
+                                        <i class="bi bi-clock me-2"></i>Horarios
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('agregar.tincidente') }}">
+                                        <i class="bi bi-exclamation-triangle me-2"></i>Incidentes
+                                    </a>
+                                </li>
+                            </ul>
                         </li>
-                        <li>
-                            <a class="dropdown-item" href="{{ route('agregar.operadores') }}">
-                                <i class="bi bi-person-badge me-2"></i>Operadores
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item" href="{{ route('agregar.rutas') }}">
-                                <i class="bi bi-signpost-split me-2"></i>Rutas
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item" href="{{ route('agregar.horarios') }}">
-                                <i class="bi bi-clock me-2"></i>Horarios
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item" href="{{ route('agregar.tincidente') }}">
-                                <i class="bi bi-exclamation-triangle me-2"></i>Incidentes
-                            </a>
-                        </li>
-                    </ul>
-                </li>
 
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('inicio') }}">
-                        <i class="bi bi-clipboard-check me-1"></i>Asignación
-                    </a>
-                </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('asignar') }}">
+                                <i class="bi bi-clipboard-check me-1"></i>Asignación
+                            </a>
+                        </li>
 
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('finanzas') }}">
-                        <i class="bi bi-calculator me-1"></i>Finanzas
-                    </a>
-                </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('monitoreo') }}">
+                                <i class="bi bi-graph-up me-1"></i>Monitoreo
+                            </a>
+                        </li>
 
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('incidentes') }}">
-                        <i class="bi bi-exclamation-triangle me-1"></i>Incidentes
-                    </a>
-                </li>
+                          <li class="nav-item">
+                            <a class="nav-link" href="{{ route('finanzas') }}">
+                                <i class="bi bi-calculator me-1"></i>Finanzas
+                            </a>
+                        </li>
 
-                <!-- Menú desplegable de MANTENIMIENTO -->
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="mantenimientoDropdown" role="button"
-                       data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-tools me-1"></i>Mantenimiento
-                    </a>
-                    <ul class="dropdown-menu" aria-labelledby="mantenimientoDropdown">
-                        <li>
-                            <a class="dropdown-item" href="{{ route('mantenimiento.m-programado') }}">
-                                <i class="bi bi-calendar-check me-2"></i>Mantenimiento Programado
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item" href="{{ route('mantenimiento.m-realizado') }}">
-                                <i class="bi bi-check-circle me-2"></i>Mantenimiento Realizado
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item" href="{{ route('mantenimiento.m-alertas') }}">
-                                <i class="bi bi-bell me-2"></i>Alertas de Mantenimiento
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item" href="{{ route('mantenimiento.m-historial') }}">
-                                <i class="bi bi-clock-history me-2"></i>Historial de Mantenimiento
-                            </a>
-                        </li>
-                    </ul>
-                </li>
 
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('monitoreo') }}">
-                        <i class="bi bi-graph-up me-1"></i>Monitoreo
-                    </a>
-                </li>
+                        <!-- Menú desplegable de MANTENIMIENTO - Solo Administrador -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="mantenimientoDropdown" role="button"
+                               data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-tools me-1"></i>Mantenimiento
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="mantenimientoDropdown">
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('mantenimiento.m-programado') }}">
+                                        <i class="bi bi-calendar-check me-2"></i>Mantenimiento Programado
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('mantenimiento.m-historial') }}">
+                                        <i class="bi bi-clock-history me-2"></i>Historial de Mantenimiento
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('mantenimiento.m-alertas') }}">
+                                        <i class="bi bi-bell me-2"></i>Alertas de Mantenimiento
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
 
-                <!-- Menú desplegable de PASAJERO -->
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="pasajeroDropdown" role="button"
-                       data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-people me-1"></i>Pasajero
-                    </a>
-                    <ul class="dropdown-menu" aria-labelledby="pasajeroDropdown">
-                        <li>
-                            <a class="dropdown-item" href="{{ route('pasajero.p-registro') }}">
-                                <i class="bi bi-person-plus me-2"></i>Registro de Pasajeros
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('pasajero.p-registro') }}">
+                                <i class="bi bi-person-plus me-1"></i>Registro de Pasajeros
                             </a>
                         </li>
-                        <li>
-                            <a class="dropdown-item" href="{{ route('pasajero.p-historial') }}">
-                                <i class="bi bi-clock-history me-2"></i>Historial de Viajes
+
+                    @elseif($role === 'operador')
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('incidentes') }}">
+                                <i class="bi bi-exclamation-triangle me-1"></i>Registrar Incidentes
                             </a>
                         </li>
-                        <li>
-                            <a class="dropdown-item" href="{{ route('pasajero.p-queja-sugerencia') }}">
-                                <i class="bi bi-chat-left-text me-2"></i>Quejas y Sugerencias
+
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('mantenimiento.m-programado') }}">
+                                <i class="bi bi-calendar-check me-1"></i>Mantenimiento Programado
                             </a>
                         </li>
-                    </ul>
-                </li>
+
+                    @elseif($role === 'supervisor')
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('mantenimiento.m-realizado') }}">
+                                <i class="bi bi-check-circle me-1"></i>Seguimiento de Incidentes
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('mantenimiento.m-programado') }}">
+                                <i class="bi bi-calendar-check me-1"></i>Mantenimiento Programado
+                            </a>
+                        </li>
+
+                    @elseif($role === 'contador')
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('finanzas') }}">
+                                <i class="bi bi-calculator me-1"></i>Finanzas
+                            </a>
+                        </li>
+
+                    @elseif($role === 'pasajero')
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('pasajero.p-registro') }}">
+                                <i class="bi bi-person-plus me-1"></i>Registro de Pasajero
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('pasajero.p-historial') }}">
+                                <i class="bi bi-clock-history me-1"></i>Historial de Viajes
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('pasajero.p-queja-sugerencia') }}">
+                                <i class="bi bi-chat-left-text me-1"></i>Quejas y Sugerencias
+                            </a>
+                        </li>
+                    @endif
+                @endauth
 
                 <!-- Menú desplegable de USUARIO -->
                 @auth
@@ -179,6 +210,18 @@
                                             <strong>{{ Auth::user()->name }}</strong>
                                             <br>
                                             <small class="text-muted">{{ Auth::user()->email }}</small>
+                                            <br>
+                                            @php
+                                                $role = Auth::user()->getRole();
+                                                $roleNames = [
+                                                    'administrador' => 'Administrador',
+                                                    'contador' => 'Contador',
+                                                    'operador' => 'Operador',
+                                                    'supervisor' => 'Supervisor',
+                                                    'pasajero' => 'Pasajero'
+                                                ];
+                                            @endphp
+                                            <small class="badge bg-primary mt-1">{{ $roleNames[$role] ?? 'Usuario' }}</small>
                                         </div>
                                     </div>
                                 </div>
