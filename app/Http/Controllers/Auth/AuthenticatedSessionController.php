@@ -36,6 +36,7 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        // Todos los usuarios van a la página de bienvenida
         return redirect()->intended('/inicio');
     }
 
