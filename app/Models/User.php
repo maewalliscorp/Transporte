@@ -72,4 +72,78 @@ class User extends Authenticatable
             }
         }
     }
+
+
+    /**
+     * Verificar si el usuario es administrador
+     */
+    public function isAdministrador(): bool
+    {
+        return \Illuminate\Support\Facades\DB::table('administrador')
+            ->where('id', $this->id)
+            ->exists();
+    }
+
+    /**
+     * Verificar si el usuario es contador
+     */
+    public function isContador(): bool
+    {
+        return \Illuminate\Support\Facades\DB::table('contador')
+            ->where('id', $this->id)
+            ->exists();
+    }
+
+    /**
+     * Verificar si el usuario es operador
+     */
+    public function isOperador(): bool
+    {
+        return \Illuminate\Support\Facades\DB::table('operador')
+            ->where('id', $this->id)
+            ->exists();
+    }
+
+    /**
+     * Verificar si el usuario es supervisor
+     */
+    public function isSupervisor(): bool
+    {
+        return \Illuminate\Support\Facades\DB::table('supervisor')
+            ->where('id', $this->id)
+            ->exists();
+    }
+
+    /**
+     * Verificar si el usuario es pasajero
+     */
+    public function isPasajero(): bool
+    {
+        return \Illuminate\Support\Facades\DB::table('pasajero')
+            ->where('id', $this->id)
+            ->exists();
+    }
+
+    /**
+     * Obtener el rol del usuario
+     */
+    public function getRole(): ?string
+    {
+        if ($this->isAdministrador()) {
+            return 'administrador';
+        }
+        if ($this->isContador()) {
+            return 'contador';
+        }
+        if ($this->isOperador()) {
+            return 'operador';
+        }
+        if ($this->isSupervisor()) {
+            return 'supervisor';
+        }
+        if ($this->isPasajero()) {
+            return 'pasajero';
+        }
+        return null;
+    }
 }
