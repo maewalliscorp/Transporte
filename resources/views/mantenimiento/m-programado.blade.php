@@ -30,7 +30,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h4><i class="bi bi-calendar-check me-2"></i>Mantenimiento Programado</h4>
         <div>
-            <a href="{{ route('inicio') }}" class="btn btn-info me-2">
+            <a href="{{ route('asignar') }}" class="btn btn-info me-2">
                 <i class="bi bi-table"></i> Ir a tabla de disponibilidad
             </a>
             <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalProgramacion">
