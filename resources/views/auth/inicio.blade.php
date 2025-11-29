@@ -171,4 +171,4 @@
 
 </body>
 </html>
-//no tiene ciertos permisos administrador y operador
+
