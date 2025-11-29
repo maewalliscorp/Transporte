@@ -130,7 +130,12 @@
 </head>
 <body>
 
-<!-- AQUI MI MENÚ (NAVBAR) -->
+@php
+    $role = Auth::user()->getRole();
+    $isAdmin = $role === 'administrador';
+@endphp
+
+    <!-- AQUI MI MENÚ (NAVBAR) -->
 @include('layouts.menuPrincipal')
 
 <div class="container mt-4">
@@ -144,6 +149,13 @@
             <p class="text-muted">Administra las asignaciones de unidades, operadores y rutas</p>
         </div>
     </div>
+
+    @unless($isAdmin)
+        <div class="alert alert-warning d-flex align-items-center" role="alert">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            No tienes permisos para agregar o modificar asignaciones. Solo puedes visualizar la información.
+        </div>
+    @endunless
 
     <!-- Filtro de vista -->
     <div class="filter-section">
@@ -165,9 +177,15 @@
             </div>
             <div class="col-md-6 text-end">
                 <div id="botonAsignarContainer">
-                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAsignar">
-                        <i class="bi bi-plus-circle me-1"></i> Nueva Asignación
-                    </button>
+                    @if($isAdmin)
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAsignar">
+                            <i class="bi bi-plus-circle me-1"></i> Nueva Asignación
+                        </button>
+                    @else
+                        <span class="badge bg-secondary">
+                            <i class="bi bi-lock me-1"></i>Sin permisos para agregar
+                        </span>
+                    @endif
                 </div>
             </div>
         </div>
@@ -522,7 +540,7 @@
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                     <i class="bi bi-x-circle me-1"></i>Cancelar
                 </button>
-                <button type="button" class="btn btn-primary" onclick="procesarAsignacion()" id="btnConfirmar">
+                <button type="button" class="btn btn-primary" onclick="procesarAsignacion()" id="btnConfirmar" @unless($isAdmin) disabled @endunless>
                     <i class="bi bi-check-circle me-1"></i>Confirmar Asignación
                 </button>
             </div>
@@ -630,6 +648,8 @@
         });
     }
 
+    const canManageAsignaciones = {{ $isAdmin ? 'true' : 'false' }};
+
     // Cambiar entre tablas de 'disponibles' y 'asignados'
     $('#verDisponibles, #verAsignados').change(function() {
         actualizarVista();
@@ -682,6 +702,16 @@
 
     // Función para procesar la asignación
     function procesarAsignacion() {
+        if (!canManageAsignaciones) {
+            Swal.fire({
+                position: "center",
+                icon: "warning",
+                title: "Sin permisos",
+                text: "No tienes permisos para agregar asignaciones. Contacta al administrador.",
+                showConfirmButton: true,
+            });
+            return;
+        }
         // Obtener los valores seleccionados
         const unidad = $('#unidadModal').val();
         const operador = $('#operadorModal').val();
@@ -736,6 +766,9 @@
 
     // Función para realizar la asignación
     function realizarAsignacion(unidad, operador, ruta, fecha, hora) {
+        if (!canManageAsignaciones) {
+            return;
+        }
 
         // Crear objeto con los datos
         const datosAsignacion = {
