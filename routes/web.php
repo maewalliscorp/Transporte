@@ -38,8 +38,6 @@ Route::middleware('auth')->group(function () {
 
     // ========== RUTAS PARA ADMINISTRADOR ==========
     Route::middleware('role:administrador')->group(function () {
-        // Asignación
-        Route::get('/asignar', [AsignarController::class, 'index'])->name('asignar');
         Route::post('/asignar/asignar', [AsignarController::class, 'asignar'])->name('asignar.store');
 
         // Monitoreo
@@ -91,21 +89,7 @@ Route::middleware('auth')->group(function () {
         Route::put('/tincidente/{id}', [TincidenteController::class, 'update'])->name('tincidente.update');
         Route::delete('/tincidente/{id}', [TincidenteController::class, 'destroy'])->name('tincidente.destroy');
 
-        // Finanzas
-        Route::get('/finanzas', [FinanzasController::class, 'index'])->name('finanzas');
-        Route::post('/finanzas/ingresos', [FinanzasController::class, 'storeIngreso'])->name('finanzas.ingresos.store');
-        Route::put('/finanzas/ingresos/{id}', [FinanzasController::class, 'updateIngreso'])->name('finanzas.ingresos.update');
-        Route::delete('/finanzas/ingresos/{id}', [FinanzasController::class, 'destroyIngreso'])->name('finanzas.ingresos.destroy');
-        Route::post('/finanzas/egresos', [FinanzasController::class, 'storeEgreso'])->name('finanzas.egresos.store');
-        Route::put('/finanzas/egresos/{id}', [FinanzasController::class, 'updateEgreso'])->name('finanzas.egresos.update');
-        Route::delete('/finanzas/egresos/{id}', [FinanzasController::class, 'destroyEgreso'])->name('finanzas.egresos.destroy');
-        Route::post('/finanzas/tarifas', [FinanzasController::class, 'storeTarifa'])->name('finanzas.tarifas.store');
-        Route::put('/finanzas/tarifas/{id}', [FinanzasController::class, 'updateTarifa'])->name('finanzas.tarifas.update');
-        Route::delete('/finanzas/tarifas/{id}', [FinanzasController::class, 'destroyTarifa'])->name('finanzas.tarifas.destroy');
-        Route::post('/finanzas/conciliaciones', [FinanzasController::class, 'storeConciliacion'])->name('finanzas.conciliaciones.store');
-
         // Mantenimiento
-        Route::get('/mantenimiento/m-programado', [MprogramadoController::class, 'index'])->name('mantenimiento.m-programado');
         Route::post('/mantenimiento/programado', [MprogramadoController::class, 'store']);
         Route::get('/mantenimiento/programado/{id}', [MprogramadoController::class, 'show']);
         Route::put('/mantenimiento/programado/{id}', [MprogramadoController::class, 'update']);
@@ -118,21 +102,13 @@ Route::middleware('auth')->group(function () {
         Route::get('/mantenimiento/alerta/{id}', [MalertasController::class, 'show']);
         Route::put('/mantenimiento/alerta/{id}', [MalertasController::class, 'update']);
         Route::delete('/mantenimiento/alerta/{id}', [MalertasController::class, 'destroy']);
-
-        // Registro de Pasajeros
-        Route::get('/pasajero/p-registro', [PregistroController::class, 'index'])->name('pasajero.p-registro');
-        Route::post('/pasajero/registro', [PregistroController::class, 'store'])->name('pasajero.registro.store');
     });
 
     // ========== RUTAS PARA OPERADOR ==========
     Route::middleware('role:operador')->group(function () {
-        // Registrar Incidentes
-        Route::get('/incidentes', [IncidentesController::class, 'index'])->name('incidentes');
         Route::post('/incidentes', [IncidentesController::class, 'store'])->name('incidentes.store');
         Route::get('/incidentes/{id}', [IncidentesController::class, 'show'])->name('incidentes.show');
 
-        // Mantenimiento Programado
-        Route::get('/mantenimiento/m-programado', [MprogramadoController::class, 'index'])->name('mantenimiento.m-programado');
     });
 
     // ========== RUTAS PARA SUPERVISOR ==========
@@ -144,19 +120,32 @@ Route::middleware('auth')->group(function () {
         Route::put('/mantenimiento/realizado/{id}', [MrealizadoController::class, 'update']);
         Route::delete('/mantenimiento/realizado/{id}', [MrealizadoController::class, 'destroy']);
 
-        // Mantenimiento Programado
-        Route::get('/mantenimiento/m-programado', [MprogramadoController::class, 'index'])->name('mantenimiento.m-programado');
-
         // Resolver incidentes
-        Route::get('/incidentes', [IncidentesController::class, 'index'])->name('incidentes');
         Route::put('/incidentes/{id}', [IncidentesController::class, 'update'])->name('incidentes.update');
         Route::post('/incidentes/solucionar', [IncidentesController::class, 'solucionar'])->name('incidentes.solucionar');
         Route::post('/incidentes/{id}/solucionar', [IncidentesController::class, 'solucionar'])->name('incidentes.solucionar');
     });
 
-    // ========== RUTAS PARA CONTADOR ==========
-    Route::middleware('role:contador')->group(function () {
-        // Finanzas
+    // ========== RUTAS PARA PASAJERO ==========
+    Route::middleware('role:pasajero')->group(function () {
+        // Historial de Viajes
+        Route::get('/pasajero/p-historial', [PhistorialController::class, 'index'])->name('pasajero.p-historial');
+        Route::get('/pasajero/historial/data', [PhistorialController::class, 'getHistorial'])->name('pasajero.historial.data');
+
+        // Quejas y Sugerencias
+        Route::get('/pasajero/p-quejas', [PquejasugerenciaController::class, 'index'])->name('pasajero.p-queja-sugerencia');
+        Route::post('/pasajero/quejas', [PquejasugerenciaController::class, 'store'])->name('pasajero.quejas.store');
+    });
+
+    // ========== RUTAS COMPARTIDAS ==========
+
+    // Asignaciones: Administrador y Supervisor (solo vista)
+    Route::middleware('role:administrador,supervisor')->group(function () {
+        Route::get('/asignar', [AsignarController::class, 'index'])->name('asignar');
+    });
+
+    // Finanzas: Administrador y Contador
+    Route::middleware('role:administrador,contador')->group(function () {
         Route::get('/finanzas', [FinanzasController::class, 'index'])->name('finanzas');
         Route::post('/finanzas/ingresos', [FinanzasController::class, 'storeIngreso'])->name('finanzas.ingresos.store');
         Route::put('/finanzas/ingresos/{id}', [FinanzasController::class, 'updateIngreso'])->name('finanzas.ingresos.update');
@@ -170,19 +159,20 @@ Route::middleware('auth')->group(function () {
         Route::post('/finanzas/conciliaciones', [FinanzasController::class, 'storeConciliacion'])->name('finanzas.conciliaciones.store');
     });
 
-    // ========== RUTAS PARA PASAJERO ==========
-    Route::middleware('role:pasajero')->group(function () {
-        // Registro de Pasajero
+    // Registro de Pasajeros: Administrador y Pasajero
+    Route::middleware('role:administrador,pasajero')->group(function () {
         Route::get('/pasajero/p-registro', [PregistroController::class, 'index'])->name('pasajero.p-registro');
         Route::post('/pasajero/registro', [PregistroController::class, 'store'])->name('pasajero.registro.store');
+    });
 
-        // Historial de Viajes
-        Route::get('/pasajero/p-historial', [PhistorialController::class, 'index'])->name('pasajero.p-historial');
-        Route::get('/pasajero/historial/data', [PhistorialController::class, 'getHistorial'])->name('pasajero.historial.data');
+    // Mantenimiento programado: Administrador, Operador y Supervisor
+    Route::middleware('role:administrador,operador,supervisor')->group(function () {
+        Route::get('/mantenimiento/m-programado', [MprogramadoController::class, 'index'])->name('mantenimiento.m-programado');
+    });
 
-        // Quejas y Sugerencias
-        Route::get('/pasajero/p-quejas', [PquejasugerenciaController::class, 'index'])->name('pasajero.p-queja-sugerencia');
-        Route::post('/pasajero/quejas', [PquejasugerenciaController::class, 'store'])->name('pasajero.quejas.store');
+    // Consulta de incidentes: Operador y Supervisor
+    Route::middleware('role:operador,supervisor')->group(function () {
+        Route::get('/incidentes', [IncidentesController::class, 'index'])->name('incidentes');
     });
 });
 
