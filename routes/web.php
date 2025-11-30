@@ -113,13 +113,6 @@ Route::middleware('auth')->group(function () {
 
     // ========== RUTAS PARA SUPERVISOR ==========
     Route::middleware('role:supervisor')->group(function () {
-        // Seguimiento y resolución de incidentes
-        Route::get('/mantenimiento/m-realizado', [MrealizadoController::class, 'index'])->name('mantenimiento.m-realizado');
-        Route::post('/mantenimiento/realizado', [MrealizadoController::class, 'store']);
-        Route::get('/mantenimiento/realizado/{id}', [MrealizadoController::class, 'show']);
-        Route::put('/mantenimiento/realizado/{id}', [MrealizadoController::class, 'update']);
-        Route::delete('/mantenimiento/realizado/{id}', [MrealizadoController::class, 'destroy']);
-
         // Resolver incidentes
         Route::put('/incidentes/{id}', [IncidentesController::class, 'update'])->name('incidentes.update');
         Route::post('/incidentes/solucionar', [IncidentesController::class, 'solucionar'])->name('incidentes.solucionar');
@@ -168,6 +161,15 @@ Route::middleware('auth')->group(function () {
     // Mantenimiento programado: Administrador, Operador y Supervisor
     Route::middleware('role:administrador,operador,supervisor')->group(function () {
         Route::get('/mantenimiento/m-programado', [MprogramadoController::class, 'index'])->name('mantenimiento.m-programado');
+    });
+
+    // Mantenimiento realizado: Administrador y Supervisor
+    Route::middleware('role:administrador,supervisor')->group(function () {
+        Route::get('/mantenimiento/m-realizado', [MrealizadoController::class, 'index'])->name('mantenimiento.m-realizado');
+        Route::post('/mantenimiento/realizado', [MrealizadoController::class, 'store']);
+        Route::get('/mantenimiento/realizado/{id}', [MrealizadoController::class, 'show']);
+        Route::put('/mantenimiento/realizado/{id}', [MrealizadoController::class, 'update']);
+        Route::delete('/mantenimiento/realizado/{id}', [MrealizadoController::class, 'destroy']);
     });
 
     // Consulta de incidentes: Operador y Supervisor

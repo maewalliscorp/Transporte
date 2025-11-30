@@ -121,6 +121,11 @@
                                     </a>
                                 </li>
                                 <li>
+                                    <a class="dropdown-item" href="{{ route('mantenimiento.m-realizado') }}">
+                                        <i class="bi bi-check-circle me-2"></i>Mantenimiento Realizado
+                                    </a>
+                                </li>
+                                <li>
                                     <a class="dropdown-item" href="{{ route('mantenimiento.m-historial') }}">
                                         <i class="bi bi-clock-history me-2"></i>Historial de Mantenimiento
                                     </a>
