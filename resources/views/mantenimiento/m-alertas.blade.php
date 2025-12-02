@@ -118,17 +118,22 @@
                                 <td>{{ $alerta['fechaProxMantenimiento'] ? \Carbon\Carbon::parse($alerta['fechaProxMantenimiento'])->format('d/m/Y') : 'N/A' }}</td>
                                 <td>{{ $alerta['incidenteReportado'] ?? 'Ninguno' }}</td>
                                 <td>
-                                    @if(isset($alerta['estadoAlerta']))
-                                        @if($alerta['estadoAlerta'] == 'urgente')
+                                    @php
+                                        $estadoAlerta = strtolower($alerta['estadoAlerta'] ?? '');
+                                    @endphp
+                                    @switch($estadoAlerta)
+                                        @case('urgente')
                                             <span class="badge bg-danger">Urgente</span>
-                                        @elseif($alerta['estadoAlerta'] == 'activa')
-                                            <span class="badge bg-warning">Activa</span>
-                                        @else
-                                            <span class="badge bg-info">Pendiente</span>
-                                        @endif
-                                    @else
-                                        <span class="badge bg-secondary">N/A</span>
-                                    @endif
+                                            @break
+                                        @case('activa')
+                                            <span class="badge bg-warning text-dark">Activa</span>
+                                            @break
+                                        @case('pendiente')
+                                            <span class="badge bg-info text-dark">Pendiente</span>
+                                            @break
+                                        @default
+                                            <span class="badge bg-secondary">{{ $alerta['estadoAlerta'] ?? 'N/A' }}</span>
+                                    @endswitch
                                 </td>
                                 <td>
                                     <div class="btn-group btn-group-sm">
