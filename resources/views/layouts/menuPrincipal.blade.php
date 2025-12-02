@@ -170,6 +170,12 @@
                             </a>
                         </li>
 
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('mantenimiento.m-alertas') }}">
+                                <i class="bi bi-bell me-1"></i>Alertas de Mantenimiento
+                            </a>
+                        </li>
+
                     @elseif($role === 'contador')
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('finanzas') }}">

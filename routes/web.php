@@ -96,12 +96,6 @@ Route::middleware('auth')->group(function () {
         Route::delete('/mantenimiento/programado/{id}', [MprogramadoController::class, 'destroy']);
 
         Route::get('/mantenimiento/m-historial', [MhistorialController::class, 'index'])->name('mantenimiento.m-historial');
-
-        Route::get('/mantenimiento/m-alertas', [MalertasController::class, 'index'])->name('mantenimiento.m-alertas');
-        Route::post('/mantenimiento/alerta', [MalertasController::class, 'store']);
-        Route::get('/mantenimiento/alerta/{id}', [MalertasController::class, 'show']);
-        Route::put('/mantenimiento/alerta/{id}', [MalertasController::class, 'update']);
-        Route::delete('/mantenimiento/alerta/{id}', [MalertasController::class, 'destroy']);
     });
 
     // ========== RUTAS PARA OPERADOR ==========
@@ -137,19 +131,28 @@ Route::middleware('auth')->group(function () {
         Route::get('/asignar', [AsignarController::class, 'index'])->name('asignar');
     });
 
-    // Finanzas: Administrador y Contador
+    // Finanzas: Administrador (solo tarifas) y Contador (todo)
     Route::middleware('role:administrador,contador')->group(function () {
         Route::get('/finanzas', [FinanzasController::class, 'index'])->name('finanzas');
+    });
+
+    // Tarifas: Solo Administrador
+    Route::middleware('role:administrador')->group(function () {
+        Route::post('/finanzas/tarifas', [FinanzasController::class, 'storeTarifa'])->name('finanzas.tarifas.store');
+        Route::put('/finanzas/tarifas/{id}', [FinanzasController::class, 'updateTarifa'])->name('finanzas.tarifas.update');
+        Route::delete('/finanzas/tarifas/{id}', [FinanzasController::class, 'destroyTarifa'])->name('finanzas.tarifas.destroy');
+    });
+
+    // Finanzas completas: Solo Contador
+    Route::middleware('role:contador')->group(function () {
         Route::post('/finanzas/ingresos', [FinanzasController::class, 'storeIngreso'])->name('finanzas.ingresos.store');
         Route::put('/finanzas/ingresos/{id}', [FinanzasController::class, 'updateIngreso'])->name('finanzas.ingresos.update');
         Route::delete('/finanzas/ingresos/{id}', [FinanzasController::class, 'destroyIngreso'])->name('finanzas.ingresos.destroy');
         Route::post('/finanzas/egresos', [FinanzasController::class, 'storeEgreso'])->name('finanzas.egresos.store');
         Route::put('/finanzas/egresos/{id}', [FinanzasController::class, 'updateEgreso'])->name('finanzas.egresos.update');
         Route::delete('/finanzas/egresos/{id}', [FinanzasController::class, 'destroyEgreso'])->name('finanzas.egresos.destroy');
-        Route::post('/finanzas/tarifas', [FinanzasController::class, 'storeTarifa'])->name('finanzas.tarifas.store');
-        Route::put('/finanzas/tarifas/{id}', [FinanzasController::class, 'updateTarifa'])->name('finanzas.tarifas.update');
-        Route::delete('/finanzas/tarifas/{id}', [FinanzasController::class, 'destroyTarifa'])->name('finanzas.tarifas.destroy');
         Route::post('/finanzas/conciliaciones', [FinanzasController::class, 'storeConciliacion'])->name('finanzas.conciliaciones.store');
+        Route::post('/finanzas/conciliaciones/importar', [FinanzasController::class, 'importarConciliacion'])->name('finanzas.conciliaciones.importar');
     });
 
     // Registro de Pasajeros: Administrador y Pasajero
@@ -175,6 +178,15 @@ Route::middleware('auth')->group(function () {
     // Consulta de incidentes: Operador y Supervisor
     Route::middleware('role:operador,supervisor')->group(function () {
         Route::get('/incidentes', [IncidentesController::class, 'index'])->name('incidentes');
+    });
+
+    // Alertas de mantenimiento: Administrador y Supervisor (ambos con permisos completos)
+    Route::middleware('role:administrador,supervisor')->group(function () {
+        Route::get('/mantenimiento/m-alertas', [MalertasController::class, 'index'])->name('mantenimiento.m-alertas');
+        Route::post('/mantenimiento/alerta', [MalertasController::class, 'store']);
+        Route::get('/mantenimiento/alerta/{id}', [MalertasController::class, 'show']);
+        Route::put('/mantenimiento/alerta/{id}', [MalertasController::class, 'update']);
+        Route::delete('/mantenimiento/alerta/{id}', [MalertasController::class, 'destroy']);
     });
 });
 
