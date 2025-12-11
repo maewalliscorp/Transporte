@@ -33,11 +33,11 @@ return [
 
         'mysql' => [
             'driver' => 'mysql',
-            'host' => 'caboose.proxy.rlwy.net',
-            'port' => '12329',
+            'host' => 'crossover.proxy.rlwy.net',
+            'port' => '20255',
             'database' => 'railway',
             'username' => 'root',
-            'password' =>'NqikumUIuAsqyqeXIiyKFZsqcKQCstuK',
+            'password' =>'qfUPehVvkPBdbYAZcBFpwMdrBmZLLtSB',
             'unix_socket' => '',
             'charset' => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
