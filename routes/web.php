@@ -128,7 +128,7 @@ Route::middleware('auth')->group(function () {
     // ========== RUTAS COMPARTIDAS ==========
 
     // Asignaciones: Administrador y Supervisor (solo vista)
-    Route::middleware('role:administrador,supervisor')->group(function () {
+    Route::middleware('role:administrador,supervisor,operador')->group(function () {
         Route::get('/asignar', [AsignarController::class, 'index'])->name('asignar');
     });
 
